@@ -1,21 +1,10 @@
 <template>
   <q-layout view="hHh lpR fFf" class="l-layout">
     <!-- Header (minimal, transparent for game) -->
-    <q-header
-      v-if="showHeader"
-      class="l-layout__header"
-      :class="{ 'bg-transparent': isGamePage }"
-    >
+    <q-header v-if="showHeader" class="l-layout__header" :class="{ 'bg-transparent': isGamePage }">
       <q-toolbar class="l-layout__toolbar">
         <!-- Back button -->
-        <q-btn
-          v-if="showBack"
-          flat
-          dense
-          round
-          icon="mdi-arrow-left"
-          @click="goBack"
-        />
+        <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
 
         <!-- Title -->
         <q-toolbar-title v-if="pageTitle" class="text-weight-medium">
@@ -28,14 +17,7 @@
         <l-theme-toggle />
 
         <!-- Menu button -->
-        <q-btn
-          v-if="showMenu"
-          flat
-          dense
-          round
-          icon="mdi-dots-vertical"
-          @click="openMenu"
-        >
+        <q-btn v-if="showMenu" flat dense round icon="mdi-dots-vertical" @click="openMenu">
           <q-menu anchor="bottom right" self="top right">
             <q-list style="min-width: 180px">
               <q-item clickable v-close-popup @click="navigateTo('/profile')">

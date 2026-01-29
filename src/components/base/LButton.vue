@@ -129,7 +129,7 @@ function handleClick(event: MouseEvent) {
 
   // Variants
   &--primary {
-    background: linear-gradient(135deg, var(--lila-primary), darken(#6B46C1, 10%));
+    background: linear-gradient(135deg, var(--lila-primary), darken(#6b46c1, 10%));
     color: white;
 
     &:hover:not(:disabled) {
@@ -162,7 +162,7 @@ function handleClick(event: MouseEvent) {
   }
 
   &--danger {
-    background: linear-gradient(135deg, var(--lila-error), darken(#EF4444, 10%));
+    background: linear-gradient(135deg, var(--lila-error), darken(#ef4444, 10%));
     color: white;
 
     &:hover:not(:disabled) {

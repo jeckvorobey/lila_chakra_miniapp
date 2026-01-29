@@ -3,26 +3,9 @@
     <!-- Zoom controls -->
     <div class="l-board__controls">
       <q-btn-group flat class="l-board__zoom-controls">
-        <q-btn
-          flat
-          dense
-          icon="mdi-minus"
-          :disable="zoom <= 0.5"
-          @click="zoomOut"
-        />
-        <q-btn
-          flat
-          dense
-          icon="mdi-magnify-scan"
-          @click="resetZoom"
-        />
-        <q-btn
-          flat
-          dense
-          icon="mdi-plus"
-          :disable="zoom >= 2"
-          @click="zoomIn"
-        />
+        <q-btn flat dense icon="mdi-minus" :disable="zoom <= 0.5" @click="zoomOut" />
+        <q-btn flat dense icon="mdi-magnify-scan" @click="resetZoom" />
+        <q-btn flat dense icon="mdi-plus" :disable="zoom >= 2" @click="zoomIn" />
       </q-btn-group>
     </div>
 
@@ -72,17 +55,11 @@
         <svg v-if="showTransitions" class="l-board__transitions">
           <!-- Arrows -->
           <g v-for="(target, start) in ARROWS" :key="`arrow-${start}`">
-            <path
-              :d="getTransitionPath(Number(start), target)"
-              class="l-board__arrow-path"
-            />
+            <path :d="getTransitionPath(Number(start), target)" class="l-board__arrow-path" />
           </g>
           <!-- Snakes -->
           <g v-for="(target, start) in SNAKES" :key="`snake-${start}`">
-            <path
-              :d="getTransitionPath(Number(start), target)"
-              class="l-board__snake-path"
-            />
+            <path :d="getTransitionPath(Number(start), target)" class="l-board__snake-path" />
           </g>
         </svg>
 
@@ -284,7 +261,7 @@ watch(
     if (newCell > 0 && scrollArea.value) {
       // Scroll logic would go here
     }
-  }
+  },
 );
 </script>
 

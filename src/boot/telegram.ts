@@ -106,17 +106,14 @@ interface TelegramWebApp {
         text?: string;
       }>;
     },
-    callback?: (buttonId: string) => void
+    callback?: (buttonId: string) => void,
   ): void;
 
   showAlert(message: string, callback?: () => void): void;
   showConfirm(message: string, callback?: (ok: boolean) => void): void;
 
   // QR Scanner
-  showScanQrPopup(
-    params: { text?: string },
-    callback?: (text: string) => void
-  ): void;
+  showScanQrPopup(params: { text?: string }, callback?: (text: string) => void): void;
   closeScanQrPopup(): void;
 
   // Clipboard

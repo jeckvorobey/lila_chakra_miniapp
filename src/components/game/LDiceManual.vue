@@ -8,10 +8,7 @@
       <q-btn
         v-for="value in 6"
         :key="value"
-        :class="[
-          'l-dice-manual__btn',
-          { 'l-dice-manual__btn--selected': selected === value },
-        ]"
+        :class="['l-dice-manual__btn', { 'l-dice-manual__btn--selected': selected === value }]"
         :outline="selected !== value"
         :unelevated="selected === value"
         :color="selected === value ? 'primary' : undefined"

@@ -1,10 +1,5 @@
 <template>
-  <div
-    :class="cellClasses"
-    :style="cellStyle"
-    @click="handleClick"
-    @long-press="handleLongPress"
-  >
+  <div :class="cellClasses" :style="cellStyle" @click="handleClick" @long-press="handleLongPress">
     <!-- Cell number -->
     <span class="l-cell__number">{{ cellId }}</span>
 
@@ -28,12 +23,7 @@
     </div>
 
     <!-- Tooltip on hover/tap -->
-    <q-tooltip
-      v-if="showTooltip"
-      anchor="top middle"
-      self="bottom middle"
-      class="l-cell__tooltip"
-    >
+    <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
       <div class="text-weight-medium">{{ cellName }}</div>
       <div v-if="isArrow" class="text-caption text-positive">
         {{ $t('transition.arrow_to') }} {{ arrowTarget }}
@@ -196,11 +186,7 @@ function handleLongPress() {
 
   // Winning cell (68)
   &--winning {
-    background: linear-gradient(
-      135deg,
-      rgba(251, 191, 36, 0.3),
-      rgba(147, 51, 234, 0.3)
-    );
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(147, 51, 234, 0.3));
     border-color: var(--chakra-8);
     box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
   }

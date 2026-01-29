@@ -108,11 +108,9 @@ const isLoading = ref(false);
 const filteredGames = computed(() => {
   if (filter.value === 'all') return games.value;
   if (filter.value === 'active') {
-    return games.value.filter(g =>
-      g.status === 'WAITING_FOR_6' || g.status === 'IN_PROGRESS'
-    );
+    return games.value.filter((g) => g.status === 'WAITING_FOR_6' || g.status === 'IN_PROGRESS');
   }
-  return games.value.filter(g => g.status === 'COMPLETED');
+  return games.value.filter((g) => g.status === 'COMPLETED');
 });
 
 function getStatusColor(status: GameStatus): string {

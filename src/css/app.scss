@@ -7,33 +7,33 @@
 // CSS Custom Properties (Theme Variables)
 :root {
   // Dark Theme (Default)
-  --lila-bg: #0F0D1A;
-  --lila-surface: #1A1625;
+  --lila-bg: #0f0d1a;
+  --lila-surface: #1a1625;
   --lila-surface-elevated: #252136;
-  --lila-text-primary: #F5F5F4;
-  --lila-text-secondary: #A1A1AA;
+  --lila-text-primary: #f5f5f4;
+  --lila-text-secondary: #a1a1aa;
   --lila-border: rgba(255, 255, 255, 0.1);
 
   // Primary Colors
-  --lila-primary: #6B46C1;
-  --lila-secondary: #F6AD55;
-  --lila-accent: #38B2AC;
+  --lila-primary: #6b46c1;
+  --lila-secondary: #f6ad55;
+  --lila-accent: #38b2ac;
 
   // Status Colors
-  --lila-success: #22C55E;
-  --lila-warning: #F59E0B;
-  --lila-error: #EF4444;
-  --lila-info: #3B82F6;
+  --lila-success: #22c55e;
+  --lila-warning: #f59e0b;
+  --lila-error: #ef4444;
+  --lila-info: #3b82f6;
 
   // Chakra Colors
-  --chakra-1: #DC2626;  // Muladhara
-  --chakra-2: #EA580C;  // Svadhisthana
-  --chakra-3: #FBBF24;  // Manipura
-  --chakra-4: #22C55E;  // Anahata
-  --chakra-5: #0EA5E9;  // Vishuddha
-  --chakra-6: #4F46E5;  // Ajna
-  --chakra-7: #9333EA;  // Sahasrara
-  --chakra-8: #F5F5F4;  // Absolute
+  --chakra-1: #dc2626; // Muladhara
+  --chakra-2: #ea580c; // Svadhisthana
+  --chakra-3: #fbbf24; // Manipura
+  --chakra-4: #22c55e; // Anahata
+  --chakra-5: #0ea5e9; // Vishuddha
+  --chakra-6: #4f46e5; // Ajna
+  --chakra-7: #9333ea; // Sahasrara
+  --chakra-8: #f5f5f4; // Absolute
 
   // Effects
   --lila-glass-bg: rgba(26, 22, 37, 0.8);
@@ -62,11 +62,11 @@
 
 // Light Theme
 .body--light {
-  --lila-bg: #FAFAF9;
-  --lila-surface: #FFFFFF;
-  --lila-surface-elevated: #F5F5F4;
-  --lila-text-primary: #1C1917;
-  --lila-text-secondary: #57534E;
+  --lila-bg: #fafaf9;
+  --lila-surface: #ffffff;
+  --lila-surface-elevated: #f5f5f4;
+  --lila-text-primary: #1c1917;
+  --lila-text-secondary: #57534e;
   --lila-border: rgba(0, 0, 0, 0.08);
 
   // Effects (Light)
@@ -76,10 +76,10 @@
   --lila-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.04);
 
   // Adjusted Chakra Colors for Light Theme
-  --chakra-3: #D97706;  // Darker yellow
-  --chakra-4: #16A34A;  // Darker green
-  --chakra-5: #0284C7;  // Darker blue
-  --chakra-8: #1C1917;  // Dark for contrast
+  --chakra-3: #d97706; // Darker yellow
+  --chakra-4: #16a34a; // Darker green
+  --chakra-5: #0284c7; // Darker blue
+  --chakra-8: #1c1917; // Dark for contrast
 }
 
 // Global Styles
@@ -87,7 +87,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   font-family: var(--font-family);
   background-color: var(--lila-bg);
   color: var(--lila-text-primary);

@@ -60,7 +60,7 @@ watch(
       currentTab.value = 'profile';
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function onTabClick(tab: string) {

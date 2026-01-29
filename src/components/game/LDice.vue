@@ -129,7 +129,7 @@ watch(
         emit('roll-complete', newResult);
       }, 500);
     }
-  }
+  },
 );
 
 // Reset when rolling starts
@@ -140,7 +140,7 @@ watch(
       showResult.value = false;
       settingsStore.playSound('dice-roll');
     }
-  }
+  },
 );
 </script>
 
@@ -313,7 +313,8 @@ watch(
     transform: translateY(-20px) rotateX(720deg) rotateY(540deg) rotateZ(270deg);
   }
   100% {
-    transform: translateY(0) rotateX(var(--final-x, 720deg)) rotateY(var(--final-y, 720deg)) rotateZ(360deg);
+    transform: translateY(0) rotateX(var(--final-x, 720deg)) rotateY(var(--final-y, 720deg))
+      rotateZ(360deg);
   }
 }
 

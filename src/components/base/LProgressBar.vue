@@ -5,15 +5,8 @@
       <span class="l-progress__label-value">{{ currentCell }}/{{ maxCell }}</span>
     </div>
     <div class="l-progress__track">
-      <div
-        class="l-progress__fill"
-        :style="fillStyle"
-      />
-      <div
-        v-if="showMarker"
-        class="l-progress__marker"
-        :style="markerStyle"
-      />
+      <div class="l-progress__fill" :style="fillStyle" />
+      <div v-if="showMarker" class="l-progress__marker" :style="markerStyle" />
     </div>
     <div v-if="showChakraIndicator" class="l-progress__chakras">
       <div
@@ -82,9 +75,7 @@ const fillStyle = computed(() => {
 
   return {
     width: `${progress.value}%`,
-    background: currentChakra.value > 1
-      ? `linear-gradient(90deg, ${stops})`
-      : chakraColors[0],
+    background: currentChakra.value > 1 ? `linear-gradient(90deg, ${stops})` : chakraColors[0],
   };
 });
 

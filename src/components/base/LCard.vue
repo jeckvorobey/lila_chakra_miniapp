@@ -1,10 +1,5 @@
 <template>
-  <q-card
-    :class="cardClasses"
-    :flat="flat"
-    :bordered="bordered"
-    v-bind="$attrs"
-  >
+  <q-card :class="cardClasses" :flat="flat" :bordered="bordered" v-bind="$attrs">
     <!-- Header -->
     <q-card-section v-if="$slots.header || title" class="l-card__header">
       <slot name="header">

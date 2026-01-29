@@ -1,10 +1,5 @@
 <template>
-  <l-modal
-    v-model="isOpen"
-    :title="cellName"
-    position="bottom"
-    max-width="100%"
-  >
+  <l-modal v-model="isOpen" :title="cellName" position="bottom" max-width="100%">
     <template #header>
       <div class="l-cell-card__header">
         <!-- Cell number badge -->
@@ -33,12 +28,7 @@
       <div class="l-cell-card__content">
         <!-- Cell illustration -->
         <div class="l-cell-card__image q-mb-md">
-          <q-img
-            v-if="imageUrl"
-            :src="imageUrl"
-            :ratio="16 / 10"
-            class="rounded-borders"
-          >
+          <q-img v-if="imageUrl" :src="imageUrl" :ratio="16 / 10" class="rounded-borders">
             <template #loading>
               <q-skeleton type="rect" class="full-width full-height" />
             </template>
@@ -62,9 +52,7 @@
             <div class="text-overline text-secondary q-mb-xs">
               {{ $t('cell.affirmation') }}
             </div>
-            <p class="text-body1 text-italic text-primary">
-              "{{ affirmation }}"
-            </p>
+            <p class="text-body1 text-italic text-primary">"{{ affirmation }}"</p>
           </q-card-section>
         </q-card>
 
@@ -94,11 +82,7 @@
             {{ isArrow ? $t('transition.arrow') : $t('transition.snake') }}
           </div>
           <div class="text-caption">
-            {{
-              isArrow
-                ? $t('transition.arrow_to')
-                : $t('transition.snake_to')
-            }}
+            {{ isArrow ? $t('transition.arrow_to') : $t('transition.snake_to') }}
             <strong>{{ transitionTarget }}</strong>
           </div>
         </q-banner>
@@ -128,12 +112,7 @@
           />
           <div class="l-cell-card__audio-info q-ml-md">
             <div class="text-caption text-secondary">Audio description</div>
-            <q-linear-progress
-              :value="audioProgress"
-              color="primary"
-              class="q-mt-xs"
-              rounded
-            />
+            <q-linear-progress :value="audioProgress" color="primary" class="q-mt-xs" rounded />
           </div>
         </div>
       </div>

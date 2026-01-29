@@ -3,32 +3,38 @@
 // --------------------------------------------------
 
 // Primary Colors (from Pencil Design)
-$primary   : #6B46C1;  // Deep Purple
-$secondary : #F6AD55;  // Warm Orange
-$accent    : #38B2AC;  // Teal
+$primary: #6b46c1; // Deep Purple
+$secondary: #f6ad55; // Warm Orange
+$accent: #38b2ac; // Teal
 
 // Dark Theme (Default)
-$dark      : #1A1625;  // Surface
-$dark-page : #0F0D1A;  // Background
+$dark: #1a1625; // Surface
+$dark-page: #0f0d1a; // Background
 
 // Status Colors
-$positive  : #22C55E;  // Success
-$negative  : #EF4444;  // Error
-$info      : #3B82F6;  // Info
-$warning   : #F59E0B;  // Warning
+$positive: #22c55e; // Success
+$negative: #ef4444; // Error
+$info: #3b82f6; // Info
+$warning: #f59e0b; // Warning
 
 // Chakra Colors (for game board)
-$chakra-1  : #DC2626;  // Muladhara - Red
-$chakra-2  : #EA580C;  // Svadhisthana - Orange
-$chakra-3  : #FBBF24;  // Manipura - Yellow
-$chakra-4  : #22C55E;  // Anahata - Green
-$chakra-5  : #0EA5E9;  // Vishuddha - Light Blue
-$chakra-6  : #4F46E5;  // Ajna - Indigo
-$chakra-7  : #9333EA;  // Sahasrara - Violet
-$chakra-8  : #F5F5F4;  // Absolute - White/Gold
+$chakra-1: #dc2626; // Muladhara - Red
+$chakra-2: #ea580c; // Svadhisthana - Orange
+$chakra-3: #fbbf24; // Manipura - Yellow
+$chakra-4: #22c55e; // Anahata - Green
+$chakra-5: #0ea5e9; // Vishuddha - Light Blue
+$chakra-6: #4f46e5; // Ajna - Indigo
+$chakra-7: #9333ea; // Sahasrara - Violet
+$chakra-8: #f5f5f4; // Absolute - White/Gold
 
 // Typography
-$typography-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$typography-font-family:
+  'Inter',
+  system-ui,
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  sans-serif;
 
 // Border Radius
 $generic-border-radius: 16px;

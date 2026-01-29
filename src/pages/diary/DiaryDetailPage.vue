@@ -6,7 +6,13 @@
       <!-- Query section -->
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
-          <q-chip :label="$t(`query.category.${game.category.toLowerCase()}`)" size="sm" color="primary" outline class="q-mb-sm" />
+          <q-chip
+            :label="$t(`query.category.${game.category.toLowerCase()}`)"
+            size="sm"
+            color="primary"
+            outline
+            class="q-mb-sm"
+          />
           <p class="text-body1">{{ game.query }}</p>
           <div class="text-caption text-secondary">
             {{ formatDate(game.created_at) }}
@@ -41,7 +47,10 @@
           </template>
           <template #subtitle>
             Клетка {{ move.start_cell }} → {{ move.final_cell }}
-            <span v-if="move.transition_type" :class="move.transition_type === 'ARROW' ? 'text-positive' : 'text-negative'">
+            <span
+              v-if="move.transition_type"
+              :class="move.transition_type === 'ARROW' ? 'text-positive' : 'text-negative'"
+            >
               ({{ move.transition_type === 'ARROW' ? 'Стрела' : 'Змея' }})
             </span>
           </template>
@@ -52,9 +61,7 @@
         </q-timeline-entry>
       </q-timeline>
 
-      <div v-else class="text-body2 text-secondary text-center q-py-lg">
-        Ходов пока нет
-      </div>
+      <div v-else class="text-body2 text-secondary text-center q-py-lg">Ходов пока нет</div>
 
       <!-- Actions -->
       <div class="diary-detail__actions">
@@ -153,9 +160,33 @@ function loadGameDetails() {
   };
 
   moves.value = [
-    { id: '1', move_number: 1, dice_rolls: [6], total_roll: 6, start_cell: 0, final_cell: 1, transition_type: null },
-    { id: '2', move_number: 2, dice_rolls: [4], total_roll: 4, start_cell: 1, final_cell: 5, transition_type: null },
-    { id: '3', move_number: 3, dice_rolls: [6, 6], total_roll: 12, start_cell: 5, final_cell: 17, transition_type: 'ARROW' },
+    {
+      id: '1',
+      move_number: 1,
+      dice_rolls: [6],
+      total_roll: 6,
+      start_cell: 0,
+      final_cell: 1,
+      transition_type: null,
+    },
+    {
+      id: '2',
+      move_number: 2,
+      dice_rolls: [4],
+      total_roll: 4,
+      start_cell: 1,
+      final_cell: 5,
+      transition_type: null,
+    },
+    {
+      id: '3',
+      move_number: 3,
+      dice_rolls: [6, 6],
+      total_roll: 12,
+      start_cell: 5,
+      final_cell: 17,
+      transition_type: 'ARROW',
+    },
   ];
 
   isLoading.value = false;
