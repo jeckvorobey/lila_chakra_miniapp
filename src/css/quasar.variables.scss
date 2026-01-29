@@ -1,25 +1,41 @@
 // Quasar SCSS (& Sass) Variables
+// Lila Chakra - Based on Pencil Design Spec
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
 
-// Check documentation for full list of Quasar variables
+// Primary Colors (from Pencil Design)
+$primary   : #6B46C1;  // Deep Purple
+$secondary : #F6AD55;  // Warm Orange
+$accent    : #38B2AC;  // Teal
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+// Dark Theme (Default)
+$dark      : #1A1625;  // Surface
+$dark-page : #0F0D1A;  // Background
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+// Status Colors
+$positive  : #22C55E;  // Success
+$negative  : #EF4444;  // Error
+$info      : #3B82F6;  // Info
+$warning   : #F59E0B;  // Warning
 
-$primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+// Chakra Colors (for game board)
+$chakra-1  : #DC2626;  // Muladhara - Red
+$chakra-2  : #EA580C;  // Svadhisthana - Orange
+$chakra-3  : #FBBF24;  // Manipura - Yellow
+$chakra-4  : #22C55E;  // Anahata - Green
+$chakra-5  : #0EA5E9;  // Vishuddha - Light Blue
+$chakra-6  : #4F46E5;  // Ajna - Indigo
+$chakra-7  : #9333EA;  // Sahasrara - Violet
+$chakra-8  : #F5F5F4;  // Absolute - White/Gold
 
-$dark      : #1D1D1D;
-$dark-page : #121212;
+// Typography
+$typography-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-$positive  : #21BA45;
-$negative  : #C10015;
-$info      : #31CCEC;
-$warning   : #F2C037;
+// Border Radius
+$generic-border-radius: 16px;
+
+// Spacing
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 32px;

@@ -1,102 +1,161 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
+  <q-layout view="hHh lpR fFf" class="l-layout">
+    <!-- Header (minimal, transparent for game) -->
+    <q-header
+      v-if="showHeader"
+      class="l-layout__header"
+      :class="{ 'bg-transparent': isGamePage }"
+    >
+      <q-toolbar class="l-layout__toolbar">
+        <!-- Back button -->
         <q-btn
+          v-if="showBack"
           flat
           dense
           round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
+          icon="mdi-arrow-left"
+          @click="goBack"
         />
 
-        <q-toolbar-title>
-          Quasar App
+        <!-- Title -->
+        <q-toolbar-title v-if="pageTitle" class="text-weight-medium">
+          {{ pageTitle }}
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-space />
+
+        <!-- Theme toggle -->
+        <l-theme-toggle />
+
+        <!-- Menu button -->
+        <q-btn
+          v-if="showMenu"
+          flat
+          dense
+          round
+          icon="mdi-dots-vertical"
+          @click="openMenu"
+        >
+          <q-menu anchor="bottom right" self="top right">
+            <q-list style="min-width: 180px">
+              <q-item clickable v-close-popup @click="navigateTo('/profile')">
+                <q-item-section avatar>
+                  <q-icon name="mdi-account" />
+                </q-item-section>
+                <q-item-section>{{ $t('nav.profile') }}</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openRules">
+                <q-item-section avatar>
+                  <q-icon name="mdi-book-open-variant" />
+                </q-item-section>
+                <q-item-section>{{ $t('profile.rules') }}</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="openFeedback">
+                <q-item-section avatar>
+                  <q-icon name="mdi-message-outline" />
+                </q-item-section>
+                <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
-
+    <!-- Main content -->
     <q-page-container>
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </q-page-container>
+
+    <!-- Bottom Navigation -->
+    <l-bottom-nav v-if="showBottomNav" />
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { LBottomNav } from 'src/components/navigation';
+import { LThemeToggle } from 'src/components/base';
 
-const linksList: EssentialLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
+const route = useRoute();
+const router = useRouter();
 
-const leftDrawerOpen = ref(false);
+// Computed properties for layout behavior
+const isGamePage = computed(() => route.path.startsWith('/game'));
+const isOnboarding = computed(() => route.path.startsWith('/onboarding'));
+const isSplash = computed(() => route.path === '/');
 
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
+const showHeader = computed(() => !isSplash.value);
+const showBottomNav = computed(() => !isOnboarding.value && !isSplash.value);
+const showBack = computed(() => route.meta.showBack === true);
+const showMenu = computed(() => isGamePage.value);
+
+const pageTitle = computed(() => {
+  const title = route.meta.title;
+  return typeof title === 'string' ? title : '';
+});
+
+// Navigation methods
+function goBack() {
+  router.back();
+}
+
+function navigateTo(path: string) {
+  void router.push(path);
+}
+
+function openMenu() {
+  // Menu is handled by q-menu
+}
+
+function openRules() {
+  void router.push('/rules');
+}
+
+function openFeedback() {
+  void router.push('/feedback');
 }
 </script>
+
+<style lang="scss" scoped>
+.l-layout {
+  background: var(--lila-bg);
+  min-height: 100vh;
+
+  &__header {
+    background: var(--lila-glass-bg);
+    backdrop-filter: var(--lila-glass-blur);
+    -webkit-backdrop-filter: var(--lila-glass-blur);
+    border-bottom: 1px solid var(--lila-border);
+
+    &.bg-transparent {
+      background: transparent;
+      border-bottom: none;
+      backdrop-filter: none;
+    }
+  }
+
+  &__toolbar {
+    min-height: 56px;
+    padding: 0 var(--space-sm);
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+// Page transitions
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

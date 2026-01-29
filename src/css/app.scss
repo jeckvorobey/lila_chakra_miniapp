@@ -1,1 +1,280 @@
-// app global css in SCSS form
+// Lila Chakra - Global Styles
+// Based on Pencil Design Spec
+
+// Import Google Fonts (Inter)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+// CSS Custom Properties (Theme Variables)
+:root {
+  // Dark Theme (Default)
+  --lila-bg: #0F0D1A;
+  --lila-surface: #1A1625;
+  --lila-surface-elevated: #252136;
+  --lila-text-primary: #F5F5F4;
+  --lila-text-secondary: #A1A1AA;
+  --lila-border: rgba(255, 255, 255, 0.1);
+
+  // Primary Colors
+  --lila-primary: #6B46C1;
+  --lila-secondary: #F6AD55;
+  --lila-accent: #38B2AC;
+
+  // Status Colors
+  --lila-success: #22C55E;
+  --lila-warning: #F59E0B;
+  --lila-error: #EF4444;
+  --lila-info: #3B82F6;
+
+  // Chakra Colors
+  --chakra-1: #DC2626;  // Muladhara
+  --chakra-2: #EA580C;  // Svadhisthana
+  --chakra-3: #FBBF24;  // Manipura
+  --chakra-4: #22C55E;  // Anahata
+  --chakra-5: #0EA5E9;  // Vishuddha
+  --chakra-6: #4F46E5;  // Ajna
+  --chakra-7: #9333EA;  // Sahasrara
+  --chakra-8: #F5F5F4;  // Absolute
+
+  // Effects
+  --lila-glass-bg: rgba(26, 22, 37, 0.8);
+  --lila-glass-blur: blur(20px);
+  --lila-glow-primary: 0 0 20px rgba(107, 70, 193, 0.4);
+  --lila-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+
+  // Spacing
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  // Border Radius
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  // Typography
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+// Light Theme
+.body--light {
+  --lila-bg: #FAFAF9;
+  --lila-surface: #FFFFFF;
+  --lila-surface-elevated: #F5F5F4;
+  --lila-text-primary: #1C1917;
+  --lila-text-secondary: #57534E;
+  --lila-border: rgba(0, 0, 0, 0.08);
+
+  // Effects (Light)
+  --lila-glass-bg: rgba(255, 255, 255, 0.9);
+  --lila-glass-blur: blur(12px);
+  --lila-glow-primary: 0 0 16px rgba(107, 70, 193, 0.25);
+  --lila-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.04);
+
+  // Adjusted Chakra Colors for Light Theme
+  --chakra-3: #D97706;  // Darker yellow
+  --chakra-4: #16A34A;  // Darker green
+  --chakra-5: #0284C7;  // Darker blue
+  --chakra-8: #1C1917;  // Dark for contrast
+}
+
+// Global Styles
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: var(--font-family);
+  background-color: var(--lila-bg);
+  color: var(--lila-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography Classes
+.text-h1 {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.text-h2 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.text-h3 {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.text-body-lg {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-body {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-body-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.text-overline {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// Text Colors
+.text-secondary {
+  color: var(--lila-text-secondary);
+}
+
+.text-primary-color {
+  color: var(--lila-primary);
+}
+
+.text-success {
+  color: var(--lila-success);
+}
+
+.text-warning {
+  color: var(--lila-warning);
+}
+
+.text-error {
+  color: var(--lila-error);
+}
+
+// Background utilities
+.bg-surface {
+  background-color: var(--lila-surface);
+}
+
+.bg-surface-elevated {
+  background-color: var(--lila-surface-elevated);
+}
+
+.bg-glass {
+  background: var(--lila-glass-bg);
+  backdrop-filter: var(--lila-glass-blur);
+  -webkit-backdrop-filter: var(--lila-glass-blur);
+}
+
+// Chakra color classes
+@for $i from 1 through 8 {
+  .chakra-#{$i} {
+    --chakra-color: var(--chakra-#{$i});
+  }
+
+  .bg-chakra-#{$i} {
+    background-color: var(--chakra-#{$i});
+  }
+
+  .text-chakra-#{$i} {
+    color: var(--chakra-#{$i});
+  }
+
+  .border-chakra-#{$i} {
+    border-color: var(--chakra-#{$i});
+  }
+}
+
+// Card styles
+.lila-card {
+  background-color: var(--lila-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--lila-border);
+  padding: var(--space-lg);
+  box-shadow: var(--lila-shadow);
+}
+
+.lila-card--highlighted {
+  border-color: var(--lila-primary);
+  box-shadow: var(--lila-glow-primary);
+}
+
+// Button base styles
+.lila-btn {
+  height: 52px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 16px;
+  padding: 0 var(--space-lg);
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Safe area padding for mobile
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+// Scrollbar styling (dark theme)
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lila-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lila-text-secondary);
+}
+
+// Animation utilities
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.35s ease-out;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
