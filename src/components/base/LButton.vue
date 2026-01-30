@@ -55,12 +55,12 @@ const emit = defineEmits<{
 const settingsStore = useSettingsStore();
 
 const buttonClasses = computed(() => [
-  'l-button',
-  `l-button--${props.variant}`,
-  `l-button--${props.size}`,
+  'l-btn',
+  `l-btn--${props.variant}`,
+  `l-btn--${props.size}`,
   {
-    'l-button--full-width': props.fullWidth,
-    'l-button--loading': props.loading,
+    'full-width': props.fullWidth,
+    'l-btn--loading': props.loading,
   },
 ]);
 
@@ -87,7 +87,6 @@ const textColor = computed(() => {
 
 function handleClick(event: Event) {
   if (!props.disable && !props.loading) {
-    // Haptic feedback
     settingsStore.vibrate(25);
     emit('click', event as MouseEvent);
   }
@@ -95,10 +94,10 @@ function handleClick(event: Event) {
 </script>
 
 <style lang="scss" scoped>
-.l-button {
-  border-radius: var(--radius-lg);
+@use "sass:color";
+
+.l-btn {
   font-weight: 600;
-  font-size: 16px;
   transition: all 0.15s ease;
 
   &:active:not(:disabled) {
@@ -108,29 +107,24 @@ function handleClick(event: Event) {
   // Sizes
   &--sm {
     height: 40px;
-    padding: 0 var(--space-md);
+    padding: 0 16px;
     font-size: 14px;
   }
 
   &--md {
     height: 52px;
-    padding: 0 var(--space-lg);
+    padding: 0 24px;
   }
 
   &--lg {
     height: 60px;
-    padding: 0 var(--space-xl);
+    padding: 0 32px;
     font-size: 18px;
-  }
-
-  &--full-width {
-    width: 100%;
   }
 
   // Variants
   &--primary {
-    background: linear-gradient(135deg, var(--lila-primary), darken(#6b46c1, 10%));
-    color: white;
+    background: linear-gradient(135deg, $primary, color.adjust($primary, $lightness: -10%)) !important;
 
     &:hover:not(:disabled) {
       filter: brightness(1.1);
@@ -139,31 +133,23 @@ function handleClick(event: Event) {
   }
 
   &--secondary {
-    background: transparent;
-    border: 1px solid var(--lila-primary);
-    color: var(--lila-primary);
-
     .body--light & {
-      background: rgba(107, 70, 193, 0.1);
+      background: rgba($primary, 0.1);
     }
 
     &:hover:not(:disabled) {
-      background: rgba(107, 70, 193, 0.15);
+      background: rgba($primary, 0.15);
     }
   }
 
   &--ghost {
-    background: transparent;
-    color: var(--lila-text-primary);
-
     &:hover:not(:disabled) {
       background: var(--lila-surface);
     }
   }
 
   &--danger {
-    background: linear-gradient(135deg, var(--lila-error), darken(#ef4444, 10%));
-    color: white;
+    background: linear-gradient(135deg, $negative, color.adjust($negative, $lightness: -10%)) !important;
 
     &:hover:not(:disabled) {
       filter: brightness(1.1);
