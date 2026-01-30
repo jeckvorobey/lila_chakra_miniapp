@@ -8,9 +8,7 @@
       </q-avatar>
       <div>
         <div class="text-h6 text-weight-medium">{{ displayName }}</div>
-        <div v-if="user?.username" class="text-caption text-secondary">
-          @{{ user.username }}
-        </div>
+        <div v-if="user?.username" class="text-caption text-secondary">@{{ user.username }}</div>
       </div>
     </div>
 

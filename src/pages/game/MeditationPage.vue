@@ -3,13 +3,21 @@
     <!-- Animated background -->
     <div class="meditation-page__background">
       <div class="meditation-page__particles">
-        <span v-for="i in 20" :key="i" class="meditation-page__particle" :style="particleStyle(i)" />
+        <span
+          v-for="i in 20"
+          :key="i"
+          class="meditation-page__particle"
+          :style="particleStyle(i)"
+        />
       </div>
     </div>
 
     <div class="meditation-page__content">
       <!-- Breathing guide -->
-      <div class="meditation-page__breathing" :class="{ 'meditation-page__breathing--active': isPlaying }">
+      <div
+        class="meditation-page__breathing"
+        :class="{ 'meditation-page__breathing--active': isPlaying }"
+      >
         <div class="meditation-page__circle" />
       </div>
 
@@ -26,12 +34,7 @@
       <div class="meditation-page__player">
         <!-- Waveform visualization -->
         <div class="meditation-page__waveform">
-          <span
-            v-for="i in 20"
-            :key="i"
-            class="meditation-page__bar"
-            :style="barStyle(i)"
-          />
+          <span v-for="i in 20" :key="i" class="meditation-page__bar" :style="barStyle(i)" />
         </div>
 
         <!-- Progress -->
@@ -134,9 +137,7 @@ function particleStyle(index: number) {
 
 // Generate waveform bar styles
 function barStyle(index: number) {
-  const height = isPlaying.value
-    ? 10 + Math.random() * 40
-    : 10 + Math.sin(index * 0.5) * 20;
+  const height = isPlaying.value ? 10 + Math.random() * 40 : 10 + Math.sin(index * 0.5) * 20;
 
   return {
     height: `${height}px`,

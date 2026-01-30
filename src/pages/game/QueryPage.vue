@@ -113,12 +113,28 @@ const isLoading = ref(false);
 
 // Categories
 const categories = computed(() => [
-  { value: 'RELATIONSHIPS' as QueryCategory, label: t('query.category.relationships'), icon: 'mdi-heart' },
+  {
+    value: 'RELATIONSHIPS' as QueryCategory,
+    label: t('query.category.relationships'),
+    icon: 'mdi-heart',
+  },
   { value: 'CAREER' as QueryCategory, label: t('query.category.career'), icon: 'mdi-briefcase' },
   { value: 'HEALTH' as QueryCategory, label: t('query.category.health'), icon: 'mdi-heart-pulse' },
-  { value: 'FINANCE' as QueryCategory, label: t('query.category.finance'), icon: 'mdi-currency-usd' },
-  { value: 'SPIRITUALITY' as QueryCategory, label: t('query.category.spirituality'), icon: 'mdi-yoga' },
-  { value: 'SELF_DEVELOPMENT' as QueryCategory, label: t('query.category.self_development'), icon: 'mdi-account-arrow-up' },
+  {
+    value: 'FINANCE' as QueryCategory,
+    label: t('query.category.finance'),
+    icon: 'mdi-currency-usd',
+  },
+  {
+    value: 'SPIRITUALITY' as QueryCategory,
+    label: t('query.category.spirituality'),
+    icon: 'mdi-yoga',
+  },
+  {
+    value: 'SELF_DEVELOPMENT' as QueryCategory,
+    label: t('query.category.self_development'),
+    icon: 'mdi-account-arrow-up',
+  },
 ]);
 
 // Game mode options

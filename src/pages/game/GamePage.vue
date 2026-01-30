@@ -76,13 +76,7 @@
                   {{ $t(`chakra.${currentChakra}`) }}
                 </div>
               </div>
-              <q-btn
-                flat
-                round
-                dense
-                icon="mdi-information-outline"
-                @click="showCellInfo"
-              />
+              <q-btn flat round dense icon="mdi-information-outline" @click="showCellInfo" />
             </div>
 
             <!-- Waiting for 6 message -->

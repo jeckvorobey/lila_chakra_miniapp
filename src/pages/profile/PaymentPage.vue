@@ -114,9 +114,7 @@ const promoDiscount = ref(0);
 const isApplyingPromo = ref(false);
 const isProcessing = ref(false);
 
-const selectedPackageData = computed(() =>
-  packages.find(p => p.id === selectedPackage.value)
-);
+const selectedPackageData = computed(() => packages.find((p) => p.id === selectedPackage.value));
 
 const discountAmount = computed(() => {
   if (!selectedPackageData.value || !promoApplied.value) return 0;
@@ -134,7 +132,7 @@ async function applyPromo() {
   isApplyingPromo.value = true;
 
   // TODO: Validate promo code via API
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // Mock response
   if (promoCode.value.toLowerCase() === 'lila10') {

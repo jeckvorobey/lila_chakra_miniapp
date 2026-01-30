@@ -5,138 +5,88 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { api } from 'src/boot/axios';
+import { gamesApi, movesApi } from 'src/services/api';
+import type {
+  GameDetail,
+  MoveOut,
+  MoveResponse,
+  CellBrief,
+  GameCreate,
+  TransitionType,
+} from 'src/types/api';
 
-// Game constants
-export const ARROWS: Record<number, number> = {
-  10: 23, 17: 69, 20: 32, 22: 60, 27: 41,
-  28: 50, 37: 66, 45: 67, 46: 62,
-};
+// Re-export game constants for convenience
+export {
+  ARROWS,
+  SNAKES,
+  WINNING_CELL,
+  MAX_CELL,
+  CHAKRA_ROWS,
+  CELLS_PER_ROW,
+  WAITING_ZONE,
+} from 'src/data/game-constants';
 
-export const SNAKES: Record<number, number> = {
-  12: 8, 16: 4, 24: 7, 29: 6, 44: 9,
-  52: 35, 55: 3, 61: 13, 63: 2, 72: 51,
-};
-
-export const WINNING_CELL = 68;
-export const MAX_CELL = 72;
-export const CHAKRA_ROWS = 8;
-export const CELLS_PER_ROW = 9;
-
-export type GameMode = 'FREE' | 'AI_INCOGNITO' | 'AI_GUIDE';
-export type GameStatus = 'WAITING_FOR_6' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
-export type TransitionType = 'ARROW' | 'SNAKE' | null;
-
-export type QueryCategory =
-  | 'RELATIONSHIPS'
-  | 'CAREER'
-  | 'HEALTH'
-  | 'FINANCE'
-  | 'SPIRITUALITY'
-  | 'SELF_DEVELOPMENT';
-
-interface CellInfo {
-  id: number;
-  name_ru: string;
-  name_sanskrit?: string;
-  chakra_level: number;
-  chakra_name: string;
-  description_ru: string;
-  affirmation_ru: string;
-  question_ru?: string;
-  keywords?: string[];
-  is_arrow_start: boolean;
-  arrow_end?: number;
-  is_snake_head: boolean;
-  snake_tail?: number;
-}
-
-interface Move {
-  id: string;
-  move_number: number;
-  dice_rolls: number[];
-  total_roll: number;
-  is_triple_six: boolean;
-  start_cell: number;
-  end_cell: number;
-  final_cell: number;
-  transition_type: TransitionType;
-  ai_interpretation?: string;
-  insight?: string;
-  created_at: string;
-}
-
-interface Game {
-  id: string;
-  query: string;
-  category: QueryCategory;
-  mode: GameMode;
-  status: GameStatus;
-  current_cell: number;
-  entry_meditation_completed: boolean;
-  exit_meditation_completed: boolean;
-  created_at: string;
-  completed_at?: string;
-}
-
-interface GameCreatePayload {
-  query: string;
-  category: QueryCategory;
-  mode: GameMode;
-}
-
-interface MoveResult {
-  move: Move;
-  cell_info: CellInfo;
-  game_completed: boolean;
-}
+import {
+  ARROWS,
+  SNAKES,
+  WINNING_CELL,
+  MAX_CELL,
+  CELLS_PER_ROW,
+  WAITING_ZONE,
+} from 'src/data/game-constants';
 
 export const useGameStore = defineStore('game', () => {
   // State
-  const currentGame = ref<Game | null>(null);
-  const moves = ref<Move[]>([]);
-  const currentCellInfo = ref<CellInfo | null>(null);
-  const allCells = ref<Map<number, CellInfo>>(new Map());
+  const currentGame = ref<GameDetail | null>(null);
+  const moves = ref<MoveOut[]>([]);
+  const currentCellInfo = ref<CellBrief | null>(null);
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
 
   // Dice state
   const currentDiceRolls = ref<number[]>([]);
-  const lastTransition = ref<TransitionType>(null);
+  const lastTransition = ref<TransitionType>('none');
+  const requiresAnotherRoll = ref(false);
 
   // Getters
-  const isGameActive = computed(() =>
-    currentGame.value &&
-    (currentGame.value.status === 'WAITING_FOR_6' || currentGame.value.status === 'IN_PROGRESS')
+  const isGameActive = computed(
+    () =>
+      currentGame.value &&
+      ['waiting_for_6', 'in_progress', 'in_waiting_zone'].includes(currentGame.value.status),
   );
 
-  const isWaitingFor6 = computed(() =>
-    currentGame.value?.status === 'WAITING_FOR_6'
+  const isWaitingFor6 = computed(() => currentGame.value?.status === 'waiting_for_6');
+
+  const isInProgress = computed(() => currentGame.value?.status === 'in_progress');
+
+  const isInWaitingZone = computed(() => currentGame.value?.status === 'in_waiting_zone');
+
+  const isGameCompleted = computed(() => currentGame.value?.status === 'completed');
+
+  const isGameAbandoned = computed(() => currentGame.value?.status === 'abandoned');
+
+  const currentCell = computed(() => currentGame.value?.current_cell ?? 0);
+
+  const needsEntryMeditation = computed(
+    () => currentGame.value && !currentGame.value.entry_meditation_completed,
   );
 
-  const isGameCompleted = computed(() =>
-    currentGame.value?.status === 'COMPLETED'
-  );
-
-  const currentCell = computed(() =>
-    currentGame.value?.current_cell ?? 0
-  );
-
-  const needsEntryMeditation = computed(() =>
-    currentGame.value && !currentGame.value.entry_meditation_completed
-  );
-
-  const needsExitMeditation = computed(() =>
-    currentGame.value?.status === 'COMPLETED' &&
-    !currentGame.value.exit_meditation_completed
+  const needsExitMeditation = computed(
+    () => currentGame.value?.status === 'completed' && !currentGame.value.exit_meditation_completed,
   );
 
   const moveHistory = computed(() =>
-    [...moves.value].sort((a, b) => b.move_number - a.move_number)
+    [...moves.value].sort((a, b) => b.move_number - a.move_number),
   );
 
-  const totalMoves = computed(() => moves.value.length);
+  const totalMoves = computed(() => currentGame.value?.total_moves ?? 0);
+
+  const arrowsHit = computed(() => currentGame.value?.arrows_hit ?? 0);
+
+  const snakesHit = computed(() => currentGame.value?.snakes_hit ?? 0);
+
+  const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
   // Helper functions
 
@@ -163,52 +113,44 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Get cell info from cache or fetch
+   * Get transition info for a cell
    */
-  async function getCellInfo(cellId: number): Promise<CellInfo | null> {
-    if (allCells.value.has(cellId)) {
-      return allCells.value.get(cellId)!;
+  function getTransition(cellId: number): { type: TransitionType; to: number | null } {
+    if (cellId in ARROWS) {
+      return { type: 'arrow', to: ARROWS[cellId] };
     }
+    if (cellId in SNAKES) {
+      return { type: 'snake', to: SNAKES[cellId] };
+    }
+    return { type: 'none', to: null };
+  }
 
-    try {
-      const response = await api.get<CellInfo>(`/api/cells/${cellId}`);
-      allCells.value.set(cellId, response.data);
-      return response.data;
-    } catch {
-      return null;
-    }
+  /**
+   * Check if cell is in waiting zone (69-71)
+   */
+  function isInWaitingZoneCell(cellId: number): boolean {
+    return WAITING_ZONE.has(cellId);
   }
 
   // Actions
 
   /**
-   * Fetch all cells data (for board rendering)
-   */
-  async function fetchAllCells(): Promise<void> {
-    try {
-      const response = await api.get<CellInfo[]>('/api/cells');
-      allCells.value = new Map(response.data.map(cell => [cell.id, cell]));
-    } catch (err) {
-      console.error('Failed to fetch cells:', err);
-    }
-  }
-
-  /**
    * Create a new game
    */
-  async function createGame(payload: GameCreatePayload): Promise<boolean> {
+  async function createGame(payload: GameCreate): Promise<boolean> {
     isLoading.value = true;
     error.value = null;
 
     try {
-      const response = await api.post<Game>('/api/games', payload);
-      currentGame.value = response.data;
+      const game = await gamesApi.create(payload);
+      currentGame.value = game as GameDetail;
       moves.value = [];
       currentDiceRolls.value = [];
-      lastTransition.value = null;
+      lastTransition.value = 'none';
+      requiresAnotherRoll.value = false;
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create game';
+      error.value = err instanceof Error ? err.message : 'Не удалось создать игру';
       return false;
     } finally {
       isLoading.value = false;
@@ -218,26 +160,22 @@ export const useGameStore = defineStore('game', () => {
   /**
    * Load existing game
    */
-  async function loadGame(gameId: string): Promise<boolean> {
+  async function loadGame(gameId: number): Promise<boolean> {
     isLoading.value = true;
     error.value = null;
 
     try {
-      const [gameResponse, movesResponse] = await Promise.all([
-        api.get<Game>(`/api/games/${gameId}`),
-        api.get<Move[]>(`/api/games/${gameId}/moves`),
+      const [game, gameMoves] = await Promise.all([
+        gamesApi.get(gameId),
+        gamesApi.getMoves(gameId),
       ]);
 
-      currentGame.value = gameResponse.data;
-      moves.value = movesResponse.data;
-
-      if (currentGame.value.current_cell > 0) {
-        currentCellInfo.value = await getCellInfo(currentGame.value.current_cell);
-      }
+      currentGame.value = game;
+      moves.value = gameMoves;
 
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load game';
+      error.value = err instanceof Error ? err.message : 'Не удалось загрузить игру';
       return false;
     } finally {
       isLoading.value = false;
@@ -245,11 +183,16 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Roll dice (automatic)
+   * Roll dice (automatic or manual)
    */
-  async function rollDice(): Promise<MoveResult | null> {
+  async function rollDice(manualValue?: number): Promise<MoveResponse | null> {
     if (!currentGame.value || !isGameActive.value) {
-      error.value = 'No active game';
+      error.value = 'Нет активной игры';
+      return null;
+    }
+
+    if (needsEntryMeditation.value) {
+      error.value = 'Сначала необходимо выполнить входную медитацию';
       return null;
     }
 
@@ -257,82 +200,36 @@ export const useGameStore = defineStore('game', () => {
     error.value = null;
 
     try {
-      const response = await api.post<MoveResult>(
-        `/api/games/${currentGame.value.id}/moves/roll`
-      );
-
-      const result = response.data;
+      const response = await gamesApi.rollDice(currentGame.value.id, {
+        is_manual: manualValue !== undefined,
+        manual_value: manualValue,
+      });
 
       // Update state
-      moves.value.push(result.move);
-      currentDiceRolls.value = result.move.dice_rolls;
-      lastTransition.value = result.move.transition_type;
-      currentCellInfo.value = result.cell_info;
+      moves.value.push(response.move);
+      currentDiceRolls.value = response.move.dice_rolls;
+      lastTransition.value = response.move.transition_type;
+      currentCellInfo.value = response.cell_info;
+      requiresAnotherRoll.value = response.requires_another_roll;
 
       // Update game state
-      if (result.game_completed) {
-        currentGame.value.status = 'COMPLETED';
-        currentGame.value.current_cell = WINNING_CELL;
-      } else {
-        currentGame.value.current_cell = result.move.final_cell;
-        if (currentGame.value.status === 'WAITING_FOR_6' && result.move.final_cell > 0) {
-          currentGame.value.status = 'IN_PROGRESS';
-        }
+      currentGame.value.status = response.game_status;
+      currentGame.value.current_cell = response.move.final_cell;
+      currentGame.value.total_moves += 1;
+
+      if (response.move.transition_type === 'arrow') {
+        currentGame.value.arrows_hit += 1;
+      } else if (response.move.transition_type === 'snake') {
+        currentGame.value.snakes_hit += 1;
       }
 
-      return result;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to roll dice';
-      return null;
-    } finally {
-      isRolling.value = false;
-    }
-  }
-
-  /**
-   * Manual dice input (1-6)
-   */
-  async function manualMove(diceValue: number): Promise<MoveResult | null> {
-    if (!currentGame.value || !isGameActive.value) {
-      error.value = 'No active game';
-      return null;
-    }
-
-    if (diceValue < 1 || diceValue > 6) {
-      error.value = 'Invalid dice value';
-      return null;
-    }
-
-    isRolling.value = true;
-    error.value = null;
-
-    try {
-      const response = await api.post<MoveResult>(
-        `/api/games/${currentGame.value.id}/moves/manual`,
-        { dice_value: diceValue }
-      );
-
-      const result = response.data;
-
-      // Update state (same as rollDice)
-      moves.value.push(result.move);
-      currentDiceRolls.value = result.move.dice_rolls;
-      lastTransition.value = result.move.transition_type;
-      currentCellInfo.value = result.cell_info;
-
-      if (result.game_completed) {
-        currentGame.value.status = 'COMPLETED';
-        currentGame.value.current_cell = WINNING_CELL;
-      } else {
-        currentGame.value.current_cell = result.move.final_cell;
-        if (currentGame.value.status === 'WAITING_FOR_6' && result.move.final_cell > 0) {
-          currentGame.value.status = 'IN_PROGRESS';
-        }
+      if (response.move.final_cell > currentGame.value.highest_cell) {
+        currentGame.value.highest_cell = response.move.final_cell;
       }
 
-      return result;
+      return response;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to make move';
+      error.value = err instanceof Error ? err.message : 'Не удалось сделать ход';
       return null;
     } finally {
       isRolling.value = false;
@@ -346,11 +243,11 @@ export const useGameStore = defineStore('game', () => {
     if (!currentGame.value) return false;
 
     try {
-      await api.post(`/api/games/${currentGame.value.id}/meditation/entry`);
-      currentGame.value.entry_meditation_completed = true;
+      const game = await gamesApi.completeEntryMeditation(currentGame.value.id);
+      currentGame.value.entry_meditation_completed = game.entry_meditation_completed;
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to complete meditation';
+      error.value = err instanceof Error ? err.message : 'Не удалось завершить медитацию';
       return false;
     }
   }
@@ -362,11 +259,11 @@ export const useGameStore = defineStore('game', () => {
     if (!currentGame.value) return false;
 
     try {
-      await api.post(`/api/games/${currentGame.value.id}/meditation/exit`);
-      currentGame.value.exit_meditation_completed = true;
+      const game = await gamesApi.completeExitMeditation(currentGame.value.id);
+      currentGame.value.exit_meditation_completed = game.exit_meditation_completed;
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to complete meditation';
+      error.value = err instanceof Error ? err.message : 'Не удалось завершить медитацию';
       return false;
     }
   }
@@ -374,15 +271,17 @@ export const useGameStore = defineStore('game', () => {
   /**
    * End current game
    */
-  async function endGame(): Promise<boolean> {
+  async function endGame(abandon = false): Promise<boolean> {
     if (!currentGame.value) return false;
 
     try {
-      await api.post(`/api/games/${currentGame.value.id}/end`);
-      currentGame.value.status = 'ABANDONED';
+      const game = await gamesApi.end(currentGame.value.id, abandon);
+      currentGame.value.status = game.status;
+      currentGame.value.completed_at = game.completed_at;
+      currentGame.value.magic_time_ends_at = game.magic_time_ends_at;
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to end game';
+      error.value = err instanceof Error ? err.message : 'Не удалось завершить игру';
       return false;
     }
   }
@@ -390,13 +289,13 @@ export const useGameStore = defineStore('game', () => {
   /**
    * Save insight for a move
    */
-  async function saveInsight(moveId: string, insight: string): Promise<boolean> {
+  async function saveInsight(moveId: number, insight: string): Promise<boolean> {
     try {
-      await api.post(`/api/moves/${moveId}/insight`, { insight });
+      const updatedMove = await movesApi.saveInsight(moveId, { insight });
 
-      const move = moves.value.find(m => m.id === moveId);
+      const move = moves.value.find((m) => m.id === moveId);
       if (move) {
-        move.insight = insight;
+        move.player_insight = updatedMove.player_insight;
       }
 
       return true;
@@ -413,7 +312,8 @@ export const useGameStore = defineStore('game', () => {
     moves.value = [];
     currentCellInfo.value = null;
     currentDiceRolls.value = [];
-    lastTransition.value = null;
+    lastTransition.value = 'none';
+    requiresAnotherRoll.value = false;
     error.value = null;
   }
 
@@ -425,40 +325,46 @@ export const useGameStore = defineStore('game', () => {
     MAX_CELL,
     CHAKRA_ROWS,
     CELLS_PER_ROW,
+    WAITING_ZONE,
 
     // State
     currentGame,
     moves,
     currentCellInfo,
-    allCells,
     isLoading,
     isRolling,
     error,
     currentDiceRolls,
     lastTransition,
+    requiresAnotherRoll,
 
     // Getters
     isGameActive,
     isWaitingFor6,
+    isInProgress,
+    isInWaitingZone,
     isGameCompleted,
+    isGameAbandoned,
     currentCell,
     needsEntryMeditation,
     needsExitMeditation,
     moveHistory,
     totalMoves,
+    arrowsHit,
+    snakesHit,
+    highestCell,
 
     // Helpers
     getChakraLevel,
     isArrowStart,
     isSnakeHead,
-    getCellInfo,
+    getTransition,
+    isInWaitingZoneCell,
 
     // Actions
-    fetchAllCells,
     createGame,
     loadGame,
     rollDice,
-    manualMove,
     completeEntryMeditation,
     completeExitMeditation,
     endGame,

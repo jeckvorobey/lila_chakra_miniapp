@@ -90,13 +90,15 @@ export const useAuthStore = defineStore('auth', () => {
   function initTelegramUser(): void {
     if (typeof window === 'undefined') return;
 
-    const tg = (window as {
-      Telegram?: {
-        WebApp?: {
-          initDataUnsafe?: { user?: TelegramUser };
+    const tg = (
+      window as {
+        Telegram?: {
+          WebApp?: {
+            initDataUnsafe?: { user?: TelegramUser };
+          };
         };
-      };
-    }).Telegram?.WebApp;
+      }
+    ).Telegram?.WebApp;
 
     if (tg?.initDataUnsafe?.user) {
       telegramUser.value = tg.initDataUnsafe.user;

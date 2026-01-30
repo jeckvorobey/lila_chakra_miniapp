@@ -80,9 +80,11 @@ export const useSettingsStore = defineStore('settings', () => {
 
       if (settings.theme) theme.value = settings.theme;
       if (typeof settings.soundEnabled === 'boolean') soundEnabled.value = settings.soundEnabled;
-      if (typeof settings.vibrationEnabled === 'boolean') vibrationEnabled.value = settings.vibrationEnabled;
+      if (typeof settings.vibrationEnabled === 'boolean')
+        vibrationEnabled.value = settings.vibrationEnabled;
       if (settings.diceMode) diceMode.value = settings.diceMode;
-      if (typeof settings.notificationsEnabled === 'boolean') notificationsEnabled.value = settings.notificationsEnabled;
+      if (typeof settings.notificationsEnabled === 'boolean')
+        notificationsEnabled.value = settings.notificationsEnabled;
       if (settings.language) language.value = settings.language;
     } catch (e) {
       console.error('Failed to parse settings:', e);
@@ -222,7 +224,7 @@ export const useSettingsStore = defineStore('settings', () => {
     () => {
       saveToStorage();
     },
-    { deep: true }
+    { deep: true },
   );
 
   return {
