@@ -282,10 +282,10 @@ describe('Movement Calculation', () => {
 describe('Transition Application', () => {
   function applyTransition(cell: number): { finalCell: number; type: string } {
     if (cell in ARROWS) {
-      return { finalCell: ARROWS[cell], type: 'arrow' };
+      return { finalCell: ARROWS[cell] as number, type: 'arrow' };
     }
     if (cell in SNAKES) {
-      return { finalCell: SNAKES[cell], type: 'snake' };
+      return { finalCell: SNAKES[cell] as number, type: 'snake' };
     }
     return { finalCell: cell, type: 'none' };
   }
@@ -332,9 +332,9 @@ describe('Full Move Scenarios', () => {
     isVictory: boolean;
   } {
     const isTripleSix = rolls.length >= 3 && rolls.slice(0, 3).every((r) => r === 6);
-    const total = isTripleSix
-      ? rolls[3] || rolls[rolls.length - 1]
-      : rolls.reduce((a, b) => a + b, 0);
+    const total = (isTripleSix
+      ? (rolls[3] ?? rolls[rolls.length - 1])
+      : rolls.reduce((a, b) => a + b, 0)) || 0;
     const hasSix = rolls.includes(6);
 
     let endCell: number;
@@ -351,10 +351,10 @@ describe('Full Move Scenarios', () => {
     let transitionType = 'none';
 
     if (endCell in ARROWS) {
-      finalCell = ARROWS[endCell];
+      finalCell = ARROWS[endCell] as number;
       transitionType = 'arrow';
     } else if (endCell in SNAKES) {
-      finalCell = SNAKES[endCell];
+      finalCell = SNAKES[endCell] as number;
       transitionType = 'snake';
     }
 

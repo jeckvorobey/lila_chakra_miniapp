@@ -107,74 +107,74 @@ const gameStore = useGameStore();
 
 // Form state
 const query = ref('');
-const category = ref<QueryCategory>('SELF_DEVELOPMENT');
-const gameMode = ref<GameMode>('FREE');
+const category = ref<QueryCategory>('personality');
+const gameMode = ref<GameMode>('free');
 const isLoading = ref(false);
 
 // Categories
 const categories = computed(() => [
   {
-    value: 'RELATIONSHIPS' as QueryCategory,
+    value: 'relationships' as QueryCategory,
     label: t('query.category.relationships'),
     icon: 'mdi-heart',
   },
-  { value: 'CAREER' as QueryCategory, label: t('query.category.career'), icon: 'mdi-briefcase' },
-  { value: 'HEALTH' as QueryCategory, label: t('query.category.health'), icon: 'mdi-heart-pulse' },
+  { value: 'career' as QueryCategory, label: t('query.category.career'), icon: 'mdi-briefcase' },
+  { value: 'health' as QueryCategory, label: t('query.category.health'), icon: 'mdi-heart-pulse' },
   {
-    value: 'FINANCE' as QueryCategory,
+    value: 'finance' as QueryCategory,
     label: t('query.category.finance'),
     icon: 'mdi-currency-usd',
   },
   {
-    value: 'SPIRITUALITY' as QueryCategory,
-    label: t('query.category.spirituality'),
-    icon: 'mdi-yoga',
+    value: 'freedom' as QueryCategory,
+    label: t('query.category.freedom'),
+    icon: 'mdi-map',
   },
   {
-    value: 'SELF_DEVELOPMENT' as QueryCategory,
-    label: t('query.category.self_development'),
-    icon: 'mdi-account-arrow-up',
+    value: 'personality' as QueryCategory,
+    label: t('query.category.personality'),
+    icon: 'mdi-account-circle',
   },
 ]);
 
 // Game mode options
 const gameModeOptions = [
-  { value: 'FREE', label: 'Бесплатный (5 ходов/день)' },
-  { value: 'AI_INCOGNITO', label: 'AI Инкогнито (платный)' },
+  { value: 'free', label: 'Бесплатный (5 ходов/день)' },
+  { value: 'ai_incognito', label: 'AI Инкогнито (платный)' },
 ];
 
 // Example queries
 const examples = computed(() => {
   switch (category.value) {
-    case 'RELATIONSHIPS':
+    case 'relationships':
       return [
         'Как улучшить отношения с партнёром?',
         'Почему мне сложно доверять людям?',
         'Как найти гармонию в семье?',
       ];
-    case 'CAREER':
+    case 'career':
       return [
         'Как найти своё призвание?',
         'Стоит ли мне менять работу?',
         'Как развить лидерские качества?',
       ];
-    case 'HEALTH':
+    case 'health':
       return [
         'Как восстановить энергию?',
         'Что мешает мне быть здоровым?',
         'Как найти баланс тела и духа?',
       ];
-    case 'FINANCE':
+    case 'finance':
       return [
         'Как привлечь изобилие в жизнь?',
         'Что блокирует мой финансовый рост?',
         'Как изменить отношение к деньгам?',
       ];
-    case 'SPIRITUALITY':
+    case 'freedom':
       return [
-        'Какой мой следующий шаг на духовном пути?',
-        'Как развить интуицию?',
-        'В чём мой жизненный урок?',
+        'Куда мне стоит поехать?',
+        'Как обрести внутреннюю свободу?',
+        'Что мешает мне путешествовать?',
       ];
     default:
       return [

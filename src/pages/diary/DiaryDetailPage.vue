@@ -1,6 +1,6 @@
 <template>
   <q-page class="diary-detail" padding>
-    <q-skeleton v-if="isLoading" type="QCard" height="200px" />
+    <q-skeleton v-if="isLoading" type="rect" height="200px" />
 
     <template v-else-if="game">
       <!-- Query section -->

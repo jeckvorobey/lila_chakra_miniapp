@@ -5,15 +5,29 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { gamesApi, movesApi } from 'src/services/api';
+import { gamesApi, movesApi, cellsApi } from 'src/services/api';
 import type {
   GameDetail,
   MoveOut,
   MoveResponse,
   CellBrief,
+  CellOut,
   GameCreate,
   TransitionType,
+  GameMode,
+  QueryCategory,
+  DiceRollRequest,
 } from 'src/types/api';
+
+import {
+  ARROWS,
+  SNAKES,
+  WINNING_CELL,
+  MAX_CELL,
+  CHAKRA_ROWS,
+  CELLS_PER_ROW,
+  WAITING_ZONE,
+} from 'src/data/game-constants';
 
 // Re-export game constants for convenience
 export {
@@ -24,22 +38,16 @@ export {
   CHAKRA_ROWS,
   CELLS_PER_ROW,
   WAITING_ZONE,
-} from 'src/data/game-constants';
+};
 
-import {
-  ARROWS,
-  SNAKES,
-  WINNING_CELL,
-  MAX_CELL,
-  CELLS_PER_ROW,
-  WAITING_ZONE,
-} from 'src/data/game-constants';
+export type { GameMode, QueryCategory };
 
 export const useGameStore = defineStore('game', () => {
   // State
   const currentGame = ref<GameDetail | null>(null);
   const moves = ref<MoveOut[]>([]);
   const currentCellInfo = ref<CellBrief | null>(null);
+  const cells = ref<CellOut[]>([]);
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
@@ -55,6 +63,7 @@ export const useGameStore = defineStore('game', () => {
       currentGame.value &&
       ['waiting_for_6', 'in_progress', 'in_waiting_zone'].includes(currentGame.value.status),
   );
+
 
   const isWaitingFor6 = computed(() => currentGame.value?.status === 'waiting_for_6');
 
@@ -117,10 +126,10 @@ export const useGameStore = defineStore('game', () => {
    */
   function getTransition(cellId: number): { type: TransitionType; to: number | null } {
     if (cellId in ARROWS) {
-      return { type: 'arrow', to: ARROWS[cellId] };
+      return { type: 'arrow', to: ARROWS[cellId] ?? null };
     }
     if (cellId in SNAKES) {
-      return { type: 'snake', to: SNAKES[cellId] };
+      return { type: 'snake', to: SNAKES[cellId] ?? null };
     }
     return { type: 'none', to: null };
   }
@@ -200,10 +209,14 @@ export const useGameStore = defineStore('game', () => {
     error.value = null;
 
     try {
-      const response = await gamesApi.rollDice(currentGame.value.id, {
+      const request: DiceRollRequest = {
         is_manual: manualValue !== undefined,
-        manual_value: manualValue,
-      });
+      };
+      if (manualValue !== undefined) {
+        request.manual_value = manualValue;
+      }
+
+      const response = await gamesApi.rollDice(currentGame.value.id, request);
 
       // Update state
       moves.value.push(response.move);
@@ -305,12 +318,47 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Fetch all cells data
+   */
+  async function fetchAllCells(): Promise<void> {
+    try {
+      cells.value = await cellsApi.list();
+    } catch (err) {
+      console.error('Failed to fetch cells:', err);
+    }
+  }
+
+  /**
+   * Get full cell info by ID
+   */
+  async function getCellInfo(cellId: number): Promise<CellOut | null> {
+    // Try from local cache first
+    const cached = cells.value.find((c) => c.id === cellId);
+    if (cached) return cached;
+
+    try {
+      return await cellsApi.get(cellId);
+    } catch (err) {
+      console.error(`Failed to fetch cell info for ${cellId}:`, err);
+      return null;
+    }
+  }
+
+  /**
+   * Manual move (alias for rollDice)
+   */
+  async function manualMove(value: number): Promise<MoveResponse | null> {
+    return rollDice(value);
+  }
+
+  /**
    * Reset store on logout
    */
   function reset(): void {
     currentGame.value = null;
     moves.value = [];
     currentCellInfo.value = null;
+    cells.value = [];
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
@@ -331,6 +379,7 @@ export const useGameStore = defineStore('game', () => {
     currentGame,
     moves,
     currentCellInfo,
+    cells,
     isLoading,
     isRolling,
     error,
@@ -365,6 +414,9 @@ export const useGameStore = defineStore('game', () => {
     createGame,
     loadGame,
     rollDice,
+    manualMove,
+    fetchAllCells,
+    getCellInfo,
     completeEntryMeditation,
     completeExitMeditation,
     endGame,

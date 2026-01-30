@@ -40,8 +40,31 @@ $typography-font-family:
 $generic-border-radius: 16px;
 
 // Spacing
-$space-xs: 4px;
-$space-sm: 8px;
-$space-md: 16px;
-$space-lg: 24px;
-$space-xl: 32px;
+$spaces: (
+  'none': (
+    'x': 0,
+    'y': 0,
+  ),
+  'xs': (
+    'x': 4px,
+    'y': 4px,
+  ),
+  'sm': (
+    'x': 8px,
+    'y': 8px,
+  ),
+  'md': (
+    'x': 16px,
+    'y': 16px,
+  ),
+  'lg': (
+    'x': 24px,
+    'y': 24px,
+  ),
+  'xl': (
+    'x': 48px,
+    'y': 48px,
+  ),
+);
+
+

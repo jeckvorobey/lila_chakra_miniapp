@@ -85,11 +85,11 @@ const textColor = computed(() => {
   return undefined;
 });
 
-function handleClick(event: MouseEvent) {
+function handleClick(event: Event) {
   if (!props.disable && !props.loading) {
     // Haptic feedback
     settingsStore.vibrate(25);
-    emit('click', event);
+    emit('click', event as MouseEvent);
   }
 }
 </script>

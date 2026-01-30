@@ -124,7 +124,7 @@
       :chakra-name="selectedCell.chakra_name"
       :description="selectedCell.description_ru"
       :affirmation="selectedCell.affirmation_ru"
-      :question="selectedCell.question_ru"
+      :question="selectedCell.question_ru ?? ''"
       @write-insight="openInsightModal"
     />
 
@@ -172,7 +172,9 @@
         <div v-if="gameStore.currentDiceRolls.length > 1" class="q-mt-md text-center">
           <div class="text-caption text-secondary">
             {{ gameStore.currentDiceRolls.join(' + ') }} =
-            <strong>{{ gameStore.currentDiceRolls.reduce((a, b) => a + b, 0) }}</strong>
+            <strong>{{
+              gameStore.currentDiceRolls.reduce((a: number, b: number) => a + b, 0)
+            }}</strong>
           </div>
         </div>
       </div>
@@ -245,13 +247,13 @@ async function performRoll() {
       });
     }
 
-    if (result.move.transition_type === 'ARROW') {
+    if (result.move.transition_type === 'arrow') {
       $q.notify({
         type: 'positive',
         message: `Стрела! Подъём на клетку ${result.move.final_cell}`,
         icon: 'mdi-arrow-up-bold',
       });
-    } else if (result.move.transition_type === 'SNAKE') {
+    } else if (result.move.transition_type === 'snake') {
       $q.notify({
         type: 'negative',
         message: `Змея! Спуск на клетку ${result.move.final_cell}`,
@@ -259,7 +261,7 @@ async function performRoll() {
       });
     }
 
-    if (result.game_completed) {
+    if (result.is_victory) {
       showVictory();
     }
   }
@@ -270,6 +272,23 @@ async function performManualMove(value: number) {
   if (result) {
     showDiceModal.value = false;
     // Same notifications as performRoll
+    if (result.move.transition_type === 'arrow') {
+      $q.notify({
+        type: 'positive',
+        message: `Стрела! Подъём на клетку ${result.move.final_cell}`,
+        icon: 'mdi-arrow-up-bold',
+      });
+    } else if (result.move.transition_type === 'snake') {
+      $q.notify({
+        type: 'negative',
+        message: `Змея! Спуск на клетку ${result.move.final_cell}`,
+        icon: 'mdi-snake',
+      });
+    }
+
+    if (result.is_victory) {
+      showVictory();
+    }
   }
 }
 
@@ -288,15 +307,14 @@ function onCellLongPress(cellId: number) {
 async function showCellInfoById(cellId: number) {
   const cellInfo = await gameStore.getCellInfo(cellId);
   if (cellInfo) {
-    selectedCell.value = cellInfo as CellInfo;
+    selectedCell.value = cellInfo as unknown as CellInfo;
     showCellModal.value = true;
   }
 }
 
-function showCellInfo() {
-  if (gameStore.currentCellInfo) {
-    selectedCell.value = gameStore.currentCellInfo as CellInfo;
-    showCellModal.value = true;
+async function showCellInfo() {
+  if (gameStore.currentCell) {
+    await showCellInfoById(gameStore.currentCell);
   }
 }
 
