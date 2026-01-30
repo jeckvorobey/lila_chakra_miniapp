@@ -95,7 +95,7 @@ npm run build
 
 ## Структура проекта
 
-```plaintext
+```bash
 src/
 ├── assets/        # Статические файлы (изображения, шрифты и т.д.)
 ├── boot/          # Плагины и инициализация (например, axios.ts)
@@ -141,12 +141,6 @@ src/
 - **Prettier 3** — форматирование кода
 - **Vue ESLint Plugin** — правила для Vue компонентов
 - **SCSS/PostCSS** — препроцессор для стилей
-
-### Тестирование
-
-- **Vitest** — unit тесты
-- **Vue Test Utils** — утилиты для тестирования Vue компонентов
-- **Happy DOM** — лёгкая DOM реализация для тестов
 
 ## Стиль кодирования
 
@@ -226,27 +220,6 @@ const gameStore = useGameStore()
 </template>
 ```
 
-## Работа с API (Axios)
-
-HTTP клиент настроен в `src/boot/axios.ts`:
-
-```typescript
-// src/services/api.ts
-import axios from 'axios'
-
-export const gameApi = {
-  async getGameState() {
-    const { data } = await axios.get('/api/game/state')
-    return data
-  },
-
-  async makeMove(move: Move) {
-    const { data } = await axios.post('/api/game/move', move)
-    return data
-  },
-}
-```
-
 ## Локализация (Vue i18n)
 
 ### Добавление новых переводов
@@ -301,63 +274,6 @@ export interface Move {
   newPosition: number
   timestamp: Date
 }
-```
-
-### Создание нового компонента
-
-```typescript
-// src/components/GameBoard.vue
-<script setup lang="ts">
-import type { Cell } from '@/types/game'
-
-interface Props {
-  cells: Cell[]
-  currentPosition: number
-}
-
-withDefaults(defineProps<Props>(), {
-  currentPosition: 0,
-})
-
-const emit = defineEmits<{
-  cellClick: [id: number]
-}>()
-</script>
-
-<template>
-  <div class="game-board">
-    <div
-      v-for="cell in cells"
-      :key="cell.id"
-      class="cell"
-      :class="{ active: currentPosition === cell.id }"
-      @click="emit('cellClick', cell.id)"
-    >
-      {{ cell.id }}
-    </div>
-  </div>
-</template>
-
-<style scoped lang="scss">
-.game-board {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 8px;
-}
-
-.cell {
-  padding: 16px;
-  background: #f0f0f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &.active {
-    background: #667eea;
-    color: white;
-  }
-}
-</style>
 ```
 
 ## Telegram Mini App специфика
@@ -434,7 +350,7 @@ yarn dev --poll  # Используйте polling если нужно
 ## Полезные команды
 
 | Команда | Описание |
-|---------|---------|
+| --------- | --------- |
 | `yarn dev` | Запустить dev сервер с HMR |
 | `yarn lint && yarn format` | Проверить и отформатировать код |
 | `yarn test:unit` | Запустить тесты один раз |
@@ -450,11 +366,6 @@ yarn dev --poll  # Используйте polling если нужно
 - **Vue Router**: <https://router.vuejs.org/>
 - **Vue i18n**: <https://vue-i18n.intlify.dev/>
 - **Axios**: <https://axios-http.com/>
-
-## Проект документация
-
-- `../MVP.md` — спецификация MVP, правила игры, все 72 клетки
-- `../ROADMAP.md` — план развития (AI Enhancement, подписки, партнёрка)
 
 ## Лицензия
 
