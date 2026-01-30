@@ -95,7 +95,7 @@ npm run build
 
 ## Структура проекта
 
-```
+```plaintext
 src/
 ├── assets/        # Статические файлы (изображения, шрифты и т.д.)
 ├── boot/          # Плагины и инициализация (например, axios.ts)
@@ -118,26 +118,32 @@ src/
 ## Технологический стек
 
 ### Фреймворк и UI
+
 - **Quasar v2.16** — компонентный UI фреймворк на основе Vue 3
 - **Vue 3** — прогрессивный JavaScript фреймворк
 - **Vue Router v4** — маршрутизация
 
 ### State Management
+
 - **Pinia v3** — управление состоянием (замена Vuex)
 
 ### HTTP и интеграции
+
 - **Axios** — HTTP клиент для API запросов (настроен в `src/boot/axios.ts`)
 
 ### Локализация
+
 - **Vue i18n v11** — интернационализация интерфейса (поддержка en-US, по умолчанию)
 
 ### Стиль и форматирование
+
 - **ESLint 9** — статический анализ кода (flat config)
 - **Prettier 3** — форматирование кода
 - **Vue ESLint Plugin** — правила для Vue компонентов
 - **SCSS/PostCSS** — препроцессор для стилей
 
 ### Тестирование
+
 - **Vitest** — unit тесты
 - **Vue Test Utils** — утилиты для тестирования Vue компонентов
 - **Happy DOM** — лёгкая DOM реализация для тестов
@@ -167,6 +173,7 @@ const emit = defineEmits<{
 ```
 
 Стандарты:
+
 - **Отступы**: 2 пробела
 - **Кавычки**: одинарные (`'string'`)
 - **Максимальная длина строки**: 100 символов
@@ -437,12 +444,12 @@ yarn dev --poll  # Используйте polling если нужно
 
 ## Документация
 
-- **Quasar docs**: https://v2.quasar.dev/
-- **Vue 3**: https://vuejs.org/
-- **Pinia**: https://pinia.vuejs.org/
-- **Vue Router**: https://router.vuejs.org/
-- **Vue i18n**: https://vue-i18n.intlify.dev/
-- **Axios**: https://axios-http.com/
+- **Quasar docs**: <https://v2.quasar.dev/>
+- **Vue 3**: <https://vuejs.org/>
+- **Pinia**: <https://pinia.vuejs.org/>
+- **Vue Router**: <https://router.vuejs.org/>
+- **Vue i18n**: <https://vue-i18n.intlify.dev/>
+- **Axios**: <https://axios-http.com/>
 
 ## Проект документация
 
