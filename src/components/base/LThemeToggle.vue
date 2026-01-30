@@ -4,7 +4,7 @@
     round
     :icon="isDark ? 'dark_mode' : 'light_mode'"
     :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-    class="l-theme-toggle"
+    color="grey"
     @click="toggleTheme"
   >
     <q-tooltip>
@@ -18,14 +18,3 @@ import { useTheme } from 'src/composables/useTheme';
 
 const { isDark, toggleTheme } = useTheme();
 </script>
-
-<style lang="scss" scoped>
-.l-theme-toggle {
-  color: var(--lila-text-secondary);
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: var(--lila-text-primary);
-  }
-}
-</style>

@@ -1,7 +1,7 @@
 <template>
-  <q-page class="game-page">
+  <q-page class="column" style="padding-bottom: 64px">
     <!-- No active game state -->
-    <div v-if="!hasActiveGame" class="game-page__empty column items-center justify-center">
+    <div v-if="!hasActiveGame" class="col column items-center justify-center q-pa-xl">
       <q-icon name="mdi-gamepad-variant" size="64px" color="primary" class="q-mb-md" />
       <div class="text-h5 text-weight-medium q-mb-sm">{{ $t('game.title') }}</div>
       <p class="text-body2 text-secondary text-center q-mb-lg" style="max-width: 280px">
@@ -21,7 +21,7 @@
     <!-- Active game -->
     <template v-else>
       <!-- Game info header -->
-      <div class="game-page__info">
+      <div class="q-pa-md bg-glass">
         <div class="row items-center q-gutter-sm">
           <q-chip
             :color="currentChakra > 0 ? undefined : 'grey'"
@@ -36,7 +36,6 @@
           </q-chip>
         </div>
 
-        <!-- Progress bar -->
         <l-progress-bar
           :current-cell="gameStore.currentCell"
           :show-chakra-indicator="true"
@@ -45,7 +44,7 @@
       </div>
 
       <!-- Game board -->
-      <div class="game-page__board">
+      <div class="col scroll q-pa-sm">
         <l-board
           :current-cell="gameStore.currentCell"
           :show-transitions="true"
@@ -54,11 +53,11 @@
         />
       </div>
 
-      <!-- Action panel (bottom sheet style) -->
-      <div class="game-page__actions">
-        <q-card class="game-page__action-card" flat>
+      <!-- Action panel -->
+      <div class="game-actions">
+        <q-card flat class="bg-glass rounded-borders-top">
           <q-card-section class="q-pa-md">
-            <!-- Current cell info (compact) -->
+            <!-- Current cell info -->
             <div v-if="gameStore.currentCellInfo" class="row items-center q-mb-md">
               <q-avatar
                 :style="{ background: `var(--chakra-${currentChakra})` }"
@@ -131,7 +130,6 @@
     <!-- Dice modal -->
     <l-modal v-model="showDiceModal" :title="$t('dice.roll')" position="bottom">
       <div class="column items-center q-pa-md">
-        <!-- Mode toggle -->
         <q-btn-toggle
           v-model="diceMode"
           :options="[
@@ -144,7 +142,6 @@
           unelevated
         />
 
-        <!-- Auto dice -->
         <template v-if="diceMode === 'auto'">
           <l-dice
             :result="lastDiceResult"
@@ -163,12 +160,10 @@
           />
         </template>
 
-        <!-- Manual dice -->
         <template v-else>
           <l-dice-manual v-model="manualDiceValue" @confirm="performManualMove" />
         </template>
 
-        <!-- Roll history (for 6s chain) -->
         <div v-if="gameStore.currentDiceRolls.length > 1" class="q-mt-md text-center">
           <div class="text-caption text-secondary">
             {{ gameStore.currentDiceRolls.join(' + ') }} =
@@ -197,7 +192,6 @@ const router = useRouter();
 const gameStore = useGameStore();
 const settingsStore = useSettingsStore();
 
-// UI state
 const showCellModal = ref(false);
 const showDiceModal = ref(false);
 const diceMode = ref<'auto' | 'manual'>('auto');
@@ -216,14 +210,12 @@ interface CellInfo {
 
 const selectedCell = ref<CellInfo | null>(null);
 
-// Computed
 const hasActiveGame = computed(() => gameStore.isGameActive);
 const currentChakra = computed(() => {
   if (gameStore.currentCell <= 0) return 0;
   return Math.ceil(gameStore.currentCell / 9);
 });
 
-// Methods
 function startNewGame() {
   void router.push('/game/new');
 }
@@ -238,13 +230,8 @@ async function performRoll() {
     lastDiceResult.value = result.move.dice_rolls[result.move.dice_rolls.length - 1] ?? null;
     settingsStore.vibrate([30, 20, 50]);
 
-    // Check for special events
     if (result.move.is_triple_six) {
-      $q.notify({
-        type: 'warning',
-        message: '666 - Сгорание!',
-        icon: 'mdi-fire',
-      });
+      $q.notify({ type: 'warning', message: '666 - Сгорание!', icon: 'mdi-fire' });
     }
 
     if (result.move.transition_type === 'arrow') {
@@ -271,7 +258,7 @@ async function performManualMove(value: number) {
   const result = await gameStore.manualMove(value);
   if (result) {
     showDiceModal.value = false;
-    // Same notifications as performRoll
+
     if (result.move.transition_type === 'arrow') {
       $q.notify({
         type: 'positive',
@@ -319,7 +306,6 @@ async function showCellInfo() {
 }
 
 function openInsightModal() {
-  // Open insight writing modal
   showCellModal.value = false;
 }
 
@@ -347,46 +333,19 @@ function showVictory() {
 }
 
 onMounted(() => {
-  // Load cells data for board
   void gameStore.fetchAllCells();
 });
 </script>
 
 <style lang="scss" scoped>
-.game-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  padding-bottom: 64px; // Bottom nav height
+.game-actions {
+  position: sticky;
+  bottom: 64px;
+  z-index: 10;
+}
 
-  &__empty {
-    flex: 1;
-    padding: var(--space-xl);
-  }
-
-  &__info {
-    padding: var(--space-md);
-    background: var(--lila-glass-bg);
-    backdrop-filter: var(--lila-glass-blur);
-  }
-
-  &__board {
-    flex: 1;
-    overflow: hidden;
-    padding: var(--space-sm);
-  }
-
-  &__actions {
-    position: sticky;
-    bottom: 64px; // Above bottom nav
-    z-index: 10;
-  }
-
-  &__action-card {
-    background: var(--lila-glass-bg);
-    backdrop-filter: var(--lila-glass-blur);
-    border-top: 1px solid var(--lila-border);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  }
+.rounded-borders-top {
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid var(--lila-border);
 }
 </style>

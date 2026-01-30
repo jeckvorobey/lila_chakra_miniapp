@@ -1,22 +1,22 @@
 <template>
-  <div class="l-progress">
-    <div v-if="showLabel" class="l-progress__label">
-      <span class="l-progress__label-text">{{ label }}</span>
-      <span class="l-progress__label-value">{{ currentCell }}/{{ maxCell }}</span>
+  <div class="l-progress full-width">
+    <div v-if="showLabel" class="row justify-between items-center q-mb-xs">
+      <span class="text-caption text-secondary text-uppercase">{{ label }}</span>
+      <span class="text-body2 text-weight-bold">{{ currentCell }}/{{ maxCell }}</span>
     </div>
     <div class="l-progress__track">
       <div class="l-progress__fill" :style="fillStyle" />
       <div v-if="showMarker" class="l-progress__marker" :style="markerStyle" />
     </div>
-    <div v-if="showChakraIndicator" class="l-progress__chakras">
+    <div v-if="showChakraIndicator" class="row justify-between q-mt-sm q-px-xs">
       <div
         v-for="chakra in 8"
         :key="chakra"
         class="l-progress__chakra"
         :class="{
           'l-progress__chakra--active': chakra <= currentChakra,
-          [`l-progress__chakra--${chakra}`]: true,
         }"
+        :style="chakra <= currentChakra ? { backgroundColor: `var(--chakra-${chakra})` } : {}"
       />
     </div>
   </div>
@@ -42,32 +42,28 @@ const props = withDefaults(defineProps<Props>(), {
   showChakraIndicator: false,
 });
 
-// Calculate progress percentage
 const progress = computed(() => {
   if (props.currentCell <= 0) return 0;
   return Math.min((props.currentCell / props.maxCell) * 100, 100);
 });
 
-// Calculate current chakra level (1-8)
 const currentChakra = computed(() => {
   if (props.currentCell <= 0) return 0;
   return Math.ceil(props.currentCell / 9);
 });
 
-// Generate gradient based on current position
 const fillStyle = computed(() => {
   const chakraColors = [
-    '#DC2626', // 1 - Muladhara
-    '#EA580C', // 2 - Svadhisthana
-    '#FBBF24', // 3 - Manipura
-    '#22C55E', // 4 - Anahata
-    '#0EA5E9', // 5 - Vishuddha
-    '#4F46E5', // 6 - Ajna
-    '#9333EA', // 7 - Sahasrara
-    '#F5F5F4', // 8 - Absolute
+    '#DC2626',
+    '#EA580C',
+    '#FBBF24',
+    '#22C55E',
+    '#0EA5E9',
+    '#4F46E5',
+    '#9333EA',
+    '#F5F5F4',
   ];
 
-  // Create gradient stops based on progress
   const stops = chakraColors
     .slice(0, currentChakra.value || 1)
     .map((color, i, arr) => `${color} ${(i / arr.length) * 100}%`)
@@ -79,7 +75,6 @@ const fillStyle = computed(() => {
   };
 });
 
-// Marker position
 const markerStyle = computed(() => ({
   left: `${progress.value}%`,
 }));
@@ -87,34 +82,11 @@ const markerStyle = computed(() => ({
 
 <style lang="scss" scoped>
 .l-progress {
-  width: 100%;
-
-  &__label {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-xs);
-
-    &-text {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--lila-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    &-value {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--lila-text-primary);
-    }
-  }
-
   &__track {
     position: relative;
     height: 8px;
     background-color: var(--lila-surface);
-    border-radius: var(--radius-full);
+    border-radius: 9999px;
     overflow: visible;
 
     .body--light & {
@@ -124,7 +96,7 @@ const markerStyle = computed(() => ({
 
   &__fill {
     height: 100%;
-    border-radius: var(--radius-full);
+    border-radius: 9999px;
     transition: width 0.4s ease;
 
     .body--dark & {
@@ -153,13 +125,6 @@ const markerStyle = computed(() => ({
     }
   }
 
-  &__chakras {
-    display: flex;
-    justify-content: space-between;
-    margin-top: var(--space-sm);
-    padding: 0 4px;
-  }
-
   &__chakra {
     width: 8px;
     height: 8px;
@@ -169,62 +134,7 @@ const markerStyle = computed(() => ({
 
     &--active {
       transform: scale(1.2);
-    }
-
-    &--1 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-1);
-        box-shadow: 0 0 6px var(--chakra-1);
-      }
-    }
-
-    &--2 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-2);
-        box-shadow: 0 0 6px var(--chakra-2);
-      }
-    }
-
-    &--3 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-3);
-        box-shadow: 0 0 6px var(--chakra-3);
-      }
-    }
-
-    &--4 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-4);
-        box-shadow: 0 0 6px var(--chakra-4);
-      }
-    }
-
-    &--5 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-5);
-        box-shadow: 0 0 6px var(--chakra-5);
-      }
-    }
-
-    &--6 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-6);
-        box-shadow: 0 0 6px var(--chakra-6);
-      }
-    }
-
-    &--7 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-7);
-        box-shadow: 0 0 6px var(--chakra-7);
-      }
-    }
-
-    &--8 {
-      &.l-progress__chakra--active {
-        background-color: var(--chakra-8);
-        box-shadow: 0 0 6px var(--chakra-8);
-      }
+      box-shadow: 0 0 6px currentColor;
     }
   }
 }

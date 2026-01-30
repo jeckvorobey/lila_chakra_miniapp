@@ -1,7 +1,7 @@
 <template>
-  <q-page class="profile-page" padding>
+  <q-page padding style="padding-bottom: 80px">
     <!-- User info -->
-    <div class="profile-page__header row items-center q-mb-lg">
+    <div class="row items-center q-mb-lg">
       <q-avatar size="64px" color="primary" text-color="white" class="q-mr-md">
         <img v-if="user?.photo_url" :src="user.photo_url" />
         <span v-else class="text-h5">{{ userInitials }}</span>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Balance card -->
-    <q-card flat bordered class="profile-page__balance q-mb-lg">
+    <q-card flat bordered class="q-mb-lg bg-surface">
       <q-card-section class="row items-center">
         <div class="col">
           <div class="text-overline text-secondary">{{ $t('profile.balance') }}</div>
@@ -32,19 +32,19 @@
 
     <!-- Stats -->
     <div class="row q-gutter-sm q-mb-lg">
-      <q-card flat bordered class="col">
+      <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
           <div class="text-h5 text-weight-bold text-primary">{{ stats.gamesPlayed }}</div>
           <div class="text-caption text-secondary">{{ $t('profile.games_played') }}</div>
         </q-card-section>
       </q-card>
-      <q-card flat bordered class="col">
+      <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
           <div class="text-h5 text-weight-bold text-positive">{{ stats.gamesCompleted }}</div>
           <div class="text-caption text-secondary">{{ $t('profile.games_completed') }}</div>
         </q-card-section>
       </q-card>
-      <q-card flat bordered class="col">
+      <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
           <div class="text-h5 text-weight-bold text-warning">{{ stats.highestLevel }}</div>
           <div class="text-caption text-secondary">{{ $t('profile.highest_level') }}</div>
@@ -54,7 +54,7 @@
 
     <!-- Settings -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.settings') }}</div>
-    <q-list bordered separator class="rounded-borders q-mb-lg">
+    <q-list bordered separator class="rounded-borders q-mb-lg bg-surface">
       <!-- Theme -->
       <q-item>
         <q-item-section avatar>
@@ -130,7 +130,7 @@
     </q-list>
 
     <!-- Support links -->
-    <q-list bordered separator class="rounded-borders">
+    <q-list bordered separator class="rounded-borders bg-surface">
       <q-item clickable>
         <q-item-section avatar>
           <q-icon name="mdi-book-open-variant" />
@@ -202,15 +202,3 @@ onMounted(() => {
   void userStore.fetchStats();
 });
 </script>
-
-<style lang="scss" scoped>
-.profile-page {
-  min-height: 100%;
-  padding-bottom: 80px;
-
-  &__balance {
-    background: var(--lila-surface);
-    border-color: var(--lila-primary);
-  }
-}
-</style>

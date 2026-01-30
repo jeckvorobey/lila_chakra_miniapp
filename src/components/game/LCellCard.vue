@@ -1,8 +1,7 @@
 <template>
   <l-modal v-model="isOpen" :title="cellName" position="bottom" max-width="100%">
     <template #header>
-      <div class="l-cell-card__header">
-        <!-- Cell number badge -->
+      <div class="row items-center q-gutter-md q-pa-md">
         <q-avatar
           :style="{ background: chakraColor }"
           size="48px"
@@ -12,7 +11,7 @@
           {{ cellId }}
         </q-avatar>
 
-        <div class="l-cell-card__header-text">
+        <div class="col">
           <div class="text-h6 text-weight-bold">{{ cellName }}</div>
           <div class="text-caption text-secondary">
             <q-icon name="mdi-yoga" size="14px" class="q-mr-xs" />
@@ -25,21 +24,25 @@
     </template>
 
     <q-scroll-area style="height: 60vh">
-      <div class="l-cell-card__content">
+      <div class="q-pa-md">
         <!-- Cell illustration -->
-        <div class="l-cell-card__image q-mb-md">
-          <q-img v-if="imageUrl" :src="imageUrl" :ratio="16 / 10" class="rounded-borders">
+        <div class="q-mb-md rounded-borders overflow-hidden">
+          <q-img v-if="imageUrl" :src="imageUrl" :ratio="16 / 10">
             <template #loading>
               <q-skeleton type="rect" class="full-width full-height" />
             </template>
           </q-img>
-          <div v-else class="l-cell-card__image-placeholder">
+          <div
+            v-else
+            class="column items-center justify-center bg-surface rounded-borders"
+            style="aspect-ratio: 16 / 10"
+          >
             <q-icon name="mdi-image-outline" size="48px" color="grey-6" />
           </div>
         </div>
 
         <!-- Description -->
-        <div class="l-cell-card__section">
+        <div class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
             {{ $t('cell.description') }}
           </div>
@@ -47,7 +50,7 @@
         </div>
 
         <!-- Affirmation -->
-        <q-card flat bordered class="l-cell-card__affirmation q-my-md">
+        <q-card flat bordered class="q-my-md bg-surface">
           <q-card-section>
             <div class="text-overline text-secondary q-mb-xs">
               {{ $t('cell.affirmation') }}
@@ -57,7 +60,7 @@
         </q-card>
 
         <!-- Reflection question -->
-        <div v-if="question" class="l-cell-card__section">
+        <div v-if="question" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
             {{ $t('cell.question') }}
           </div>
@@ -87,12 +90,12 @@
           </div>
         </q-banner>
 
-        <!-- AI Interpretation (if available) -->
+        <!-- AI Interpretation -->
         <q-expansion-item
           v-if="aiInterpretation"
           icon="mdi-robot"
           :label="$t('cell.ai_interpretation')"
-          class="l-cell-card__ai q-mt-md"
+          class="q-mt-md bg-surface rounded-borders"
           header-class="text-primary"
         >
           <q-card>
@@ -102,15 +105,15 @@
           </q-card>
         </q-expansion-item>
 
-        <!-- Audio player (compact) -->
-        <div v-if="audioUrl" class="l-cell-card__audio q-mt-md">
+        <!-- Audio player -->
+        <div v-if="audioUrl" class="row items-center q-pa-md q-mt-md bg-surface rounded-borders">
           <q-btn
             round
             color="primary"
             :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"
             @click="toggleAudio"
           />
-          <div class="l-cell-card__audio-info q-ml-md">
+          <div class="col q-ml-md">
             <div class="text-caption text-secondary">Audio description</div>
             <q-linear-progress :value="audioProgress" color="primary" class="q-mt-xs" rounded />
           </div>
@@ -172,7 +175,6 @@ const isOpen = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-// Chakra colors
 const chakraColors: Record<number, string> = {
   1: '#DC2626',
   2: '#EA580C',
@@ -186,12 +188,10 @@ const chakraColors: Record<number, string> = {
 
 const chakraColor = computed(() => chakraColors[props.chakraLevel] || chakraColors[1]);
 
-// Transition checks
 const isArrow = computed(() => props.cellId in ARROWS);
 const isSnake = computed(() => props.cellId in SNAKES);
 const transitionTarget = computed(() => ARROWS[props.cellId] || SNAKES[props.cellId]);
 
-// Audio player state
 const isPlaying = ref(false);
 const audioProgress = ref(0);
 
@@ -201,80 +201,9 @@ function close() {
 
 function toggleAudio() {
   isPlaying.value = !isPlaying.value;
-  // Audio logic would go here
 }
 
 function openInsightModal() {
   emit('write-insight');
 }
 </script>
-
-<style lang="scss" scoped>
-.l-cell-card {
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-md);
-    border-bottom: 1px solid var(--lila-border);
-  }
-
-  &__header-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__content {
-    padding: var(--space-md);
-  }
-
-  &__image {
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  &__image-placeholder {
-    aspect-ratio: 16 / 10;
-    background: var(--lila-surface);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-md);
-  }
-
-  &__section {
-    margin-bottom: var(--space-md);
-  }
-
-  &__affirmation {
-    background: var(--lila-surface);
-    border-color: var(--lila-primary) !important;
-  }
-
-  &__ai {
-    background: var(--lila-surface);
-    border-radius: var(--radius-md);
-  }
-
-  &__audio {
-    display: flex;
-    align-items: center;
-    padding: var(--space-md);
-    background: var(--lila-surface);
-    border-radius: var(--radius-md);
-  }
-
-  &__audio-info {
-    flex: 1;
-  }
-}
-
-// Banner colors for light backgrounds
-.bg-positive-light {
-  background: rgba(34, 197, 94, 0.1) !important;
-}
-
-.bg-negative-light {
-  background: rgba(239, 68, 68, 0.1) !important;
-}
-</style>
