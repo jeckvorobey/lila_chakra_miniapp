@@ -1,38 +1,38 @@
-// Quasar SCSS Variables
-// Lila Chakra - Based on Pencil Design Spec
+// Переменные Quasar SCSS
+// Лила Чакра - На основе спецификации дизайна Pencil
 // --------------------------------------------------
 
 // ================================
-// Brand Colors
+// Цвета бренда
 // ================================
-$primary: #6b46c1; // Deep Purple (Wisdom)
-$secondary: #f6ad55; // Warm Orange (Energy)
-$accent: #38b2ac; // Teal (Balance)
+$primary: #6b46c1; // Глубокий фиолетовый (Мудрость)
+$secondary: #f6ad55; // Тёплый оранжевый (Энергия)
+$accent: #38b2ac; // Морской волны (Баланс)
 
-// Status Colors
-$positive: #22c55e; // Success
-$negative: #ef4444; // Error
-$info: #3b82f6; // Info
-$warning: #f59e0b; // Warning
+// Цвета статуса
+$positive: #22c55e; // Успешно
+$negative: #ef4444; // Ошибка
+$info: #3b82f6; // Информация
+$warning: #f59e0b; // Предупреждение
 
 // ================================
-// Dark Theme (Default)
+// Тёмная тема (по умолчанию)
 // ================================
-$dark: #1a1625; // Surface
-$dark-page: #0f0d1a; // Background
+$dark: #1a1625; // Поверхность
+$dark-page: #0f0d1a; // Фон
 
-// Body text colors for dark mode
-$body-dark-text-color: #f5f5f4; // Off-white
+// Цвета текста тела для тёмного режима
+$body-dark-text-color: #f5f5f4; // Почти белый
 $body-dark-background: #0f0d1a;
 
 // ================================
-// Light Theme
+// Светлая тема
 // ================================
 $body-light-text-color: #1c1917;
 $body-light-background: #fafaf9;
 
 // ================================
-// Typography
+// Типография
 // ================================
 $typography-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
   sans-serif;
@@ -111,13 +111,13 @@ $overline: (
 );
 
 // ================================
-// Border Radius
+// Радиус границы
 // ================================
 $generic-border-radius: 16px;
 $button-border-radius: 16px;
 
 // ================================
-// Spacing (used by Quasar q-pa-*, q-ma-* classes)
+// Отступы (используются классами Quasar q-pa-*, q-ma-*)
 // ================================
 $flex-gutter-xs: 4px;
 $flex-gutter-sm: 8px;
@@ -126,19 +126,19 @@ $flex-gutter-lg: 24px;
 $flex-gutter-xl: 32px;
 
 // ================================
-// Component-specific Variables
+// Переменные компонентов
 // ================================
 
-// Button
+// Кнопка
 $button-font-weight: 600;
 $button-push-min-height: 52px;
 $button-padding: 0 24px;
 
-// Card
+// Карточка
 $card-border-radius: 16px;
 
-// Toolbar
+// Панель инструментов
 $toolbar-min-height: 56px;
 
-// Tabs
+// Вкладки
 $tabs-height: 64px;

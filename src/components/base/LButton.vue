@@ -104,7 +104,7 @@ function handleClick(event: Event) {
     transform: scale(0.95);
   }
 
-  // Sizes
+  // Размеры
   &--sm {
     height: 40px;
     padding: 0 16px;
@@ -122,7 +122,7 @@ function handleClick(event: Event) {
     font-size: 18px;
   }
 
-  // Variants
+  // Варианты
   &--primary {
     background: linear-gradient(135deg, $primary, color.adjust($primary, $lightness: -10%)) !important;
 

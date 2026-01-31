@@ -1,9 +1,9 @@
 /**
- * Game constants for Lila Chakra.
- * Pure data without dependencies - safe for testing.
+ * Константы игры Лила Чакра.
+ * Чистые данные без зависимостей - безопасны для тестирования.
  */
 
-// Arrows (virtues) - take player up
+// Стрелы (добродетели) - поднимают игрока вверх
 export const ARROWS: Record<number, number> = {
   10: 23,
   17: 69,
@@ -16,7 +16,7 @@ export const ARROWS: Record<number, number> = {
   46: 62,
 };
 
-// Snakes (vices) - take player down
+// Змеи (пороки) - опускают игрока вниз
 export const SNAKES: Record<number, number> = {
   12: 8,
   16: 4,
@@ -30,11 +30,11 @@ export const SNAKES: Record<number, number> = {
   72: 51,
 };
 
-// Board dimensions
+// Размеры доски
 export const WINNING_CELL = 68;
 export const MAX_CELL = 72;
 export const CHAKRA_ROWS = 8;
 export const CELLS_PER_ROW = 9;
 
-// Waiting zone cells (69-71)
+// Клетки зоны ожидания (69-71)
 export const WAITING_ZONE = new Set([69, 70, 71]);

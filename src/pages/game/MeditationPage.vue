@@ -1,6 +1,6 @@
 <template>
   <q-page class="meditation-page">
-    <!-- Animated background -->
+    <!-- Анимированный фон -->
     <div class="meditation-page__background">
       <div class="meditation-page__particles">
         <span
@@ -13,7 +13,7 @@
     </div>
 
     <div class="meditation-page__content">
-      <!-- Breathing guide -->
+      <!-- Руководство для дыхания -->
       <div
         class="meditation-page__breathing"
         :class="{ 'meditation-page__breathing--active': isPlaying }"
@@ -21,7 +21,7 @@
         <div class="meditation-page__circle" />
       </div>
 
-      <!-- Title -->
+      <!-- Название -->
       <h1 class="text-h4 text-weight-medium text-center q-mb-sm">
         {{ isEntry ? $t('meditation.entry_title') : $t('meditation.exit_title') }}
       </h1>
@@ -30,14 +30,14 @@
         {{ $t('meditation.instruction') }}
       </p>
 
-      <!-- Audio player -->
+      <!-- Плеер для аудио -->
       <div class="meditation-page__player">
-        <!-- Waveform visualization -->
+        <!-- Визуализация волновой формы -->
         <div class="meditation-page__waveform">
           <span v-for="i in 20" :key="i" class="meditation-page__bar" :style="barStyle(i)" />
         </div>
 
-        <!-- Progress -->
+        <!-- Прогресс -->
         <div class="meditation-page__progress q-my-md">
           <span class="text-caption">{{ formatTime(currentTime) }}</span>
           <q-slider
@@ -53,7 +53,7 @@
           <span class="text-caption">{{ formatTime(duration) }}</span>
         </div>
 
-        <!-- Controls -->
+        <!-- Управление -->
         <div class="meditation-page__controls">
           <q-btn round flat icon="mdi-rewind-10" size="lg" @click="rewind" />
           <q-btn
@@ -68,7 +68,7 @@
         </div>
       </div>
 
-      <!-- Skip button (after 30s) -->
+      <!-- Кнопка пропуска (через 30 сек) -->
       <transition name="fade">
         <q-btn
           v-if="canSkip"
@@ -81,7 +81,7 @@
       </transition>
     </div>
 
-    <!-- Complete button -->
+    <!-- Кнопка завершения -->
     <div class="meditation-page__footer">
       <q-btn
         :label="$t('meditation.complete')"
@@ -105,21 +105,21 @@ const route = useRoute();
 const router = useRouter();
 const gameStore = useGameStore();
 
-// Meditation type
+// Тип медитации
 const isEntry = computed(() => route.params.type === 'entry');
 
-// Audio state
+// Состояние аудио
 const isPlaying = ref(false);
 const currentTime = ref(0);
-const duration = ref(180); // 3 minutes default
+const duration = ref(180); // 3 минуты по умолчанию
 const progress = ref(0);
 const canSkip = ref(false);
 const canComplete = ref(false);
 
-// Audio progress interval
+// Интервал прогресса аудио
 let progressInterval: ReturnType<typeof setInterval> | null = null;
 
-// Generate particle styles
+// Генерировать стили частиц
 function particleStyle(index: number) {
   const x = (index * 5) % 100;
   const delay = (index * 0.3) % 5;
@@ -135,7 +135,7 @@ function particleStyle(index: number) {
   };
 }
 
-// Generate waveform bar styles
+// Генерировать стили полоск волновой формы
 function barStyle(index: number) {
   const height = isPlaying.value ? 10 + Math.random() * 40 : 10 + Math.sin(index * 0.5) * 20;
 
@@ -167,12 +167,12 @@ function startProgress() {
       currentTime.value += 1;
       progress.value = (currentTime.value / duration.value) * 100;
 
-      // Enable skip after 30 seconds
+      // Разрешить пропуск через 30 секунд
       if (currentTime.value >= 30) {
         canSkip.value = true;
       }
 
-      // Enable complete when finished
+      // Разрешить завершение при завершении
       if (currentTime.value >= duration.value) {
         canComplete.value = true;
         isPlaying.value = false;
@@ -220,7 +220,7 @@ async function completeMeditation() {
 }
 
 onMounted(() => {
-  // Start playing automatically
+  // Начать воспроизведение автоматически
   setTimeout(() => {
     togglePlay();
   }, 1000);

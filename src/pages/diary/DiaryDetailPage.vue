@@ -3,7 +3,7 @@
     <q-skeleton v-if="isLoading" type="rect" height="200px" />
 
     <template v-else-if="game">
-      <!-- Query section -->
+      <!-- Раздел запроса -->
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <q-chip
@@ -20,7 +20,7 @@
         </q-card-section>
       </q-card>
 
-      <!-- Journey visualization -->
+      <!-- Визуализация путешествия -->
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <div class="text-subtitle2 text-weight-medium q-mb-md">Путь игры</div>
@@ -28,7 +28,7 @@
         </q-card-section>
       </q-card>
 
-      <!-- Moves timeline -->
+      <!-- Временная шкала ходов -->
       <div class="text-subtitle2 text-weight-medium q-mb-sm">История ходов</div>
       <q-timeline v-if="moves.length > 0" color="primary">
         <q-timeline-entry
@@ -63,7 +63,7 @@
 
       <div v-else class="text-body2 text-secondary text-center q-py-lg">Ходов пока нет</div>
 
-      <!-- Actions -->
+      <!-- Действия -->
       <div class="diary-detail__actions">
         <q-btn
           v-if="game.status === 'IN_PROGRESS' || game.status === 'WAITING_FOR_6'"
@@ -145,11 +145,11 @@ function loadGameDetails() {
   isLoading.value = true;
   const gameId = route.params.id as string;
 
-  // TODO: Load from API
+  // TODO: Загрузить из API
   // game.value = await api.get(`/api/games/${gameId}`);
   // moves.value = await api.get(`/api/games/${gameId}/moves`);
 
-  // Mock data for now
+  // Макетные данные пока
   game.value = {
     id: gameId,
     query: 'Как найти свой путь в жизни?',
@@ -204,7 +204,7 @@ onMounted(() => {
 
   &__actions {
     position: fixed;
-    bottom: 64px; // Above bottom nav
+    bottom: 64px; // Над нижней навигацией
     left: 0;
     right: 0;
     padding: var(--space-md);

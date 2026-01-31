@@ -1,5 +1,5 @@
 /**
- * API service layer for backend communication.
+ * Слой сервиса API для взаимодействия с бэкенд.
  */
 
 import { api } from 'src/boot/axios';
@@ -19,10 +19,10 @@ import type {
   CellOut,
 } from 'src/types/api';
 
-// Auth API
+// API аутентификации
 export const authApi = {
   /**
-   * Authenticate with Telegram initData
+   * Аутентификация с помощью Telegram initData
    */
   async authenticate(data: TelegramAuthRequest): Promise<TelegramAuthResponse> {
     const response = await api.post<TelegramAuthResponse>('/api/auth/telegram', data);
@@ -30,7 +30,7 @@ export const authApi = {
   },
 
   /**
-   * Get current user info
+   * Получить информацию о текущем пользователе
    */
   async getCurrentUser(): Promise<UserOut> {
     const response = await api.get<UserOut>('/api/auth/me');
@@ -38,10 +38,10 @@ export const authApi = {
   },
 };
 
-// Users API
+// API пользователей
 export const usersApi = {
   /**
-   * Get user profile
+   * Получить профиль пользователя
    */
   async getProfile(): Promise<UserOut> {
     const response = await api.get<UserOut>('/api/users/me');
@@ -49,7 +49,7 @@ export const usersApi = {
   },
 
   /**
-   * Get user stats
+   * Получить статистику пользователя
    */
   async getStats(): Promise<UserStats> {
     const response = await api.get<UserStats>('/api/users/me/stats');
@@ -57,7 +57,7 @@ export const usersApi = {
   },
 
   /**
-   * Update user settings
+   * Обновить настройки пользователя
    */
   async updateSettings(data: {
     language_code?: string;
@@ -68,10 +68,10 @@ export const usersApi = {
   },
 };
 
-// Games API
+// API игр
 export const gamesApi = {
   /**
-   * Get user's games list
+   * Получить список игр пользователя
    */
   async list(params?: {
     status?: string;
@@ -83,7 +83,7 @@ export const gamesApi = {
   },
 
   /**
-   * Create a new game
+   * Создать новую игру
    */
   async create(data: GameCreate): Promise<GameOut> {
     const response = await api.post<GameOut>('/api/games', data);
@@ -91,7 +91,7 @@ export const gamesApi = {
   },
 
   /**
-   * Get game by ID
+   * Получить игру по ID
    */
   async get(gameId: number): Promise<GameDetail> {
     const response = await api.get<GameDetail>(`/api/games/${gameId}`);
@@ -99,7 +99,7 @@ export const gamesApi = {
   },
 
   /**
-   * Complete entry meditation
+   * Завершить входную медитацию
    */
   async completeEntryMeditation(gameId: number): Promise<GameOut> {
     const response = await api.post<GameOut>(`/api/games/${gameId}/meditation/entry`);
@@ -107,7 +107,7 @@ export const gamesApi = {
   },
 
   /**
-   * Complete exit meditation
+   * Завершить выходную медитацию
    */
   async completeExitMeditation(gameId: number): Promise<GameOut> {
     const response = await api.post<GameOut>(`/api/games/${gameId}/meditation/exit`);
@@ -115,7 +115,7 @@ export const gamesApi = {
   },
 
   /**
-   * End game
+   * Завершить игру
    */
   async end(gameId: number, abandon = false): Promise<GameOut> {
     const response = await api.post<GameOut>(`/api/games/${gameId}/end`, null, {
@@ -125,7 +125,7 @@ export const gamesApi = {
   },
 
   /**
-   * Get game moves
+   * Получить ходы игры
    */
   async getMoves(gameId: number): Promise<MoveOut[]> {
     const response = await api.get<MoveOut[]>(`/api/games/${gameId}/moves`);
@@ -133,7 +133,7 @@ export const gamesApi = {
   },
 
   /**
-   * Roll dice
+   * Бросить кубик
    */
   async rollDice(gameId: number, data?: DiceRollRequest): Promise<MoveResponse> {
     const response = await api.post<MoveResponse>(`/api/games/${gameId}/moves/roll`, data || {});
@@ -141,10 +141,10 @@ export const gamesApi = {
   },
 };
 
-// Moves API
+// API ходов
 export const movesApi = {
   /**
-   * Get move by ID
+   * Получить ход по ID
    */
   async get(moveId: number): Promise<MoveOut> {
     const response = await api.get<MoveOut>(`/api/moves/${moveId}`);
@@ -152,7 +152,7 @@ export const movesApi = {
   },
 
   /**
-   * Save insight for a move
+   * Сохранить озарение для хода
    */
   async saveInsight(moveId: number, data: InsightCreate): Promise<MoveOut> {
     const response = await api.post<MoveOut>(`/api/moves/${moveId}/insight`, data);
@@ -160,10 +160,10 @@ export const movesApi = {
   },
 };
 
-// Cells API (if implemented)
+// API клеток (если реализовано)
 export const cellsApi = {
   /**
-   * Get all cells
+   * Получить все клетки
    */
   async list(): Promise<CellOut[]> {
     const response = await api.get<CellOut[]>('/api/cells');
@@ -171,7 +171,7 @@ export const cellsApi = {
   },
 
   /**
-   * Get cell by ID
+   * Получить клетку по ID
    */
   async get(cellId: number): Promise<CellOut> {
     const response = await api.get<CellOut>(`/api/cells/${cellId}`);

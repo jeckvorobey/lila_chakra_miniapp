@@ -1,5 +1,5 @@
 /**
- * Game components exports
+ * Экспорт игровых компонентов
  */
 
 export { default as LBoard } from './LBoard.vue';

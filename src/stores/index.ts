@@ -2,30 +2,30 @@ import { defineStore } from '#q-app/wrappers';
 import { createPinia } from 'pinia';
 
 /*
- * When adding new properties to stores, you should also
- * extend the `PiniaCustomProperties` interface.
+ * При добавлении новых свойств в хранилища,
+ * вы должны также расширить интерфейс `PiniaCustomProperties`.
  * @see https://pinia.vuejs.org/core-concepts/plugins.html#typing-new-store-properties
  */
 declare module 'pinia' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface PiniaCustomProperties {
-    // add your custom properties here, if any
+    // Добавьте ваши пользовательские свойства здесь, если необходимо
   }
 }
 
 /*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
+ * Если вы не собираете с режимом SSR, вы можете
+ * напрямую экспортировать создание Store;
  *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
+ * Функция ниже также может быть асинхронной; используйте
+ * async/await или верните Promise, который разрешается
+ * с экземпляром Store.
  */
 
 export default defineStore((/* { ssrContext } */) => {
   const pinia = createPinia();
 
-  // You can add Pinia plugins here
+  // Вы можете добавить плагины Pinia здесь
   // pinia.use(SomePiniaPlugin)
 
   return pinia;

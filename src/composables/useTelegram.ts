@@ -1,6 +1,6 @@
 /**
- * Telegram WebApp SDK composable for Lila Chakra.
- * Provides reactive access to Telegram features.
+ * Composable SDK Telegram WebApp для Lila Chakra.
+ * Обеспечивает реактивный доступ к функциям Telegram.
  */
 
 import { ref, computed, inject, onMounted, onUnmounted } from 'vue';
@@ -8,11 +8,11 @@ import type { TelegramWebApp, TelegramUser } from 'src/boot/telegram';
 import { getTelegramWebApp, isInTelegram } from 'src/boot/telegram';
 
 export function useTelegram() {
-  // Try to get injected instance or get directly
+  // Попытаться получить внедрённый экземпляр или получить напрямую
   const injectedTg = inject<TelegramWebApp | null>('telegram', null);
   const tg = injectedTg || getTelegramWebApp();
 
-  // Reactive state
+  // Реактивное состояние
   const user = ref<TelegramUser | null>(tg?.initDataUnsafe.user || null);
   const colorScheme = ref<'light' | 'dark'>(tg?.colorScheme || 'dark');
   const viewportHeight = ref(tg?.viewportHeight || window?.innerHeight || 0);
@@ -20,13 +20,13 @@ export function useTelegram() {
   const platform = ref(tg?.platform || 'unknown');
   const version = ref(tg?.version || '0.0');
 
-  // Getters
+  // Геттеры
   const initData = computed(() => tg?.initData || '');
   const startParam = computed(() => tg?.initDataUnsafe.start_param || null);
   const isAvailable = computed(() => !!tg && isInTelegram());
   const isDark = computed(() => colorScheme.value === 'dark');
 
-  // Main Button helpers
+  // Помощники главной кнопки
   const mainButton = {
     show(text: string, onClick: () => void) {
       if (!tg?.MainButton) return;
@@ -51,7 +51,7 @@ export function useTelegram() {
     },
   };
 
-  // Back Button helpers
+  // Помощники кнопки вернуться
   const backButton = {
     show(onClick: () => void) {
       if (!tg?.BackButton) return;
@@ -63,7 +63,7 @@ export function useTelegram() {
     },
   };
 
-  // Haptic Feedback
+  // Тактильная обратная связь
   const haptic = {
     impact(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' = 'medium') {
       tg?.HapticFeedback?.impactOccurred(style);
@@ -76,7 +76,7 @@ export function useTelegram() {
     },
   };
 
-  // Dialogs
+  // Диалоги
   function showAlert(message: string): Promise<void> {
     return new Promise((resolve) => {
       if (tg?.showAlert) {
@@ -117,7 +117,7 @@ export function useTelegram() {
     });
   }
 
-  // Links
+  // Ссылки
   function openLink(url: string, tryInstantView = false) {
     if (tg?.openLink) {
       tg.openLink(url, { try_instant_view: tryInstantView });
@@ -134,7 +134,7 @@ export function useTelegram() {
     }
   }
 
-  // Closing confirmation (for active games)
+  // Подтверждение закрытия (для активных игр)
   function enableClosingConfirmation() {
     tg?.enableClosingConfirmation?.();
   }
@@ -143,7 +143,7 @@ export function useTelegram() {
     tg?.disableClosingConfirmation?.();
   }
 
-  // Theme colors
+  // Цвета темы
   function setHeaderColor(color: string) {
     tg?.setHeaderColor?.(color);
   }
@@ -152,31 +152,31 @@ export function useTelegram() {
     tg?.setBackgroundColor?.(color);
   }
 
-  // Expand app
+  // Развернуть приложение
   function expand() {
     tg?.expand?.();
     isExpanded.value = true;
   }
 
-  // Close app
+  // Закрыть приложение
   function close() {
     tg?.close?.();
   }
 
-  // Event handlers
+  // Обработчики событий
   let themeChangedHandler: (() => void) | null = null;
   let viewportChangedHandler: (() => void) | null = null;
 
   onMounted(() => {
     if (!tg) return;
 
-    // Listen for theme changes
+    // Слушать изменения темы
     themeChangedHandler = () => {
       colorScheme.value = tg.colorScheme;
     };
     tg.onEvent('themeChanged', themeChangedHandler);
 
-    // Listen for viewport changes
+    // Слушать изменения viewport
     viewportChangedHandler = () => {
       viewportHeight.value = tg.viewportHeight;
       isExpanded.value = tg.isExpanded;
@@ -196,10 +196,10 @@ export function useTelegram() {
   });
 
   return {
-    // Raw SDK
+    // Исходный SDK
     tg,
 
-    // State
+    // Состояние
     user,
     colorScheme,
     viewportHeight,
@@ -207,37 +207,37 @@ export function useTelegram() {
     platform,
     version,
 
-    // Getters
+    // Геттеры
     initData,
     startParam,
     isAvailable,
     isDark,
 
-    // UI Elements
+    // Элементы UI
     mainButton,
     backButton,
 
-    // Haptics
+    // Тактильная обратная связь
     haptic,
 
-    // Dialogs
+    // Диалоги
     showAlert,
     showConfirm,
     showPopup,
 
-    // Links
+    // Ссылки
     openLink,
     openTelegramLink,
 
-    // Closing
+    // Закрытие
     enableClosingConfirmation,
     disableClosingConfirmation,
 
-    // Theme
+    // Тема
     setHeaderColor,
     setBackgroundColor,
 
-    // Window
+    // Окно
     expand,
     close,
   };

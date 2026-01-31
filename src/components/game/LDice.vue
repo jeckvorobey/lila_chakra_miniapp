@@ -8,7 +8,7 @@
       }"
       :style="diceStyle"
     >
-      <!-- 6 faces of the dice -->
+      <!-- 6 граней кубика -->
       <div class="l-dice__face l-dice__face--1">
         <span class="l-dice__dot l-dice__dot--center" />
       </div>
@@ -44,10 +44,10 @@
       </div>
     </div>
 
-    <!-- Shadow -->
+    <!-- Тень -->
     <div class="l-dice__shadow" :class="{ 'l-dice__shadow--rolling': isRolling }" />
 
-    <!-- Result display -->
+    <!-- Отображение результата -->
     <transition name="fade">
       <div v-if="showResult && result" class="l-dice__result">
         <q-badge
@@ -84,7 +84,7 @@ const settingsStore = useSettingsStore();
 const showResult = ref(false);
 const finalRotation = ref({ x: 0, y: 0, z: 0 });
 
-// Rotations to show each face
+// Вращения для отображения каждой грани
 const faceRotations: Record<number, { x: number; y: number }> = {
   1: { x: 0, y: 0 },
   2: { x: 0, y: -90 },
@@ -108,21 +108,21 @@ const diceStyle = computed(() => {
   };
 });
 
-// Watch for result changes to animate to final position
+// Наблюдать за изменениями результата для анимации в конечную позицию
 watch(
   () => props.result,
   (newResult) => {
     if (newResult && newResult >= 1 && newResult <= 6) {
       showResult.value = false;
       const rotation = faceRotations[newResult] || { x: 0, y: 0 };
-      // Add extra rotations for visual effect
+      // Добавить дополнительные вращения для визуального эффекта
       finalRotation.value = {
         x: rotation.x + 360 * 2,
         y: rotation.y + 360 * 2,
         z: 0,
       };
 
-      // Show result badge after animation
+      // Показать значок результата после анимации
       setTimeout(() => {
         showResult.value = true;
         settingsStore.vibrate([50, 30, 50]);
@@ -132,7 +132,7 @@ watch(
   },
 );
 
-// Reset when rolling starts
+// Сброс при начале броска
 watch(
   () => props.isRolling,
   (rolling) => {
@@ -199,7 +199,7 @@ watch(
         0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    // Position each face
+    // Позиция каждой грани
     &--1 {
       transform: translateZ(var(--half-size));
     }
@@ -236,7 +236,7 @@ watch(
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 
-    // Positions
+    // Позиции
     &--center {
       top: 50%;
       left: 50%;

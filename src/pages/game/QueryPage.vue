@@ -1,7 +1,7 @@
 <template>
   <q-page class="query-page" padding>
     <div class="query-page__content">
-      <!-- Category selector -->
+      <!-- Выбор категории -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.category.relationships').split(' ')[0] }}
@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <!-- Query input -->
+      <!-- Ввод запроса -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.your_question') }}
@@ -44,7 +44,7 @@
         </q-input>
       </div>
 
-      <!-- Example queries -->
+      <!-- Примеры запросов -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.examples') }}
@@ -66,7 +66,7 @@
         </q-list>
       </div>
 
-      <!-- Mode selector -->
+      <!-- Выбор режима -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">Режим игры</div>
         <q-option-group
@@ -79,7 +79,7 @@
       </div>
     </div>
 
-    <!-- Start button -->
+    <!-- Кнопка начать -->
     <div class="query-page__footer">
       <q-btn
         :label="$t('query.start_game')"
@@ -105,13 +105,13 @@ const { t } = useI18n();
 const router = useRouter();
 const gameStore = useGameStore();
 
-// Form state
+// Состояние формы
 const query = ref('');
 const category = ref<QueryCategory>('personality');
 const gameMode = ref<GameMode>('free');
 const isLoading = ref(false);
 
-// Categories
+// Категории
 const categories = computed(() => [
   {
     value: 'relationships' as QueryCategory,
@@ -137,13 +137,13 @@ const categories = computed(() => [
   },
 ]);
 
-// Game mode options
+// Опции режима игры
 const gameModeOptions = [
   { value: 'free', label: 'Бесплатный (5 ходов/день)' },
   { value: 'ai_incognito', label: 'AI Инкогнито (платный)' },
 ];
 
-// Example queries
+// Примеры запросов
 const examples = computed(() => {
   switch (category.value) {
     case 'relationships':
@@ -201,7 +201,7 @@ async function startGame() {
   isLoading.value = false;
 
   if (success) {
-    // Go to entry meditation
+    // Перейти на входную медитацию
     void router.push('/game/meditation/entry');
   }
 }
@@ -232,7 +232,7 @@ async function startGame() {
     position: sticky;
     bottom: 0;
     padding: var(--space-md) 0;
-    padding-bottom: calc(var(--space-md) + 64px); // Above bottom nav
+    padding-bottom: calc(var(--space-md) + 64px); // Над нижней навигацией
     background: var(--lila-bg);
   }
 }

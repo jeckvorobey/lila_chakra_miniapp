@@ -10,12 +10,12 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         redirect: '/game',
       },
-      // Game routes
+      // Маршруты игры
       {
         path: 'game',
         name: 'game',
         component: () => import('pages/game/GamePage.vue'),
-        meta: { title: '' }, // No title for game page
+        meta: { title: '' }, // Без заголовка для страницы игры
       },
       {
         path: 'game/new',
@@ -29,7 +29,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/game/MeditationPage.vue'),
         meta: { showBack: true },
       },
-      // Diary routes
+      // Маршруты дневника
       {
         path: 'diary',
         name: 'diary',
@@ -42,7 +42,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/diary/DiaryDetailPage.vue'),
         meta: { showBack: true },
       },
-      // Profile routes
+      // Маршруты профиля
       {
         path: 'profile',
         name: 'profile',
@@ -57,13 +57,13 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  // Onboarding (separate layout)
+  // Онбординг (отдельный макет)
   {
     path: '/onboarding',
     name: 'onboarding',
     component: () => import('pages/onboarding/OnboardingPage.vue'),
   },
-  // 404
+  // 404 - Страница не найдена
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),

@@ -17,7 +17,7 @@
         @click="selectValue(value)"
       >
         <div class="l-dice-manual__face">
-          <!-- Dots pattern for each value -->
+          <!-- Паттерн точек для каждого значения -->
           <template v-if="value === 1">
             <span class="l-dice-manual__dot l-dice-manual__dot--center" />
           </template>
@@ -157,7 +157,7 @@ function confirm() {
     border-radius: 50%;
     background: currentColor;
 
-    // Positions
+    // Позиции
     &--center {
       top: 50%;
       left: 50%;

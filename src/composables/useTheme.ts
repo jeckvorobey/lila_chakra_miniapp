@@ -1,6 +1,6 @@
 /**
- * Theme management composable for Lila Chakra.
- * Supports dark (default) and light themes with Telegram theme sync.
+ * Composable управления темой для Lila Chakra.
+ * Поддерживает тёмную (по умолчанию) и светлую темы с синхронизацией темы Telegram.
  */
 
 import { ref, computed, watch, onMounted } from 'vue';
@@ -10,12 +10,12 @@ export type ThemeMode = 'dark' | 'light' | 'system';
 
 const STORAGE_KEY = 'lila-theme-mode';
 
-// Reactive state
+// Реактивное состояние
 const themeMode = ref<ThemeMode>('dark');
 const systemPrefersDark = ref(true);
 
 /**
- * Initialize system theme detection
+ * Инициализировать обнаружение системной темы
  */
 function initSystemThemeDetection(): void {
   if (typeof window === 'undefined') return;
@@ -29,7 +29,7 @@ function initSystemThemeDetection(): void {
 }
 
 /**
- * Get saved theme from localStorage
+ * Получить сохранённую тему из localStorage
  */
 function getSavedTheme(): ThemeMode {
   if (typeof localStorage === 'undefined') return 'dark';
@@ -42,7 +42,7 @@ function getSavedTheme(): ThemeMode {
 }
 
 /**
- * Save theme to localStorage
+ * Сохранить тему в localStorage
  */
 function saveTheme(mode: ThemeMode): void {
   if (typeof localStorage !== 'undefined') {
@@ -51,13 +51,13 @@ function saveTheme(mode: ThemeMode): void {
 }
 
 /**
- * Apply theme to document and Quasar
+ * Применить тему к документу и Quasar
  */
 function applyTheme(isDark: boolean): void {
-  // Set Quasar dark mode
+  // Установить режим тёмной темы Quasar
   Dark.set(isDark);
 
-  // Apply body class for custom styles
+  // Применить класс body для пользовательских стилей
   if (typeof document !== 'undefined') {
     document.body.classList.toggle('body--light', !isDark);
     document.body.classList.toggle('body--dark', isDark);
@@ -65,12 +65,12 @@ function applyTheme(isDark: boolean): void {
 }
 
 /**
- * Try to get Telegram theme preference
+ * Попытаться получить предпочтение темы Telegram
  */
 function getTelegramTheme(): 'dark' | 'light' | null {
   if (typeof window === 'undefined') return null;
 
-  // Check Telegram WebApp SDK
+  // Проверить SDK Telegram WebApp
   const tg = (window as { Telegram?: { WebApp?: { colorScheme?: string } } }).Telegram?.WebApp;
   if (tg?.colorScheme) {
     return tg.colorScheme === 'dark' ? 'dark' : 'light';
@@ -90,7 +90,7 @@ export function useTheme() {
   const isLight = computed(() => !isDark.value);
 
   /**
-   * Set theme mode
+   * Установить режим темы
    */
   function setTheme(mode: ThemeMode): void {
     themeMode.value = mode;
@@ -99,7 +99,7 @@ export function useTheme() {
   }
 
   /**
-   * Toggle between dark and light themes
+   * Переключаться между тёмной и светлой темами
    */
   function toggleTheme(): void {
     const newMode: ThemeMode = isDark.value ? 'light' : 'dark';
@@ -107,7 +107,7 @@ export function useTheme() {
   }
 
   /**
-   * Sync with Telegram theme
+   * Синхронизировать с темой Telegram
    */
   function syncWithTelegram(): void {
     const telegramTheme = getTelegramTheme();
@@ -117,12 +117,12 @@ export function useTheme() {
   }
 
   /**
-   * Initialize theme on mount
+   * Инициализировать тему при монтировании
    */
   function initTheme(): void {
     initSystemThemeDetection();
 
-    // Priority: Telegram > Saved > Default (dark)
+    // Приоритет: Telegram > Сохранённая > По умолчанию (тёмная)
     const telegramTheme = getTelegramTheme();
     if (telegramTheme) {
       themeMode.value = telegramTheme;
@@ -133,23 +133,23 @@ export function useTheme() {
     applyTheme(isDark.value);
   }
 
-  // Watch for changes
+  // Следить за изменениями
   watch(isDark, (newIsDark) => {
     applyTheme(newIsDark);
   });
 
-  // Auto-init on mount if in component context
+  // Авто-инициализация при монтировании, если в контексте компонента
   onMounted(() => {
     initTheme();
   });
 
   return {
-    // State
+    // Состояние
     themeMode,
     isDark,
     isLight,
 
-    // Actions
+    // Действия
     setTheme,
     toggleTheme,
     syncWithTelegram,

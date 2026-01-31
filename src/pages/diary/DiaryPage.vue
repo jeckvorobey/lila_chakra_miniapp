@@ -1,6 +1,6 @@
 <template>
   <q-page class="diary-page" padding>
-    <!-- Filter tabs -->
+    <!-- Вкладки фильтра -->
     <q-tabs
       v-model="filter"
       class="q-mb-md"
@@ -14,7 +14,7 @@
       <q-tab name="completed" :label="$t('diary.filter.completed')" />
     </q-tabs>
 
-    <!-- Games list -->
+    <!-- Список игр -->
     <q-list v-if="filteredGames.length > 0" class="q-gutter-sm">
       <q-card
         v-for="game in filteredGames"
@@ -26,34 +26,34 @@
       >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <!-- Status badge -->
+            <!-- Значок статуса -->
             <q-badge
               :color="getStatusColor(game.status)"
               :label="getStatusLabel(game.status)"
               class="q-mr-sm"
             />
-            <!-- Date -->
+            <!-- Дата -->
             <span class="text-caption text-secondary">
               {{ formatDate(game.created_at) }}
             </span>
             <q-space />
-            <!-- Progress -->
+            <!-- Прогресс -->
             <q-chip size="sm" color="primary" text-color="white">
               {{ game.current_cell }}/72
             </q-chip>
           </div>
 
-          <!-- Query preview -->
+          <!-- Предпросмотр запроса -->
           <div class="text-body2 ellipsis-2-lines q-mb-sm">
             {{ game.query }}
           </div>
 
-          <!-- Category -->
+          <!-- Категория -->
           <q-chip size="sm" outline color="grey">
             {{ $t(`query.category.${game.category.toLowerCase()}`) }}
           </q-chip>
 
-          <!-- Magic time (for completed games) -->
+          <!-- Магическое время (для завершённых игр) -->
           <div v-if="game.status === 'COMPLETED' && game.magic_time_remaining" class="q-mt-sm">
             <q-icon name="mdi-clock-outline" size="14px" color="warning" class="q-mr-xs" />
             <span class="text-caption text-warning">
@@ -64,7 +64,7 @@
       </q-card>
     </q-list>
 
-    <!-- Empty state -->
+    <!-- Пустое состояние -->
     <div v-else class="diary-page__empty column items-center justify-center">
       <q-icon name="mdi-book-open-variant" size="64px" color="grey-5" class="q-mb-md" />
       <p class="text-body1 text-secondary text-center">
@@ -89,6 +89,7 @@ import { useI18n } from 'vue-i18n';
 const router = useRouter();
 const { t } = useI18n();
 
+// Тип статуса игры
 type GameStatus = 'WAITING_FOR_6' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
 
 interface Game {
@@ -156,7 +157,7 @@ function openGame(gameId: string) {
 
 function loadGames() {
   isLoading.value = true;
-  // TODO: Load games from API
+  // TODO: Загрузить игры из API
   // games.value = await api.get('/api/games');
   isLoading.value = false;
 }
@@ -169,7 +170,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .diary-page {
   min-height: 100%;
-  padding-bottom: 80px; // Bottom nav
+  padding-bottom: 80px; // Нижняя навигация
 
   &__card {
     background: var(--lila-surface);
@@ -189,6 +190,7 @@ onMounted(() => {
   }
 }
 
+// Обрезка в две строки
 .ellipsis-2-lines {
   display: -webkit-box;
   -webkit-line-clamp: 2;

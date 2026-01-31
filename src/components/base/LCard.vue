@@ -92,7 +92,7 @@ const cardClasses = computed(() => [
     }
   }
 
-  // Chakra glow variants
+  // Варианты свечения чакры
   @for $i from 1 through 8 {
     &--chakra-#{$i} {
       border-color: var(--chakra-#{$i});

@@ -1,6 +1,6 @@
 /**
- * Authentication store for Telegram Mini App.
- * Handles Telegram initData validation and JWT token management.
+ * Хранилище аутентификации для Telegram Mini App.
+ * Обрабатывает валидацию initData Telegram и управление JWT токенами.
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
@@ -34,13 +34,13 @@ interface AuthResponse {
 const TOKEN_KEY = 'lila-auth-token';
 
 export const useAuthStore = defineStore('auth', () => {
-  // State
+  // Состояние
   const token = ref<string | null>(null);
   const telegramUser = ref<TelegramUser | null>(null);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  // Getters
+  // Вычисляемые свойства
   const isAuthenticated = computed(() => !!token.value);
   const initData = computed(() => {
     if (typeof window === 'undefined') return null;
@@ -48,10 +48,10 @@ export const useAuthStore = defineStore('auth', () => {
     return tg?.initData || null;
   });
 
-  // Actions
+  // Действия
 
   /**
-   * Load saved token from localStorage
+   * Загрузить сохранённый токен из localStorage
    */
   function loadToken(): void {
     if (typeof localStorage !== 'undefined') {
@@ -63,7 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Save token to localStorage
+   * Сохранить токен в localStorage
    */
   function saveToken(newToken: string): void {
     token.value = newToken;
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Clear token
+   * Очистить токен
    */
   function clearToken(): void {
     token.value = null;
@@ -85,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Initialize Telegram user from WebApp SDK
+   * Инициализировать пользователя Telegram из WebApp SDK
    */
   function initTelegramUser(): void {
     if (typeof window === 'undefined') return;
@@ -106,11 +106,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Authenticate with backend using Telegram initData
+   * Аутентифицироваться на бэкенде используя Telegram initData
    */
   async function authenticate(): Promise<boolean> {
     if (!initData.value) {
-      error.value = 'Telegram initData not available';
+      error.value = 'Telegram initData не доступен';
       return false;
     }
 
@@ -125,7 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
       saveToken(response.data.access_token);
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Authentication failed';
+      error.value = err instanceof Error ? err.message : 'Ошибка аутентификации';
       return false;
     } finally {
       isLoading.value = false;
@@ -133,7 +133,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Logout and clear all auth data
+   * Выйти и очистить все данные аутентификации
    */
   function logout(): void {
     clearToken();
@@ -141,30 +141,30 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Initialize auth on app start
+   * Инициализировать аутентификацию при запуске приложения
    */
   async function init(): Promise<void> {
     loadToken();
     initTelegramUser();
 
-    // Auto-authenticate if we have initData but no token
+    // Автоматическая аутентификация если есть initData, но нет токена
     if (initData.value && !token.value) {
       await authenticate();
     }
   }
 
   return {
-    // State
+    // Состояние
     token,
     telegramUser,
     isLoading,
     error,
 
-    // Getters
+    // Вычисляемые свойства
     isAuthenticated,
     initData,
 
-    // Actions
+    // Действия
     loadToken,
     authenticate,
     logout,

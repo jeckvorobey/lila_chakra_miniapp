@@ -1,15 +1,15 @@
-// Lila Chakra - Global Styles
-// Minimal custom styles - Quasar classes used for layout, spacing, typography
+// Лила Чакра - Глобальные стили
+// Минимальные пользовательские стили - классы Quasar используются для макета, отступов, типографики
 // ============================================================================
 
-// Import Google Fonts (Inter)
+// Импорт Google Fonts (Inter)
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 // ================================
-// CSS Custom Properties (Theme-specific)
+// CSS Custom Properties (Переменные темы)
 // ================================
 :root {
-  // Dark Theme (Default)
+  // Тёмная тема (по умолчанию)
   --lila-bg: #{$dark-page};
   --lila-surface: #{$dark};
   --lila-surface-elevated: #252136;
@@ -17,24 +17,24 @@
   --lila-text-secondary: #a1a1aa;
   --lila-border: rgba(255, 255, 255, 0.1);
 
-  // Glassmorphism Effects
+  // Эффекты глассморфизма
   --lila-glass-bg: rgba(26, 22, 37, 0.8);
   --lila-glass-blur: blur(20px);
   --lila-glow-primary: 0 0 20px rgba(107, 70, 193, 0.4);
   --lila-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 
-  // Chakra Colors (Game-specific)
-  --chakra-1: #dc2626; // Muladhara - Red
-  --chakra-2: #ea580c; // Svadhisthana - Orange
-  --chakra-3: #fbbf24; // Manipura - Yellow
-  --chakra-4: #22c55e; // Anahata - Green
-  --chakra-5: #0ea5e9; // Vishuddha - Blue
-  --chakra-6: #4f46e5; // Ajna - Indigo
-  --chakra-7: #9333ea; // Sahasrara - Violet
-  --chakra-8: #f5f5f4; // Absolute - White
+  // Цвета чакр (игровые)
+  --chakra-1: #dc2626; // Муладхара - Красный
+  --chakra-2: #ea580c; // Свадхистхана - Оранжевый
+  --chakra-3: #fbbf24; // Манипура - Жёлтый
+  --chakra-4: #22c55e; // Анахата - Зелёный
+  --chakra-5: #0ea5e9; // Вишудха - Синий
+  --chakra-6: #4f46e5; // Аджна - Индиго
+  --chakra-7: #9333ea; // Сахасрара - Фиолетовый
+  --chakra-8: #f5f5f4; // Абсолют - Белый
 }
 
-// Light Theme Overrides
+// Переопределения светлой темы
 .body--light {
   --lila-bg: #fafaf9;
   --lila-surface: #ffffff;
@@ -43,21 +43,21 @@
   --lila-text-secondary: #57534e;
   --lila-border: rgba(0, 0, 0, 0.08);
 
-  // Effects (Light)
+  // Эффекты (светлые)
   --lila-glass-bg: rgba(255, 255, 255, 0.9);
   --lila-glass-blur: blur(12px);
   --lila-glow-primary: 0 0 16px rgba(107, 70, 193, 0.25);
   --lila-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.04);
 
-  // Adjusted Chakra Colors for Light Theme contrast
-  --chakra-3: #d97706; // Darker yellow
-  --chakra-4: #16a34a; // Darker green
-  --chakra-5: #0284c7; // Darker blue
-  --chakra-8: #1c1917; // Dark for contrast
+  // Скорректированные цвета чакр для контраста светлой темы
+  --chakra-3: #d97706; // Тёмный жёлтый
+  --chakra-4: #16a34a; // Тёмный зелёный
+  --chakra-5: #0284c7; // Тёмный синий
+  --chakra-8: #1c1917; // Тёмный для контраста
 }
 
 // ================================
-// Global Base Styles
+// Глобальные базовые стили
 // ================================
 * {
   box-sizing: border-box;
@@ -71,14 +71,14 @@ body {
 }
 
 // ================================
-// Text Color Utilities (Theme-aware)
+// Утилиты цвета текста (с учётом темы)
 // ================================
 .text-secondary {
   color: var(--lila-text-secondary) !important;
 }
 
 // ================================
-// Chakra Color Classes (Game-specific)
+// Классы цветов чакр (игровые)
 // ================================
 @for $i from 1 through 8 {
   .bg-chakra-#{$i} {
@@ -95,7 +95,7 @@ body {
 }
 
 // ================================
-// Glass Effect Utility
+// Утилита эффекта стекла
 // ================================
 .bg-glass {
   background: var(--lila-glass-bg) !important;
@@ -104,7 +104,7 @@ body {
 }
 
 // ================================
-// Surface Utilities (Theme-aware)
+// Утилиты поверхности (с учётом темы)
 // ================================
 .bg-surface {
   background-color: var(--lila-surface) !important;
@@ -115,7 +115,7 @@ body {
 }
 
 // ================================
-// Mobile Safe Area Utilities
+// Утилиты безопасной области мобильного устройства
 // ================================
 .safe-area-top {
   padding-top: env(safe-area-inset-top);
@@ -126,7 +126,7 @@ body {
 }
 
 // ================================
-// Custom Scrollbar (Dark theme friendly)
+// Пользовательская полоса прокрутки (совместима с тёмной темой)
 // ================================
 ::-webkit-scrollbar {
   width: 6px;
@@ -147,7 +147,7 @@ body {
 }
 
 // ================================
-// Page Transitions
+// Переходы страниц
 // ================================
 .fade-enter-active,
 .fade-leave-active {
@@ -171,7 +171,7 @@ body {
 }
 
 // ================================
-// Banner Light Backgrounds
+// Светлые фоны баннеров
 // ================================
 .bg-positive-light {
   background: rgba(34, 197, 94, 0.1) !important;

@@ -1,6 +1,6 @@
 /**
- * Telegram WebApp SDK boot file for Lila Chakra.
- * Initializes Telegram Mini App SDK and configures app behavior.
+ * Файл инициализации Telegram WebApp SDK для Lila Chakra.
+ * Инициализирует SDK Telegram Mini App и настраивает поведение приложения.
  */
 
 import { boot } from 'quasar/wrappers';
@@ -51,7 +51,7 @@ interface TelegramWebApp {
   backgroundColor: string;
   isClosingConfirmationEnabled: boolean;
 
-  // Methods
+  // Методы
   ready(): void;
   expand(): void;
   close(): void;
@@ -60,7 +60,7 @@ interface TelegramWebApp {
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
 
-  // Main Button
+  // Главная кнопка
   MainButton: {
     text: string;
     color: string;
@@ -79,7 +79,7 @@ interface TelegramWebApp {
     hideProgress(): void;
   };
 
-  // Back Button
+  // Кнопка "Назад"
   BackButton: {
     isVisible: boolean;
     onClick(callback: () => void): void;
@@ -88,14 +88,14 @@ interface TelegramWebApp {
     hide(): void;
   };
 
-  // Haptic Feedback
+  // Обратная связь (вибрация)
   HapticFeedback: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
     notificationOccurred(type: 'error' | 'success' | 'warning'): void;
     selectionChanged(): void;
   };
 
-  // Popup
+  // Всплывающее окно
   showPopup(
     params: {
       title?: string;
@@ -112,33 +112,33 @@ interface TelegramWebApp {
   showAlert(message: string, callback?: () => void): void;
   showConfirm(message: string, callback?: (ok: boolean) => void): void;
 
-  // QR Scanner
+  // Сканер QR-кода
   showScanQrPopup(params: { text?: string }, callback?: (text: string) => void): void;
   closeScanQrPopup(): void;
 
-  // Clipboard
+  // Буфер обмена
   readTextFromClipboard(callback?: (text: string) => void): void;
 
-  // Share
+  // Поделиться
   switchInlineQuery(query: string, chooseChatTypes?: string[]): void;
 
-  // Open links
+  // Открыть ссылки
   openLink(url: string, options?: { try_instant_view?: boolean }): void;
   openTelegramLink(url: string): void;
   openInvoice(url: string, callback?: (status: string) => void): void;
 
-  // Events
+  // События
   onEvent(eventType: string, callback: () => void): void;
   offEvent(eventType: string, callback: () => void): void;
 
   sendData(data: string): void;
 }
 
-// Export for use in composables
+// Экспортировать для использования в composables
 export type { TelegramWebApp, TelegramUser };
 
 /**
- * Get Telegram WebApp instance
+ * Получить экземпляр Telegram WebApp
  */
 export function getTelegramWebApp(): TelegramWebApp | null {
   if (typeof window === 'undefined') return null;
@@ -146,7 +146,7 @@ export function getTelegramWebApp(): TelegramWebApp | null {
 }
 
 /**
- * Check if running inside Telegram
+ * Проверить, запущено ли приложение внутри Telegram
  */
 export function isInTelegram(): boolean {
   const tg = getTelegramWebApp();
@@ -157,21 +157,21 @@ export default boot(({ app }) => {
   const tg = getTelegramWebApp();
 
   if (!tg) {
-    console.warn('Telegram WebApp SDK not available. Running in development mode.');
+    console.warn('Telegram WebApp SDK не доступен. Работа в режиме разработки.');
     return;
   }
 
-  // Notify Telegram that app is ready
+  // Сообщить Telegram, что приложение готово
   tg.ready();
 
-  // Expand the app to full height
+  // Развернуть приложение на полную высоту
   tg.expand();
 
-  // Enable closing confirmation for active games
-  // (will be managed dynamically by game store)
+  // Включить подтверждение закрытия для активных игр
+  // (будет управляться динамически хранилищем игры)
   // tg.enableClosingConfirmation();
 
-  // Set theme colors based on our design
+  // Установить цвета темы на основе нашего дизайна
   const isDark = tg.colorScheme === 'dark';
   if (isDark) {
     tg.setHeaderColor('#0F0D1A');
@@ -181,11 +181,11 @@ export default boot(({ app }) => {
     tg.setBackgroundColor('#FAFAF9');
   }
 
-  // Make TG available globally via provide/inject
+  // Сделать TG доступным глобально через provide/inject
   app.provide('telegram', tg);
 
-  // Log initialization info
-  console.log('Telegram WebApp initialized:', {
+  // Логирование информации инициализации
+  console.log('Telegram WebApp инициализирован:', {
     version: tg.version,
     platform: tg.platform,
     colorScheme: tg.colorScheme,

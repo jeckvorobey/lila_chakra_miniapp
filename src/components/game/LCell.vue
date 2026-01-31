@@ -1,9 +1,9 @@
 <template>
   <div :class="cellClasses" :style="cellStyle" @click="handleClick" @long-press="handleLongPress">
-    <!-- Cell number -->
+    <!-- Номер клетки -->
     <span class="l-cell__number">{{ cellId }}</span>
 
-    <!-- Special indicator (arrow/snake) -->
+    <!-- Специальный индикатор (стрела/змея) -->
     <q-icon
       v-if="isArrow"
       name="mdi-arrow-up-bold"
@@ -17,12 +17,12 @@
       size="16px"
     />
 
-    <!-- Player chip indicator -->
+    <!-- Индикатор фишки игрока -->
     <div v-if="hasPlayer" class="l-cell__player">
       <div class="l-cell__player-dot" />
     </div>
 
-    <!-- Tooltip on hover/tap -->
+    <!-- Подсказка при наведении/касании -->
     <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
       <div class="text-weight-medium">{{ cellName }}</div>
       <div v-if="isArrow" class="text-caption text-positive">
@@ -63,19 +63,19 @@ const emit = defineEmits<{
   (e: 'long-press', cellId: number): void;
 }>();
 
-// Calculate chakra level (1-8)
+// Рассчитать уровень чакры (1-8)
 const chakraLevel = computed(() => {
   if (props.cellId <= 0) return 0;
   return Math.ceil(props.cellId / 9);
 });
 
-// Check for special cells
+// Проверить наличие специальных клеток
 const isArrow = computed(() => props.cellId in ARROWS);
 const isSnake = computed(() => props.cellId in SNAKES);
 const arrowTarget = computed(() => ARROWS[props.cellId]);
 const snakeTarget = computed(() => SNAKES[props.cellId]);
 
-// Is this the winning cell (68)?
+// Это победная клетка (68)?
 const isWinningCell = computed(() => props.cellId === 68);
 
 const cellClasses = computed(() => [
@@ -120,11 +120,11 @@ function handleLongPress() {
   transition: all 0.2s ease;
   user-select: none;
 
-  // Base styling
+  // Базовые стили
   background: var(--lila-surface);
   border: 1px solid var(--lila-border);
 
-  // Sizes
+  // Размеры
   &--size-sm {
     width: 32px;
     height: 32px;
@@ -143,7 +143,7 @@ function handleLongPress() {
     font-size: 14px;
   }
 
-  // Chakra colors (subtle background tint)
+  // Цвета чакр (тонкий фоновый оттенок)
   @for $i from 1 through 8 {
     &--chakra-#{$i} {
       background: linear-gradient(
@@ -155,14 +155,14 @@ function handleLongPress() {
     }
   }
 
-  // Current position
+  // Текущая позиция
   &--current {
     border-color: var(--chakra-color);
     box-shadow: 0 0 12px var(--chakra-color);
     animation: cell-pulse 2s ease-in-out infinite;
   }
 
-  // Arrow cell
+  // Клетка со стрелой
   &--arrow {
     &::before {
       content: '';
@@ -173,7 +173,7 @@ function handleLongPress() {
     }
   }
 
-  // Snake cell
+  // Клетка со змеёй
   &--snake {
     &::before {
       content: '';
@@ -184,7 +184,7 @@ function handleLongPress() {
     }
   }
 
-  // Winning cell (68)
+  // Победная клетка (68)
   &--winning {
     background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(147, 51, 234, 0.3));
     border-color: var(--chakra-8);
@@ -200,7 +200,7 @@ function handleLongPress() {
     z-index: 10;
   }
 
-  // Hover effect
+  // Эффект наведения
   &:hover:not(&--disabled) {
     transform: scale(1.1);
     z-index: 5;
@@ -210,14 +210,14 @@ function handleLongPress() {
     transform: scale(0.95);
   }
 
-  // Number
+  // Номер
   &__number {
     font-weight: 600;
     color: var(--lila-text-primary);
     z-index: 1;
   }
 
-  // Icons
+  // Иконки
   &__icon {
     position: absolute;
     top: 2px;
@@ -233,7 +233,7 @@ function handleLongPress() {
     }
   }
 
-  // Player indicator
+  // Индикатор игрока
   &__player {
     position: absolute;
     inset: 0;

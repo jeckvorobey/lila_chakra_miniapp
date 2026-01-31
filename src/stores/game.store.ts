@@ -1,6 +1,6 @@
 /**
- * Game store for Lila Chakra game state management.
- * Contains game logic: dice rolls, moves, arrows, snakes.
+ * Хранилище игры для управления состоянием игры Лила Чакра.
+ * Содержит логику игры: броски кубика, ходы, стрелы, змеи.
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
@@ -29,7 +29,7 @@ import {
   WAITING_ZONE,
 } from 'src/data/game-constants';
 
-// Re-export game constants for convenience
+// Повторный экспорт игровых констант для удобства
 export {
   ARROWS,
   SNAKES,
@@ -43,7 +43,7 @@ export {
 export type { GameMode, QueryCategory };
 
 export const useGameStore = defineStore('game', () => {
-  // State
+  // Состояние
   const currentGame = ref<GameDetail | null>(null);
   const moves = ref<MoveOut[]>([]);
   const currentCellInfo = ref<CellBrief | null>(null);
@@ -52,12 +52,12 @@ export const useGameStore = defineStore('game', () => {
   const isRolling = ref(false);
   const error = ref<string | null>(null);
 
-  // Dice state
+  // Состояние кубика
   const currentDiceRolls = ref<number[]>([]);
   const lastTransition = ref<TransitionType>('none');
   const requiresAnotherRoll = ref(false);
 
-  // Getters
+  // Вычисляемые значения
   const isGameActive = computed(
     () =>
       currentGame.value &&
@@ -97,10 +97,10 @@ export const useGameStore = defineStore('game', () => {
 
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
-  // Helper functions
+  // Вспомогательные функции
 
   /**
-   * Get chakra level for a cell (1-8)
+   * Получить уровень чакры для клетки (1-8)
    */
   function getChakraLevel(cellId: number): number {
     if (cellId <= 0) return 0;
@@ -108,21 +108,21 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Check if cell is an arrow start
+   * Проверить, является ли клетка началом стрелы
    */
   function isArrowStart(cellId: number): boolean {
     return cellId in ARROWS;
   }
 
   /**
-   * Check if cell is a snake head
+   * Проверить, является ли клетка головой змеи
    */
   function isSnakeHead(cellId: number): boolean {
     return cellId in SNAKES;
   }
 
   /**
-   * Get transition info for a cell
+   * Получить информацию о переходе для клетки
    */
   function getTransition(cellId: number): { type: TransitionType; to: number | null } {
     if (cellId in ARROWS) {
@@ -135,16 +135,16 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Check if cell is in waiting zone (69-71)
+   * Проверить, находится ли клетка в зоне ожидания (69-71)
    */
   function isInWaitingZoneCell(cellId: number): boolean {
     return WAITING_ZONE.has(cellId);
   }
 
-  // Actions
+  // Действия
 
   /**
-   * Create a new game
+   * Создать новую игру
    */
   async function createGame(payload: GameCreate): Promise<boolean> {
     isLoading.value = true;
@@ -167,7 +167,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Load existing game
+   * Загрузить существующую игру
    */
   async function loadGame(gameId: number): Promise<boolean> {
     isLoading.value = true;
@@ -192,7 +192,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Roll dice (automatic or manual)
+   * Бросить кубик (автоматический или ручной)
    */
   async function rollDice(manualValue?: number): Promise<MoveResponse | null> {
     if (!currentGame.value || !isGameActive.value) {
@@ -218,14 +218,14 @@ export const useGameStore = defineStore('game', () => {
 
       const response = await gamesApi.rollDice(currentGame.value.id, request);
 
-      // Update state
+      // Обновить состояние
       moves.value.push(response.move);
       currentDiceRolls.value = response.move.dice_rolls;
       lastTransition.value = response.move.transition_type;
       currentCellInfo.value = response.cell_info;
       requiresAnotherRoll.value = response.requires_another_roll;
 
-      // Update game state
+      // Обновить состояние игры
       currentGame.value.status = response.game_status;
       currentGame.value.current_cell = response.move.final_cell;
       currentGame.value.total_moves += 1;
@@ -250,7 +250,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Complete entry meditation
+   * Завершить входную медитацию
    */
   async function completeEntryMeditation(): Promise<boolean> {
     if (!currentGame.value) return false;
@@ -266,7 +266,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Complete exit meditation
+   * Завершить выходную медитацию
    */
   async function completeExitMeditation(): Promise<boolean> {
     if (!currentGame.value) return false;
@@ -282,7 +282,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * End current game
+   * Завершить текущую игру
    */
   async function endGame(abandon = false): Promise<boolean> {
     if (!currentGame.value) return false;
@@ -300,7 +300,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Save insight for a move
+   * Сохранить озарение для хода
    */
   async function saveInsight(moveId: number, insight: string): Promise<boolean> {
     try {
@@ -318,7 +318,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Fetch all cells data
+   * Загрузить данные всех клеток
    */
   async function fetchAllCells(): Promise<void> {
     try {
@@ -329,10 +329,10 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Get full cell info by ID
+   * Получить полную информацию о клетке по ID
    */
   async function getCellInfo(cellId: number): Promise<CellOut | null> {
-    // Try from local cache first
+    // Сначала попробовать из локального кэша
     const cached = cells.value.find((c) => c.id === cellId);
     if (cached) return cached;
 
@@ -345,14 +345,14 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Manual move (alias for rollDice)
+   * Ручной ход (псевдоним для rollDice)
    */
   async function manualMove(value: number): Promise<MoveResponse | null> {
     return rollDice(value);
   }
 
   /**
-   * Reset store on logout
+   * Сбросить хранилище при выходе
    */
   function reset(): void {
     currentGame.value = null;
@@ -366,7 +366,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
-    // Constants
+    // Константы
     ARROWS,
     SNAKES,
     WINNING_CELL,
@@ -375,7 +375,7 @@ export const useGameStore = defineStore('game', () => {
     CELLS_PER_ROW,
     WAITING_ZONE,
 
-    // State
+    // Состояние
     currentGame,
     moves,
     currentCellInfo,
@@ -387,7 +387,7 @@ export const useGameStore = defineStore('game', () => {
     lastTransition,
     requiresAnotherRoll,
 
-    // Getters
+    // Вычисляемые значения
     isGameActive,
     isWaitingFor6,
     isInProgress,
@@ -403,14 +403,14 @@ export const useGameStore = defineStore('game', () => {
     snakesHit,
     highestCell,
 
-    // Helpers
+    // Вспомогательные функции
     getChakraLevel,
     isArrowStart,
     isSnakeHead,
     getTransition,
     isInWaitingZoneCell,
 
-    // Actions
+    // Действия
     createGame,
     loadGame,
     rollDice,

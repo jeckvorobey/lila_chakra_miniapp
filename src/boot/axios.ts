@@ -8,24 +8,24 @@ declare module 'vue' {
   }
 }
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
+// Будьте осторожны при использовании SSR из-за риска загрязнения состояния между запросами
+// из-за создания Singleton экземпляра здесь;
+// Если какой-либо клиент изменит этот (глобальный) экземпляр, может быть
+// хорошей идеей переместить создание этого экземпляра внутрь
+// функции "export default () => {}" ниже (которая запускается отдельно
+// для каждого клиента)
 const api = axios.create({ baseURL: 'https://api.example.com' });
 
 export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
+  // для использования в Vue файлах (Options API) через this.$axios и this.$api
 
   app.config.globalProperties.$axios = axios;
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
+  // ^ ^ ^ это позволит вам использовать this.$axios (для Vue Options API)
+  //       поэтому вам не обязательно нужно импортировать axios в каждый vue файл
 
   app.config.globalProperties.$api = api;
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
+  // ^ ^ ^ это позволит вам использовать this.$api (для Vue Options API)
+  //       так что вы легко сможете выполнять запросы к API вашего приложения
 });
 
 export { api };

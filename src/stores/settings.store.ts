@@ -1,6 +1,6 @@
 /**
- * Settings store for app preferences.
- * Handles theme, sound, notifications, and other user preferences.
+ * Хранилище настроек приложения.
+ * Управляет темой, звуком, уведомлениями и другими предпочтениями пользователя.
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 export const useSettingsStore = defineStore('settings', () => {
-  // State
+  // Состояние
   const theme = ref<ThemeMode>(DEFAULT_SETTINGS.theme);
   const soundEnabled = ref(DEFAULT_SETTINGS.soundEnabled);
   const vibrationEnabled = ref(DEFAULT_SETTINGS.vibrationEnabled);
@@ -39,7 +39,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const notificationsEnabled = ref(DEFAULT_SETTINGS.notificationsEnabled);
   const language = ref(DEFAULT_SETTINGS.language);
 
-  // Private helpers
+  // Приватные вспомогательные функции
 
   function getSystemTheme(): boolean {
     if (typeof window === 'undefined') return true;
@@ -87,14 +87,14 @@ export const useSettingsStore = defineStore('settings', () => {
         notificationsEnabled.value = settings.notificationsEnabled;
       if (settings.language) language.value = settings.language;
     } catch (e) {
-      console.error('Failed to parse settings:', e);
+      console.error('Ошибка разбора настроек:', e);
     }
   }
 
-  // Actions
+  // Действия
 
   /**
-   * Set theme mode
+   * Установить режим темы
    */
   function setTheme(mode: ThemeMode): void {
     theme.value = mode;
@@ -111,7 +111,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Toggle between dark and light themes
+   * Переключаться между тёмной и светлой темами
    */
   function toggleTheme(): void {
     const newTheme: ThemeMode = theme.value === 'dark' ? 'light' : 'dark';
@@ -119,7 +119,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Toggle sound
+   * Переключить звук
    */
   function toggleSound(): void {
     soundEnabled.value = !soundEnabled.value;
@@ -127,7 +127,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Toggle vibration
+   * Переключить вибрацию
    */
   function toggleVibration(): void {
     vibrationEnabled.value = !vibrationEnabled.value;
@@ -135,7 +135,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Set dice mode
+   * Установить режим кубика
    */
   function setDiceMode(mode: DiceMode): void {
     diceMode.value = mode;
@@ -143,7 +143,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Toggle notifications
+   * Переключить уведомления
    */
   function toggleNotifications(): void {
     notificationsEnabled.value = !notificationsEnabled.value;
@@ -151,7 +151,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Set language
+   * Установить язык
    */
   function setLanguage(lang: string): void {
     language.value = lang;
@@ -159,17 +159,17 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Play sound if enabled
+   * Воспроизвести звук если включен
    */
   function playSound(soundName: string): void {
     if (!soundEnabled.value) return;
 
-    // Sound will be implemented with actual audio files
-    console.log('Playing sound:', soundName);
+    // Звук будет реализован с реальными аудиофайлами
+    console.log('Воспроизведение звука:', soundName);
   }
 
   /**
-   * Trigger vibration if enabled
+   * Вызвать вибрацию если включена
    */
   function vibrate(pattern: number | number[] = 50): void {
     if (!vibrationEnabled.value) return;
@@ -179,12 +179,12 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Initialize settings on app start
+   * Инициализировать настройки при запуске приложения
    */
   function init(): void {
     loadFromStorage();
 
-    // Apply initial theme
+    // Применить начальную тему
     let isDark: boolean;
     if (theme.value === 'system') {
       isDark = getSystemTheme();
@@ -193,7 +193,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
     applyTheme(isDark);
 
-    // Listen for system theme changes
+    // Слушать изменения системной темы
     if (typeof window !== 'undefined') {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (theme.value === 'system') {
@@ -204,7 +204,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Reset to defaults
+   * Сбросить на значения по умолчанию
    */
   function resetToDefaults(): void {
     theme.value = DEFAULT_SETTINGS.theme;
@@ -218,7 +218,7 @@ export const useSettingsStore = defineStore('settings', () => {
     applyTheme(theme.value === 'dark');
   }
 
-  // Watch for changes and auto-save
+  // Наблюдать за изменениями и автоматически сохранять
   watch(
     [theme, soundEnabled, vibrationEnabled, diceMode, notificationsEnabled, language],
     () => {
@@ -228,7 +228,7 @@ export const useSettingsStore = defineStore('settings', () => {
   );
 
   return {
-    // State
+    // Состояние
     theme,
     soundEnabled,
     vibrationEnabled,
@@ -236,7 +236,7 @@ export const useSettingsStore = defineStore('settings', () => {
     notificationsEnabled,
     language,
 
-    // Actions
+    // Действия
     setTheme,
     toggleTheme,
     toggleSound,

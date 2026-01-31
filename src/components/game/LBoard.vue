@@ -1,6 +1,6 @@
 <template>
   <div class="l-board" :class="{ 'l-board--zoomed': isZoomed }">
-    <!-- Zoom controls -->
+    <!-- Элементы управления масштабом -->
     <div class="l-board__controls">
       <q-btn-group flat class="l-board__zoom-controls">
         <q-btn flat dense icon="mdi-minus" :disable="zoom <= 0.5" @click="zoomOut" />
@@ -9,7 +9,7 @@
       </q-btn-group>
     </div>
 
-    <!-- Board container with touch gestures -->
+    <!-- Контейнер доски с сенсорными жестами -->
     <q-scroll-area
       ref="scrollArea"
       class="l-board__scroll"
@@ -24,19 +24,19 @@
         @touchmove="onTouchMove"
         @touchend="onTouchEnd"
       >
-        <!-- Background image -->
+        <!-- Фоновое изображение -->
         <div class="l-board__background" />
 
-        <!-- Grid overlay -->
+        <!-- Сетка -->
         <div class="l-board__grid">
-          <!-- Rows (chakras from top to bottom: 8 → 1) -->
+          <!-- Строки (чакры сверху вниз: 8 → 1) -->
           <div
             v-for="row in 8"
             :key="row"
             class="l-board__row"
             :class="`l-board__row--chakra-${9 - row}`"
           >
-            <!-- Cells in serpentine pattern -->
+            <!-- Клетки в зигзагообразном порядке -->
             <l-cell
               v-for="cellId in getRowCells(9 - row)"
               :key="cellId"
@@ -51,19 +51,19 @@
           </div>
         </div>
 
-        <!-- Arrow paths (SVG overlay) -->
+        <!-- Пути стрел (SVG слой) -->
         <svg v-if="showTransitions" class="l-board__transitions">
-          <!-- Arrows -->
+          <!-- Стрелы -->
           <g v-for="(target, start) in ARROWS" :key="`arrow-${start}`">
             <path :d="getTransitionPath(Number(start), target)" class="l-board__arrow-path" />
           </g>
-          <!-- Snakes -->
+          <!-- Змеи -->
           <g v-for="(target, start) in SNAKES" :key="`snake-${start}`">
             <path :d="getTransitionPath(Number(start), target)" class="l-board__snake-path" />
           </g>
         </svg>
 
-        <!-- Player chip -->
+        <!-- Фишка игрока -->
         <l-chip
           v-if="currentCell > 0"
           :position="currentCell"
@@ -73,7 +73,7 @@
       </div>
     </q-scroll-area>
 
-    <!-- Current position indicator -->
+    <!-- Индикатор текущей позиции -->
     <div class="l-board__indicator">
       <q-chip
         :color="currentCell > 0 ? `chakra-${currentChakra}` : 'grey'"
@@ -109,43 +109,43 @@ const emit = defineEmits<{
   (e: 'cell-long-press', cellId: number): void;
 }>();
 
-// Zoom state
+// Состояние масштабирования
 const zoom = ref(1);
 const isZoomed = computed(() => zoom.value !== 1);
 import type { QScrollArea } from 'quasar';
 
 const scrollArea = ref<InstanceType<typeof QScrollArea> | null>(null);
 
-// Cell size based on zoom
+// Размер клетки в зависимости от масштаба
 const cellSize = computed<'sm' | 'md' | 'lg'>(() => {
   if (zoom.value < 0.8) return 'sm';
   if (zoom.value > 1.3) return 'lg';
   return 'md';
 });
 
-// Current chakra level
+// Текущий уровень чакры
 const currentChakra = computed(() => {
   if (props.currentCell <= 0) return 0;
   return Math.ceil(props.currentCell / CELLS_PER_ROW);
 });
 
-// Board style with zoom
+// Стиль доски с масштабом
 const boardStyle = computed(() => ({
   transform: `scale(${zoom.value})`,
   transformOrigin: 'center center',
 }));
 
-// Chip position style
+// Стиль позиции фишки
 const chipStyle = computed(() => {
   if (props.currentCell <= 0) return { display: 'none' };
 
   const row = Math.ceil(props.currentCell / CELLS_PER_ROW);
   const posInRow = (props.currentCell - 1) % CELLS_PER_ROW;
 
-  // Serpentine pattern: even rows go right-to-left
+  // Зигзагообразный порядок: чётные строки идут справа налево
   const col = row % 2 === 1 ? posInRow : CELLS_PER_ROW - 1 - posInRow;
 
-  // Calculate position (adjust for cell size and gaps)
+  // Расчёт позиции (с учётом размера клетки и зазоров)
   const cellWidth = 44; // md size + gap
   const cellHeight = 44;
 
@@ -161,24 +161,24 @@ const thumbStyle = {
   borderRadius: '4px',
 };
 
-// Cell name getter (from store or props)
+// Получить название клетки (из хранилища или пропсов)
 function getCellName(cellId: number): string {
-  // Will be connected to cells data from store
-  return `Cell ${cellId}`;
+  // Будет подключено к данным клеток из хранилища
+  return `Клетка ${cellId}`;
 }
 
-// Get cells for a row in serpentine pattern
+// Получить клетки для строки в зигзагообразном порядке
 function getRowCells(chakraLevel: number): number[] {
   const startCell = (chakraLevel - 1) * CELLS_PER_ROW + 1;
   const cells = Array.from({ length: CELLS_PER_ROW }, (_, i) => startCell + i);
 
-  // Reverse even rows for serpentine
+  // Развернуть чётные строки для зигзага
   return chakraLevel % 2 === 0 ? cells.reverse() : cells;
 }
 
-// Generate SVG path for arrow/snake
+// Генерировать SVG путь для стрелы/змеи
 function getTransitionPath(from: number, to: number): string {
-  // Simplified curved path - would be calculated based on cell positions
+  // Упрощённый изогнутый путь - будет рассчитан на основе позиций клеток
   const fromRow = Math.ceil(from / CELLS_PER_ROW);
   const toRow = Math.ceil(to / CELLS_PER_ROW);
   const fromCol = (from - 1) % CELLS_PER_ROW;
@@ -189,14 +189,14 @@ function getTransitionPath(from: number, to: number): string {
   const x2 = toCol * 44 + 22;
   const y2 = (8 - toRow) * 44 + 22;
 
-  // Bezier curve
+  // Кривая Безье
   const cx = (x1 + x2) / 2;
   const cy = Math.min(y1, y2) - 50;
 
   return `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
 }
 
-// Zoom controls
+// Управление масштабом
 function zoomIn() {
   zoom.value = Math.min(zoom.value + 0.25, 2);
 }
@@ -209,7 +209,7 @@ function resetZoom() {
   zoom.value = 1;
 }
 
-// Touch gesture handling for pinch zoom
+// Обработка сенсорных жестов для масштабирования пинчем
 let initialDistance = 0;
 let initialZoom = 1;
 
@@ -241,7 +241,7 @@ function getTouchDistance(touches: TouchList): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-// Cell interaction handlers
+// Обработчики взаимодействия с клетками
 function onCellClick(cellId: number) {
   if (props.interactive) {
     emit('cell-click', cellId);
@@ -254,12 +254,12 @@ function onCellLongPress(cellId: number) {
   }
 }
 
-// Scroll to current cell when position changes
+// Прокрутить к текущей клетке при изменении позиции
 watch(
   () => props.currentCell,
   (newCell) => {
     if (newCell > 0 && scrollArea.value) {
-      // Scroll logic would go here
+      // Логика прокрутки будет здесь
     }
   },
 );
@@ -327,7 +327,7 @@ watch(
     gap: 4px;
     justify-content: center;
 
-    // Chakra row backgrounds
+    // Фон для строк чакр
     @for $i from 1 through 8 {
       &--chakra-#{$i} {
         position: relative;
@@ -393,7 +393,7 @@ watch(
   }
 }
 
-// Chakra chip colors
+// Цвета фишек по чакрам
 :deep(.q-chip) {
   @for $i from 1 through 8 {
     &.bg-chakra-#{$i} {

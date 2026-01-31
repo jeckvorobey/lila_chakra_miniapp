@@ -8,12 +8,12 @@ import {
 import routes from './routes';
 
 /*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
+ * Если вы не собираете с режимом SSR, вы можете
+ * напрямую экспортировать создание Router;
  *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
+ * Функция ниже также может быть асинхронной; используйте
+ * async/await или верните Promise, который разрешается
+ * с экземпляром Router.
  */
 
 export default defineRouter(function (/* { store, ssrContext } */) {
@@ -27,7 +27,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
 
-    // Leave this as is and make changes in quasar.conf.js instead!
+    // Оставьте это как есть и внесите изменения в quasar.conf.js вместо этого!
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),

@@ -1,5 +1,5 @@
 /**
- * User store for profile and balance management.
+ * Хранилище пользователя для управления профилем и балансом.
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
@@ -30,13 +30,13 @@ interface UserStats {
 }
 
 export const useUserStore = defineStore('user', () => {
-  // State
+  // Состояние
   const profile = ref<UserProfile | null>(null);
   const stats = ref<UserStats | null>(null);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  // Getters
+  // Вычисляемые свойства
   const balance = computed(() => profile.value?.balance ?? 0);
   const displayName = computed(() => {
     if (!profile.value) return '';
@@ -55,10 +55,10 @@ export const useUserStore = defineStore('user', () => {
     return Math.max(0, profile.value.daily_moves_limit - profile.value.daily_moves_used);
   });
 
-  // Actions
+  // Действия
 
   /**
-   * Fetch user profile from backend
+   * Загрузить профиль пользователя с бэкенда
    */
   async function fetchProfile(): Promise<void> {
     isLoading.value = true;
@@ -68,26 +68,26 @@ export const useUserStore = defineStore('user', () => {
       const response = await api.get<UserProfile>('/api/users/me');
       profile.value = response.data;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to load profile';
+      error.value = err instanceof Error ? err.message : 'Ошибка загрузки профиля';
     } finally {
       isLoading.value = false;
     }
   }
 
   /**
-   * Fetch user statistics
+   * Загрузить статистику пользователя
    */
   async function fetchStats(): Promise<void> {
     try {
       const response = await api.get<UserStats>('/api/users/me/stats');
       stats.value = response.data;
     } catch (err) {
-      console.error('Failed to load stats:', err);
+      console.error('Ошибка загрузки статистики:', err);
     }
   }
 
   /**
-   * Update user profile
+   * Обновить профиль пользователя
    */
   async function updateProfile(updates: Partial<Pick<UserProfile, 'username'>>): Promise<boolean> {
     isLoading.value = true;
@@ -98,7 +98,7 @@ export const useUserStore = defineStore('user', () => {
       profile.value = response.data;
       return true;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to update profile';
+      error.value = err instanceof Error ? err.message : 'Ошибка обновления профиля';
       return false;
     } finally {
       isLoading.value = false;
@@ -106,7 +106,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * Update balance locally (after payment or promo code)
+   * Обновить баланс локально (после платежа или промокода)
    */
   function updateBalance(newBalance: number): void {
     if (profile.value) {
@@ -115,7 +115,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * Increment daily moves used
+   * Увеличить счётчик использованных дневных ходов
    */
   function incrementMovesUsed(): void {
     if (profile.value) {
@@ -124,7 +124,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * Reset store on logout
+   * Очистить хранилище при выходе
    */
   function reset(): void {
     profile.value = null;
@@ -133,20 +133,20 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
-    // State
+    // Состояние
     profile,
     stats,
     isLoading,
     error,
 
-    // Getters
+    // Вычисляемые свойства
     balance,
     displayName,
     isAdmin,
     canMakeMove,
     movesRemaining,
 
-    // Actions
+    // Действия
     fetchProfile,
     fetchStats,
     updateProfile,

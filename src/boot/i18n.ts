@@ -4,28 +4,28 @@ import { createI18n } from 'vue-i18n';
 import messages from 'src/i18n';
 
 export type MessageLanguages = keyof typeof messages;
-// Type-define 'en-US' as the master schema for the resource
+// Определить 'en-US' как базовую схему для ресурса
 export type MessageSchema = (typeof messages)['en-US'];
 
-// See https://vue-i18n.intlify.dev/guide/advanced/typescript.html#global-resource-schema-type-definition
+// Смотрите https://vue-i18n.intlify.dev/guide/advanced/typescript.html#global-resource-schema-type-definition
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 declare module 'vue-i18n' {
-  // define the locale messages schema
+  // Определить схему сообщений локали
   export interface DefineLocaleMessage extends MessageSchema {}
 
-  // define the datetime format schema
+  // Определить схему формата даты/времени
   export interface DefineDateTimeFormat {}
 
-  // define the number format schema
+  // Определить схему формата чисел
   export interface DefineNumberFormat {}
 }
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
 /**
- * Detect user's preferred language
+ * Определить предпочитаемый язык пользователя
  */
 function detectLocale(): MessageLanguages {
-  // Check Telegram user language
+  // Проверить язык пользователя Telegram
   if (typeof window !== 'undefined') {
     const tg = (
       window as {
@@ -43,7 +43,7 @@ function detectLocale(): MessageLanguages {
     }
   }
 
-  // Check browser language
+  // Проверить язык браузера
   if (typeof navigator !== 'undefined') {
     const browserLang = navigator.language;
     if (browserLang?.startsWith('ru')) {
@@ -51,7 +51,7 @@ function detectLocale(): MessageLanguages {
     }
   }
 
-  // Check saved preference
+  // Проверить сохранённые предпочтения
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem('lila-language');
     if (saved === 'ru-RU' || saved === 'en-US') {
@@ -59,7 +59,7 @@ function detectLocale(): MessageLanguages {
     }
   }
 
-  // Default to Russian (primary audience)
+  // По умолчанию русский (основная аудитория)
   return 'ru-RU';
 }
 
@@ -73,6 +73,6 @@ export default defineBoot(({ app }) => {
     messages,
   });
 
-  // Set i18n instance on app
+  // Установить экземпляр i18n на приложение
   app.use(i18n);
 });

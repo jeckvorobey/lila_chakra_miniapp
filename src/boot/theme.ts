@@ -1,6 +1,6 @@
 /**
- * Theme boot file for Lila Chakra.
- * Initializes theme based on Telegram/saved preference.
+ * Файл инициализации темы для Lila Chakra.
+ * Инициализирует тему на основе предпочтения Telegram/сохранённых данных.
  */
 
 import { boot } from 'quasar/wrappers';
@@ -11,7 +11,7 @@ type ThemeMode = 'dark' | 'light' | 'system';
 const STORAGE_KEY = 'lila-theme-mode';
 
 /**
- * Get saved theme from localStorage
+ * Получить сохранённую тему из localStorage
  */
 function getSavedTheme(): ThemeMode {
   if (typeof localStorage === 'undefined') return 'dark';
@@ -24,7 +24,7 @@ function getSavedTheme(): ThemeMode {
 }
 
 /**
- * Check system preference
+ * Проверить предпочтение системы
  */
 function getSystemPreference(): boolean {
   if (typeof window === 'undefined') return true;
@@ -32,12 +32,12 @@ function getSystemPreference(): boolean {
 }
 
 /**
- * Try to get Telegram theme preference
+ * Попытаться получить предпочтение темы Telegram
  */
 function getTelegramTheme(): 'dark' | 'light' | null {
   if (typeof window === 'undefined') return null;
 
-  // Check Telegram WebApp SDK
+  // Проверить Telegram WebApp SDK
   const tg = (window as { Telegram?: { WebApp?: { colorScheme?: string } } }).Telegram?.WebApp;
   if (tg?.colorScheme) {
     return tg.colorScheme === 'dark' ? 'dark' : 'light';
@@ -47,16 +47,16 @@ function getTelegramTheme(): 'dark' | 'light' | null {
 }
 
 /**
- * Determine if dark mode should be active
+ * Определить, должен ли быть активен тёмный режим
  */
 function shouldBeDark(): boolean {
-  // Priority 1: Telegram theme
+  // Приоритет 1: Тема Telegram
   const telegramTheme = getTelegramTheme();
   if (telegramTheme) {
     return telegramTheme === 'dark';
   }
 
-  // Priority 2: Saved preference
+  // Приоритет 2: Сохранённое предпочтение
   const savedTheme = getSavedTheme();
   if (savedTheme === 'system') {
     return getSystemPreference();
@@ -68,10 +68,10 @@ function shouldBeDark(): boolean {
 export default boot(() => {
   const isDark = shouldBeDark();
 
-  // Set Quasar dark mode
+  // Установить тёмный режим Quasar
   Dark.set(isDark);
 
-  // Apply body classes
+  // Применить классы body
   if (typeof document !== 'undefined') {
     document.body.classList.add(isDark ? 'body--dark' : 'body--light');
     document.body.classList.remove(isDark ? 'body--light' : 'body--dark');

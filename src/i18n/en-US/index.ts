@@ -1,32 +1,32 @@
 /**
- * English (US) localization for Lila Chakra
+ * Локализация английского (США) для Lila Chakra
  */
 
 export default {
-  // Common
+  // Общее
   failed: 'Action failed',
   success: 'Action was successful',
 
-  // Navigation
+  // Навигация
   nav: {
     game: 'Game',
     diary: 'Diary',
     profile: 'Profile',
   },
 
-  // Splash
+  // Заставка
   splash: {
     tagline: 'Your journey to self-discovery',
   },
 
-  // Theme
+  // Тема
   theme: {
     light: 'Light',
     dark: 'Dark',
     system: 'System',
   },
 
-  // Onboarding
+  // Введение
   onboarding: {
     welcome_title: 'Welcome to Lila',
     welcome_desc: 'Ancient game of self-knowledge adapted for the modern world',
@@ -42,7 +42,7 @@ export default {
     next: 'Next',
   },
 
-  // Dice
+  // Кубик
   dice: {
     auto: 'Auto Roll',
     manual: 'Manual Input',
@@ -54,7 +54,7 @@ export default {
     waiting_for_6: 'Roll 6 to enter the game',
   },
 
-  // Game
+  // Игра
   game: {
     title: 'Game',
     new_game: 'New Game',
@@ -66,7 +66,7 @@ export default {
     outside_board: 'Outside the board',
   },
 
-  // Query
+  // Запрос
   query: {
     title: 'Your Question',
     your_question: 'What would you like to explore?',
@@ -83,7 +83,7 @@ export default {
     },
   },
 
-  // Meditation
+  // Медитация
   meditation: {
     entry: 'Entry Meditation',
     entry_title: 'Prepare Your Mind',
@@ -94,7 +94,7 @@ export default {
     complete: 'Complete',
   },
 
-  // Cell info
+  // Информация о клетке
   cell: {
     description: 'Description',
     affirmation: 'Affirmation',
@@ -102,7 +102,7 @@ export default {
     ai_interpretation: 'AI Interpretation',
   },
 
-  // Transitions
+  // Переходы
   transition: {
     arrow_to: 'Ascends to cell',
     snake_to: 'Descends to cell',
@@ -111,7 +111,7 @@ export default {
     snake: 'Snake',
   },
 
-  // Diary
+  // Дневник
   diary: {
     title: 'Diary',
     empty: 'No games yet. Start your first journey!',
@@ -126,7 +126,7 @@ export default {
     },
   },
 
-  // Profile
+  // Профиль
   profile: {
     title: 'Profile',
     balance: 'Balance',
@@ -142,7 +142,7 @@ export default {
     logout: 'Logout',
   },
 
-  // Payment
+  // Оплата
   payment: {
     title: 'Top Up Balance',
     top_up: 'Top Up',
@@ -157,7 +157,7 @@ export default {
     },
   },
 
-  // Victory
+  // Победа
   victory: {
     title: 'Enlightenment!',
     message: 'You have reached Cosmic Consciousness',
@@ -165,7 +165,7 @@ export default {
     share: 'Share',
   },
 
-  // Game end
+  // Конец игры
   end: {
     title: 'Game Ended',
     meditation: 'Exit Meditation',
@@ -173,7 +173,7 @@ export default {
     magic_time_reminder: 'You have 72 hours for reflection and action',
   },
 
-  // Actions
+  // Действия
   actions: {
     continue: 'Continue',
     cancel: 'Cancel',
@@ -183,7 +183,7 @@ export default {
     share: 'Share',
   },
 
-  // Errors
+  // Ошибки
   error: {
     generic: 'Something went wrong',
     network: 'Network error. Please try again.',
@@ -191,7 +191,7 @@ export default {
     not_found: 'Not found',
   },
 
-  // Chakras
+  // Чакры
   chakra: {
     1: 'Muladhara',
     2: 'Svadhisthana',

@@ -1,5 +1,5 @@
 /**
- * Base components exports
+ * Экспорт базовых компонентов
  */
 
 export { default as LButton } from './LButton.vue';

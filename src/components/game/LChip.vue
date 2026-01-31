@@ -7,7 +7,7 @@
       'l-chip--snake': transitionType === 'snake',
     }"
   >
-    <!-- Crystal SVG -->
+    <!-- SVG кристалла -->
     <svg class="l-chip__crystal" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -23,7 +23,7 @@
         </filter>
       </defs>
 
-      <!-- Crystal shape -->
+      <!-- Форма кристалла -->
       <polygon
         class="l-chip__shape"
         points="16,0 32,12 28,40 4,40 0,12"
@@ -31,21 +31,21 @@
         filter="url(#crystalGlow)"
       />
 
-      <!-- Inner highlight -->
+      <!-- Внутреннее свечение -->
       <polygon
         class="l-chip__highlight"
         points="16,4 26,12 24,32 8,32 6,12"
         fill="rgba(255,255,255,0.2)"
       />
 
-      <!-- Sparkle points -->
+      <!-- Точки сверкания -->
       <circle class="l-chip__sparkle l-chip__sparkle--1" cx="10" cy="15" r="1" fill="white" />
       <circle class="l-chip__sparkle l-chip__sparkle--2" cx="22" cy="20" r="1.2" fill="white" />
       <circle class="l-chip__sparkle l-chip__sparkle--3" cx="14" cy="28" r="0.8" fill="white" />
       <circle class="l-chip__sparkle l-chip__sparkle--4" cx="20" cy="10" r="1" fill="white" />
     </svg>
 
-    <!-- Particle effects during transitions -->
+    <!-- Эффекты частиц во время переходов -->
     <div v-if="isMoving" class="l-chip__particles">
       <span v-for="i in 6" :key="i" class="l-chip__particle" :style="particleStyle(i)" />
     </div>
@@ -70,13 +70,13 @@ const props = withDefaults(defineProps<Props>(), {
   transitionType: null,
 });
 
-// Calculate chakra level from position for color
+// Рассчитать уровень чакры по позиции для цвета
 const chakraLevel = computed(() => {
   if (props.position <= 0) return 1;
   return Math.ceil(props.position / 9);
 });
 
-// Chakra colors
+// Цвета чакр
 const chakraColors: Record<number, { start: string; end: string }> = {
   1: { start: '#DC2626', end: '#991B1B' },
   2: { start: '#EA580C', end: '#C2410C' },
@@ -118,7 +118,7 @@ function particleStyle(index: number) {
   height: 40px;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 
-  // Idle floating animation
+  // Анимация плавающего движения в покое
   animation: chip-float 3s ease-in-out infinite;
 
   &__crystal {
@@ -134,7 +134,7 @@ function particleStyle(index: number) {
     opacity: 0.6;
   }
 
-  // Sparkle animations
+  // Анимации сверкания
   &__sparkle {
     opacity: 0;
     animation: sparkle-twinkle 2s ease-in-out infinite;
@@ -153,7 +153,7 @@ function particleStyle(index: number) {
     }
   }
 
-  // Moving state
+  // Состояние движения
   &--moving {
     animation: chip-move 0.8s ease-out;
 
@@ -162,7 +162,7 @@ function particleStyle(index: number) {
     }
   }
 
-  // Arrow transition (ascending)
+  // Переход со стрелой (восхождение)
   &--arrow {
     animation: chip-arrow 1.2s ease-out;
 
@@ -171,7 +171,7 @@ function particleStyle(index: number) {
     }
   }
 
-  // Snake transition (descending)
+  // Переход со змеёй (спуск)
   &--snake {
     animation: chip-snake 1.5s ease-out;
 
@@ -180,7 +180,7 @@ function particleStyle(index: number) {
     }
   }
 
-  // Particles
+  // Частицы
   &__particles {
     position: absolute;
     inset: 0;

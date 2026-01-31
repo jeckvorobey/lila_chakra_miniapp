@@ -1,6 +1,6 @@
 <template>
   <q-page class="payment-page" padding>
-    <!-- Package grid -->
+    <!-- Сетка пакетов -->
     <div class="text-subtitle2 text-weight-medium q-mb-md">Выберите пакет</div>
     <div class="row q-gutter-sm q-mb-lg">
       <q-card
@@ -22,7 +22,7 @@
       </q-card>
     </div>
 
-    <!-- Promo code -->
+    <!-- Промокод -->
     <div class="q-mb-lg">
       <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('payment.promo_code') }}</div>
       <div class="row q-gutter-sm">
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Summary -->
+    <!-- Итоговая информация -->
     <q-card flat bordered class="q-mb-lg">
       <q-card-section>
         <div class="row justify-between q-mb-sm">
@@ -65,7 +65,7 @@
       </q-card-section>
     </q-card>
 
-    <!-- Payment button -->
+    <!-- Кнопка оплаты -->
     <q-btn
       :label="$t('payment.proceed')"
       color="primary"
@@ -77,7 +77,7 @@
       @click="processPayment"
     />
 
-    <!-- Payment methods info -->
+    <!-- Информация о способах оплаты -->
     <div class="text-center q-mt-lg">
       <div class="text-caption text-secondary q-mb-sm">Безопасная оплата через</div>
       <q-img src="/icons/yookassa-logo.svg" width="120px" class="q-mx-auto" />
@@ -131,10 +131,10 @@ async function applyPromo() {
 
   isApplyingPromo.value = true;
 
-  // TODO: Validate promo code via API
+  // TODO: Проверить промокод через API
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // Mock response
+  // Макетный ответ
   if (promoCode.value.toLowerCase() === 'lila10') {
     promoApplied.value = true;
     promoDiscount.value = 10;
@@ -158,13 +158,13 @@ function processPayment() {
   isProcessing.value = true;
 
   try {
-    // TODO: Create payment via API
+    // TODO: Создать платёж через API
     // const { payment_url } = await api.post('/api/payments/create', {
     //   package_id: selectedPackage.value,
     //   promo_code: promoApplied.value ? promoCode.value : undefined,
     // });
 
-    // Redirect to YooKassa
+    // Перенаправить на YooKassa
     // window.location.href = payment_url;
 
     $q.notify({
@@ -172,7 +172,7 @@ function processPayment() {
       message: 'Переход к оплате...',
     });
 
-    // Mock: go back after "payment"
+    // Макет: вернуться через "оплату"
     setTimeout(() => {
       void router.push('/profile');
     }, 2000);

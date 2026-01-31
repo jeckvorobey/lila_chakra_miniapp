@@ -1,8 +1,8 @@
 /**
- * API types matching backend schemas.
+ * Типы API, соответствующие схемам бэкенда.
  */
 
-// Enums (lowercase to match backend StrEnum)
+// Перечисления (нижний регистр для соответствия backend StrEnum)
 export type GameMode = 'free' | 'ai_incognito' | 'ai_guide';
 
 export type GameStatus =
@@ -22,7 +22,7 @@ export type QueryCategory =
 
 export type TransitionType = 'none' | 'arrow' | 'snake';
 
-// Cell schemas
+// Схемы клеток
 export interface CellBrief {
   id: number;
   name_ru: string;
@@ -52,7 +52,7 @@ export interface CellOut {
   snake_tail: number | null;
 }
 
-// Game schemas
+// Схемы игры
 export interface GameCreate {
   query: string;
   category: QueryCategory;
@@ -103,7 +103,7 @@ export interface GameListResponse {
   has_more: boolean;
 }
 
-// Move schemas
+// Схемы ходов
 export interface MoveOut {
   id: number;
   game_id: number;
@@ -140,7 +140,7 @@ export interface InsightCreate {
   insight: string;
 }
 
-// Auth schemas
+// Схемы аутентификации
 export interface TelegramAuthRequest {
   init_data: string;
   referrer_code?: string;
@@ -153,7 +153,7 @@ export interface TelegramAuthResponse {
   is_new_user: boolean;
 }
 
-// User schemas
+// Схемы пользователя
 export interface UserOut {
   id: number;
   telegram_id: number;

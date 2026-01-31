@@ -126,7 +126,7 @@ function onHide() {
   }
 }
 
-// Backdrop styles
+// Стили фона
 .body--dark {
   :deep(.q-dialog__backdrop) {
     background: rgba(0, 0, 0, 0.7);
