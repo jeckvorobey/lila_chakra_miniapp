@@ -1,27 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from 'boot/axios';
-
-export interface MultilingualText {
-  [key: string]: string;
-  ru: string;
-  en: string;
-}
-
-export interface Cell {
-  id: number;
-  name: MultilingualText;
-  name_sanskrit?: string;
-  chakra_level: number;
-  chakra_name?: string; // Добавлено бекендом
-  description: MultilingualText;
-  affirmation: MultilingualText;
-  question?: MultilingualText;
-  keywords?: string[];
-  is_arrow_start?: boolean;
-  arrow_end?: number;
-  is_snake_head?: boolean;
-  snake_tail?: number;
-}
+import type { MultilingualText, Cell } from 'src/types/game.interface';
 
 interface ReferenceState {
   cells: Cell[];

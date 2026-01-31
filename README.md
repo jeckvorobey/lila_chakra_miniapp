@@ -104,14 +104,13 @@ src/
 ├── css/           # Глобальные стили (SCSS/CSS)
 ├── data/          # Константы и статические данные (клетки игры, змеи и т.д.)
 ├── i18n/          # Конфигурация локализации (Vue i18n)
-│   ├── en-US.json # Английские переводы
-│   └── ru-RU.json # Русские переводы (если есть)
 ├── layouts/       # Компоненты-макеты страниц (Header, Footer и т.д.)
 ├── pages/         # Страницы приложения (будут преобразованы в маршруты)
 ├── router/        # Конфигурация Vue Router
 ├── services/      # API сервисы и логика вызовов на бэкенд
 ├── stores/        # Pinia store для состояния приложения
-├── types/         # TypeScript типы и интерфейсы
+├── types/         # TypeScript интерфейсы (*.interface.ts)
+├── use/           # Кастомные хуки и переиспользуемая логика
 └── App.vue        # Корневой компонент приложения
 ```
 
@@ -256,23 +255,25 @@ const title = t('game.title')
 
 ## Компоненты и типы
 
-### Типы компонентов
+### Типы и интерфейсы
+
+Все глобальные интерфейсы вынесены в `src/types/` и используют суффикс `*.interface.ts`.
 
 ```typescript
-// src/types/game.ts
+// src/types/game.interface.ts
 export interface Cell {
   id: number
-  level: number
-  description: string
-  isSnakeHead?: boolean
-  isArrowBase?: boolean
+  chakra_level: number
+  description: MultilingualText
+  is_snake_head?: boolean
+  is_arrow_start?: boolean
 }
 
-export interface Move {
-  playerId: string
-  diceResult: number
-  newPosition: number
-  timestamp: Date
+export interface MoveOut {
+  game_id: number
+  dice_rolls: number[]
+  final_cell: number
+  created_at: string
 }
 ```
 

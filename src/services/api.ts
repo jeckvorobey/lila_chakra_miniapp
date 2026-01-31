@@ -12,12 +12,10 @@ import type {
   MoveResponse,
   DiceRollRequest,
   InsightCreate,
-  TelegramAuthRequest,
-  TelegramAuthResponse,
-  UserOut,
-  UserStats,
   CellOut,
-} from 'src/types/api';
+} from 'src/types/game.interface';
+import type { TelegramAuthRequest, TelegramAuthResponse } from 'src/types/auth.interface';
+import type { UserOut, UserStats } from 'src/types/user.interface';
 
 // API аутентификации
 export const authApi = {

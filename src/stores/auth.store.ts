@@ -6,30 +6,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
-
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  photo_url?: string;
-  is_premium?: boolean;
-}
-
-interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  user: {
-    id: string;
-    telegram_id: number;
-    username?: string;
-    first_name: string;
-    last_name?: string;
-    balance: number;
-    is_admin: boolean;
-  };
-}
+import type { TelegramUser } from 'src/types/telegram.interface';
+import type { AuthResponse } from 'src/types/auth.interface';
 
 const TOKEN_KEY = 'lila-auth-token';
 

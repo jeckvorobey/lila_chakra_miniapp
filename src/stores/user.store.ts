@@ -5,29 +5,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
-
-interface UserProfile {
-  id: string;
-  telegram_id: number;
-  username?: string;
-  first_name: string;
-  last_name?: string;
-  balance: number;
-  is_admin: boolean;
-  daily_moves_used: number;
-  daily_moves_limit: number;
-  created_at: string;
-}
-
-interface UserStats {
-  total_games: number;
-  completed_games: number;
-  total_moves: number;
-  arrows_taken: number;
-  snakes_encountered: number;
-  highest_cell: number;
-  wins: number;
-}
+import type { UserProfile, UserStats } from 'src/types/user.interface';
 
 export const useUserStore = defineStore('user', () => {
   // Состояние

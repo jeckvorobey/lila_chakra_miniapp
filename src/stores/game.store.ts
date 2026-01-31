@@ -17,7 +17,7 @@ import type {
   GameMode,
   QueryCategory,
   DiceRollRequest,
-} from 'src/types/api';
+} from 'src/types/game.interface';
 
 import {
   ARROWS,

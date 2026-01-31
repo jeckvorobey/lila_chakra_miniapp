@@ -6,18 +6,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, watch } from 'vue';
 import { Dark } from 'quasar';
-
-export type ThemeMode = 'dark' | 'light' | 'system';
-export type DiceMode = 'auto' | 'manual';
-
-interface Settings {
-  theme: ThemeMode;
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-  diceMode: DiceMode;
-  notificationsEnabled: boolean;
-  language: string;
-}
+import type { ThemeMode, DiceMode, Settings } from 'src/types/settings.interface';
 
 const STORAGE_KEY = 'lila-settings';
 

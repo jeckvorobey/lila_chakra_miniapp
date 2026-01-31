@@ -89,18 +89,12 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import type { PaymentPackage } from 'src/types/payment.interface';
 
 const $q = useQuasar();
 const router = useRouter();
 
-interface Package {
-  id: string;
-  ve: number;
-  price: number;
-  bonus?: string;
-}
-
-const packages: Package[] = [
+const packages: PaymentPackage[] = [
   { id: 'small', ve: 5, price: 500 },
   { id: 'medium', ve: 10, price: 1000 },
   { id: 'large', ve: 20, price: 1900, bonus: '+5%' },

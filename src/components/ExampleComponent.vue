@@ -6,15 +6,19 @@
         {{ todo.id }} - {{ todo.content }}
       </li>
     </ul>
-    <p>Count: {{ todoCount }} / {{ meta.totalCount }}</p>
-    <p>Active: {{ active ? 'yes' : 'no' }}</p>
-    <p>Clicks on todos: {{ clickCount }}</p>
+    <p>Количество: {{ todoCount }} / {{ meta.totalCount }}</p>
+    <p>Активно: {{ active ? 'да' : 'нет' }}</p>
+    <p>Кликов по задачам: {{ clickCount }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * Пример компонента.
+ * Демонстрирует использование Composition API с TypeScript в Quasar.
+ */
 import { computed, ref } from 'vue';
-import type { Todo, Meta } from './models';
+import type { Todo, Meta } from 'src/types/common.interface';
 
 interface Props {
   title: string;

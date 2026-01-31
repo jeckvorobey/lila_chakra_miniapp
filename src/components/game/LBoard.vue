@@ -146,7 +146,7 @@ const chipStyle = computed(() => {
   const col = row % 2 === 1 ? posInRow : CELLS_PER_ROW - 1 - posInRow;
 
   // Расчёт позиции (с учётом размера клетки и зазоров)
-  const cellWidth = 44; // md size + gap
+  const cellWidth = 44; // средний размер + отступ
   const cellHeight = 44;
 
   return {

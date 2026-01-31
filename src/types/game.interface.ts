@@ -1,8 +1,3 @@
-/**
- * Типы API, соответствующие схемам бэкенда.
- */
-
-// Перечисления (нижний регистр для соответствия backend StrEnum)
 export type GameMode = 'free' | 'ai_incognito' | 'ai_guide';
 
 export type GameStatus =
@@ -22,7 +17,12 @@ export type QueryCategory =
 
 export type TransitionType = 'none' | 'arrow' | 'snake';
 
-// Схемы клеток
+export interface MultilingualText {
+  [key: string]: string;
+  ru: string;
+  en: string;
+}
+
 export interface CellBrief {
   id: number;
   name_ru: string;
@@ -52,7 +52,22 @@ export interface CellOut {
   snake_tail: number | null;
 }
 
-// Схемы игры
+export interface Cell {
+  id: number;
+  name: MultilingualText;
+  name_sanskrit?: string;
+  chakra_level: number;
+  chakra_name?: string;
+  description: MultilingualText;
+  affirmation: MultilingualText;
+  question?: MultilingualText;
+  keywords?: string[];
+  is_arrow_start?: boolean;
+  arrow_end?: number;
+  is_snake_head?: boolean;
+  snake_tail?: number;
+}
+
 export interface GameCreate {
   query: string;
   category: QueryCategory;
@@ -103,7 +118,6 @@ export interface GameListResponse {
   has_more: boolean;
 }
 
-// Схемы ходов
 export interface MoveOut {
   id: number;
   game_id: number;
@@ -138,44 +152,4 @@ export interface DiceRollRequest {
 
 export interface InsightCreate {
   insight: string;
-}
-
-// Схемы аутентификации
-export interface TelegramAuthRequest {
-  init_data: string;
-  referrer_code?: string;
-}
-
-export interface TelegramAuthResponse {
-  access_token: string;
-  token_type: string;
-  user_id: number;
-  is_new_user: boolean;
-}
-
-// Схемы пользователя
-export interface UserOut {
-  id: number;
-  telegram_id: number;
-  username: string | null;
-  first_name: string;
-  last_name: string | null;
-  language_code: string;
-  balance: number;
-  photo_url: string | null;
-  is_admin: boolean;
-  is_premium: boolean;
-  has_seen_onboarding: boolean;
-  total_games: number;
-  completed_games: number;
-  referral_code: string | null;
-  created_at: string;
-}
-
-export interface UserStats {
-  total_games: number;
-  completed_games: number;
-  highest_chakra_reached: number;
-  total_arrows_hit: number;
-  total_snakes_hit: number;
 }
