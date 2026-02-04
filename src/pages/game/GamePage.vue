@@ -118,12 +118,12 @@
       v-if="selectedCell"
       v-model="showCellModal"
       :cell-id="selectedCell.id"
-      :cell-name="selectedCell.name_ru"
+      :cell-name="selectedCell.name"
       :chakra-level="selectedCell.chakra_level"
       :chakra-name="selectedCell.chakra_name"
-      :description="selectedCell.description_ru"
-      :affirmation="selectedCell.affirmation_ru"
-      :question="selectedCell.question_ru ?? ''"
+      :description="selectedCell.description"
+      :affirmation="selectedCell.affirmation"
+      :question="selectedCell.question ?? ''"
       @write-insight="openInsightModal"
     />
 
@@ -180,6 +180,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { useGameStore } from 'src/stores/game.store';
 import { useSettingsStore } from 'src/stores/settings.store';
@@ -188,6 +189,7 @@ import { LBoard, LCellCard, LDice, LDiceManual } from 'src/components/game';
 import LModal from 'src/components/base/LModal.vue';
 
 const $q = useQuasar();
+const { t } = useI18n();
 const router = useRouter();
 const gameStore = useGameStore();
 const settingsStore = useSettingsStore();
@@ -200,12 +202,12 @@ const lastDiceResult = ref<number | null>(null);
 
 interface CellInfo {
   id: number;
-  name_ru: string;
+  name: string;
   chakra_level: number;
   chakra_name: string;
-  description_ru: string;
-  affirmation_ru: string;
-  question_ru?: string;
+  description: string;
+  affirmation: string;
+  question?: string | null;
 }
 
 const selectedCell = ref<CellInfo | null>(null);
@@ -214,6 +216,11 @@ const hasActiveGame = computed(() => gameStore.isGameActive);
 const currentChakra = computed(() => {
   if (gameStore.currentCell <= 0) return 0;
   return Math.ceil(gameStore.currentCell / 9);
+});
+
+const lastMoveId = computed(() => {
+  const lastMove = gameStore.moves[gameStore.moves.length - 1];
+  return lastMove?.id ?? null;
 });
 
 function startNewGame() {
@@ -294,7 +301,15 @@ function onCellLongPress(cellId: number) {
 async function showCellInfoById(cellId: number) {
   const cellInfo = await gameStore.getCellInfo(cellId);
   if (cellInfo) {
-    selectedCell.value = cellInfo as unknown as CellInfo;
+    selectedCell.value = {
+      id: cellInfo.id,
+      name: cellInfo.name,
+      chakra_level: cellInfo.chakra_level,
+      chakra_name: t(`chakra.${cellInfo.chakra_level}`),
+      description: cellInfo.description,
+      affirmation: cellInfo.affirmation,
+      question: cellInfo.question ?? null,
+    };
     showCellModal.value = true;
   }
 }
@@ -307,6 +322,24 @@ async function showCellInfo() {
 
 function openInsightModal() {
   showCellModal.value = false;
+  if (!lastMoveId.value) return;
+
+  $q.dialog({
+    title: t('actions.write_insight'),
+    message: t('cell.question'),
+    prompt: {
+      model: '',
+      type: 'textarea',
+      isValid: (val) => val.trim().length >= 3,
+      autogrow: true,
+    },
+    cancel: true,
+    persistent: true,
+    ok: t('actions.save'),
+    cancelLabel: t('actions.cancel'),
+  }).onOk(async (insight: string) => {
+    await gameStore.saveInsight(lastMoveId.value as number, insight.trim());
+  });
 }
 
 function confirmEndGame() {

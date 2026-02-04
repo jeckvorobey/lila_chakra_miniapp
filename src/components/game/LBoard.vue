@@ -90,6 +90,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { ARROWS, SNAKES, CELLS_PER_ROW } from 'src/stores/game.store';
+import { useReferenceStore } from 'src/stores/reference.store';
 import LCell from './LCell.vue';
 import LChip from './LChip.vue';
 
@@ -108,6 +109,8 @@ const emit = defineEmits<{
   (e: 'cell-click', cellId: number): void;
   (e: 'cell-long-press', cellId: number): void;
 }>();
+
+const referenceStore = useReferenceStore();
 
 // Состояние масштабирования
 const zoom = ref(1);
@@ -163,8 +166,7 @@ const thumbStyle = {
 
 // Получить название клетки (из хранилища или пропсов)
 function getCellName(cellId: number): string {
-  // Будет подключено к данным клеток из хранилища
-  return `Клетка ${cellId}`;
+  return referenceStore.getCell(cellId)?.name || `Клетка ${cellId}`;
 }
 
 // Получить клетки для строки в зигзагообразном порядке

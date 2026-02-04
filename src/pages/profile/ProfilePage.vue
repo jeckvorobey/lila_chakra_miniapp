@@ -194,7 +194,7 @@ const userInitials = computed(() => {
 const stats = computed(() => ({
   gamesPlayed: userStore.stats?.total_games ?? 0,
   gamesCompleted: userStore.stats?.completed_games ?? 0,
-  highestLevel: userStore.stats?.highest_cell ? Math.ceil(userStore.stats.highest_cell / 9) : 0,
+  highestLevel: userStore.stats?.highest_chakra_reached ?? 0,
 }));
 
 onMounted(() => {

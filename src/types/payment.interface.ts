@@ -1,6 +1,19 @@
 export interface PaymentPackage {
-  id: string;
-  ve: number;
-  price: number;
-  bonus?: string;
+  amount_rub: number;
+  amount_ve: number;
+  bonus_ve: number;
+  label: string;
+}
+
+export interface PaymentCreate {
+  amount_rub: number;
+  promo_code?: string | null;
+}
+
+export interface PaymentInitResponse {
+  payment_id: number;
+  confirmation_url: string;
+  amount_rub: number;
+  amount_ve: number;
+  bonus_ve: number;
 }

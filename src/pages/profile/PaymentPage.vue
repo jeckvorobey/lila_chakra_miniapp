@@ -2,48 +2,28 @@
   <q-page class="payment-page" padding>
     <!-- Сетка пакетов -->
     <div class="text-subtitle2 text-weight-medium q-mb-md">Выберите пакет</div>
-    <div class="row q-gutter-sm q-mb-lg">
+    <div v-if="isLoading" class="q-mb-lg">
+      <q-skeleton type="rect" height="120px" class="q-mb-sm" />
+      <q-skeleton type="rect" height="120px" />
+    </div>
+    <div v-else class="row q-gutter-sm q-mb-lg">
       <q-card
         v-for="pkg in packages"
-        :key="pkg.id"
+        :key="pkg.amount_rub"
         flat
         bordered
         class="col-5 payment-page__package"
-        :class="{ 'payment-page__package--selected': selectedPackage === pkg.id }"
-        @click="selectedPackage = pkg.id"
+        :class="{ 'payment-page__package--selected': selectedPackage === pkg.amount_rub }"
+        @click="selectedPackage = pkg.amount_rub"
       >
         <q-card-section class="text-center">
-          <q-badge v-if="pkg.bonus" color="positive" floating>
-            {{ pkg.bonus }}
+          <q-badge v-if="pkg.bonus_ve > 0" color="positive" floating>
+            +{{ pkg.bonus_ve }} ВЕ
           </q-badge>
-          <div class="text-h5 text-weight-bold text-primary">{{ pkg.ve }} ВЕ</div>
-          <div class="text-body2">{{ pkg.price }} ₽</div>
+          <div class="text-h5 text-weight-bold text-primary">{{ pkg.amount_ve }} ВЕ</div>
+          <div class="text-body2">{{ pkg.amount_rub }} ₽</div>
         </q-card-section>
       </q-card>
-    </div>
-
-    <!-- Промокод -->
-    <div class="q-mb-lg">
-      <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('payment.promo_code') }}</div>
-      <div class="row q-gutter-sm">
-        <q-input
-          v-model="promoCode"
-          outlined
-          dense
-          :placeholder="$t('payment.promo_code')"
-          class="col"
-        />
-        <q-btn
-          :label="$t('payment.apply')"
-          color="primary"
-          outline
-          :loading="isApplyingPromo"
-          @click="applyPromo"
-        />
-      </div>
-      <div v-if="promoApplied" class="text-positive text-caption q-mt-xs">
-        Промокод применён! Скидка {{ promoDiscount }}%
-      </div>
     </div>
 
     <!-- Итоговая информация -->
@@ -51,11 +31,7 @@
       <q-card-section>
         <div class="row justify-between q-mb-sm">
           <span>Пакет</span>
-          <span class="text-weight-medium">{{ selectedPackageData?.ve }} ВЕ</span>
-        </div>
-        <div v-if="promoApplied" class="row justify-between q-mb-sm text-positive">
-          <span>Скидка</span>
-          <span>-{{ discountAmount }} ₽</span>
+          <span class="text-weight-medium">{{ selectedPackageData?.amount_ve }} ВЕ</span>
         </div>
         <q-separator class="q-my-sm" />
         <div class="row justify-between">
@@ -86,99 +62,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+import { paymentsApi } from 'src/services/api';
 import type { PaymentPackage } from 'src/types/payment.interface';
+import { getTelegramWebApp } from 'src/boot/telegram';
 
 const $q = useQuasar();
-const router = useRouter();
-
-const packages: PaymentPackage[] = [
-  { id: 'small', ve: 5, price: 500 },
-  { id: 'medium', ve: 10, price: 1000 },
-  { id: 'large', ve: 20, price: 1900, bonus: '+5%' },
-  { id: 'xl', ve: 50, price: 4500, bonus: '+10%' },
-];
-
-const selectedPackage = ref<string>('medium');
-const promoCode = ref('');
-const promoApplied = ref(false);
-const promoDiscount = ref(0);
-const isApplyingPromo = ref(false);
+const packages = ref<PaymentPackage[]>([]);
+const selectedPackage = ref<number | null>(null);
+const isLoading = ref(false);
 const isProcessing = ref(false);
 
-const selectedPackageData = computed(() => packages.find((p) => p.id === selectedPackage.value));
-
-const discountAmount = computed(() => {
-  if (!selectedPackageData.value || !promoApplied.value) return 0;
-  return Math.round(selectedPackageData.value.price * (promoDiscount.value / 100));
-});
+const selectedPackageData = computed(() =>
+  packages.value.find((p) => p.amount_rub === selectedPackage.value),
+);
 
 const totalPrice = computed(() => {
   if (!selectedPackageData.value) return 0;
-  return selectedPackageData.value.price - discountAmount.value;
+  return selectedPackageData.value.amount_rub;
 });
-
-async function applyPromo() {
-  if (!promoCode.value.trim()) return;
-
-  isApplyingPromo.value = true;
-
-  // TODO: Проверить промокод через API
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Макетный ответ
-  if (promoCode.value.toLowerCase() === 'lila10') {
-    promoApplied.value = true;
-    promoDiscount.value = 10;
-    $q.notify({
-      type: 'positive',
-      message: 'Промокод применён!',
-    });
-  } else {
-    $q.notify({
-      type: 'negative',
-      message: 'Промокод не найден',
-    });
-  }
-
-  isApplyingPromo.value = false;
-}
 
 function processPayment() {
   if (!selectedPackage.value) return;
 
   isProcessing.value = true;
 
+  paymentsApi
+    .createPayment({ amount_rub: selectedPackage.value })
+    .then((response) => {
+      $q.notify({
+        type: 'info',
+        message: 'Переход к оплате...',
+      });
+
+      const tg = getTelegramWebApp();
+      if (tg?.openLink) {
+        tg.openLink(response.confirmation_url);
+      } else {
+        window.location.href = response.confirmation_url;
+      }
+    })
+    .catch(() => {
+      $q.notify({
+        type: 'negative',
+        message: 'Ошибка создания платежа',
+      });
+    })
+    .finally(() => {
+      isProcessing.value = false;
+    });
+}
+
+async function loadPackages() {
+  isLoading.value = true;
   try {
-    // TODO: Создать платёж через API
-    // const { payment_url } = await api.post('/api/payments/create', {
-    //   package_id: selectedPackage.value,
-    //   promo_code: promoApplied.value ? promoCode.value : undefined,
-    // });
-
-    // Перенаправить на YooKassa
-    // window.location.href = payment_url;
-
-    $q.notify({
-      type: 'info',
-      message: 'Переход к оплате...',
-    });
-
-    // Макет: вернуться через "оплату"
-    setTimeout(() => {
-      void router.push('/profile');
-    }, 2000);
-  } catch {
-    $q.notify({
-      type: 'negative',
-      message: 'Ошибка создания платежа',
-    });
+    packages.value = await paymentsApi.listPackages();
+    if (packages.value.length > 0) {
+      selectedPackage.value = packages.value[0]?.amount_rub ?? null;
+    }
   } finally {
-    isProcessing.value = false;
+    isLoading.value = false;
   }
 }
+
+onMounted(() => {
+  void loadPackages();
+});
 </script>
 
 <style lang="scss" scoped>

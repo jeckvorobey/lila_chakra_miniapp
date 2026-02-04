@@ -12,7 +12,7 @@ export default defineConfig((ctx) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['telegram', 'theme', 'i18n', 'axios'],
+    boot: ['telegram', 'theme', 'i18n', 'axios', 'init'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],
@@ -107,7 +107,7 @@ export default defineConfig((ctx) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Dark'],
+      plugins: ['Dark', 'Dialog', 'Notify'],
     },
 
     // animations: 'all', // --- includes all animations

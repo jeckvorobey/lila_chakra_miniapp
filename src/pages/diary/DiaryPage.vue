@@ -49,12 +49,12 @@
           </div>
 
           <!-- Категория -->
-          <q-chip size="sm" outline color="grey">
-            {{ $t(`query.category.${game.category.toLowerCase()}`) }}
+            <q-chip size="sm" outline color="grey">
+            {{ $t(`query.category.${game.category}`) }}
           </q-chip>
 
           <!-- Магическое время (для завершённых игр) -->
-          <div v-if="game.status === 'COMPLETED' && game.magic_time_remaining" class="q-mt-sm">
+          <div v-if="game.status === 'completed' && game.magic_time_remaining" class="q-mt-sm">
             <q-icon name="mdi-clock-outline" size="14px" color="warning" class="q-mr-xs" />
             <span class="text-caption text-warning">
               {{ $t('diary.magic_time') }}: {{ game.magic_time_remaining }}
@@ -85,43 +85,42 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { gamesApi } from 'src/services/api';
+import type { GameBrief } from 'src/types/game.interface';
 
 const router = useRouter();
 const { t } = useI18n();
 
-// Тип статуса игры
-type GameStatus = 'WAITING_FOR_6' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
-
-interface Game {
-  id: string;
-  query: string;
-  category: string;
-  status: GameStatus;
-  current_cell: number;
-  created_at: string;
+interface DiaryGame extends GameBrief {
   magic_time_remaining?: string;
 }
 
 const filter = ref<'all' | 'active' | 'completed'>('all');
-const games = ref<Game[]>([]);
+const games = ref<DiaryGame[]>([]);
 const isLoading = ref(false);
 
 const filteredGames = computed(() => {
   if (filter.value === 'all') return games.value;
   if (filter.value === 'active') {
-    return games.value.filter((g) => g.status === 'WAITING_FOR_6' || g.status === 'IN_PROGRESS');
+    return games.value.filter(
+      (g) =>
+        g.status === 'waiting_for_6' ||
+        g.status === 'in_progress' ||
+        g.status === 'in_waiting_zone',
+    );
   }
-  return games.value.filter((g) => g.status === 'COMPLETED');
+  return games.value.filter((g) => g.status === 'completed');
 });
 
 function getStatusColor(status: GameStatus): string {
   switch (status) {
-    case 'IN_PROGRESS':
-    case 'WAITING_FOR_6':
+    case 'in_progress':
+    case 'waiting_for_6':
+    case 'in_waiting_zone':
       return 'primary';
-    case 'COMPLETED':
+    case 'completed':
       return 'positive';
-    case 'ABANDONED':
+    case 'abandoned':
       return 'grey';
     default:
       return 'grey';
@@ -130,12 +129,13 @@ function getStatusColor(status: GameStatus): string {
 
 function getStatusLabel(status: GameStatus): string {
   switch (status) {
-    case 'IN_PROGRESS':
-    case 'WAITING_FOR_6':
+    case 'in_progress':
+    case 'waiting_for_6':
+    case 'in_waiting_zone':
       return t('diary.active');
-    case 'COMPLETED':
+    case 'completed':
       return t('diary.completed');
-    case 'ABANDONED':
+    case 'abandoned':
       return t('diary.abandoned');
     default:
       return status;
@@ -151,15 +151,39 @@ function formatDate(dateString: string): string {
   });
 }
 
-function openGame(gameId: string) {
+function openGame(gameId: number) {
   void router.push(`/diary/${gameId}`);
 }
 
-function loadGames() {
+function formatRemainingTime(isoDate?: string | null): string | undefined {
+  if (!isoDate) return undefined;
+  const target = new Date(isoDate).getTime();
+  const now = Date.now();
+  const diff = target - now;
+  if (diff <= 0) return undefined;
+
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  const remMinutes = minutes % 60;
+
+  if (days > 0) return `${days}д ${remHours}ч`;
+  if (hours > 0) return `${hours}ч ${remMinutes}м`;
+  return `${remMinutes}м`;
+}
+
+async function loadGames() {
   isLoading.value = true;
-  // TODO: Загрузить игры из API
-  // games.value = await api.get('/api/games');
-  isLoading.value = false;
+  try {
+    const response = await gamesApi.list();
+    games.value = response.items.map((g) => ({
+      ...g,
+      magic_time_remaining: formatRemainingTime(g.magic_time_ends_at),
+    }));
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 onMounted(() => {

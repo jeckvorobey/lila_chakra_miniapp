@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from 'boot/axios';
-import type { MultilingualText, Cell } from 'src/types/game.interface';
+import type { Cell } from 'src/types/game.interface';
 
 interface ReferenceState {
   cells: Cell[];
@@ -46,14 +46,5 @@ export const useReferenceStore = defineStore('reference', {
         this.isLoading = false;
       }
     },
-    
-    // Хелпер для получения локализованного текста с фоллбэком
-    getLocalizedText(textObj: MultilingualText | undefined, locale: string): string {
-      if (!textObj) return '';
-      // Если есть запрошенная локаль
-      if (textObj[locale]) return textObj[locale];
-      // Фоллбэк на русский (основной) или английский
-      return textObj['ru'] || textObj['en'] || '';
-    }
   },
 });

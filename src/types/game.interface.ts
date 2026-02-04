@@ -54,18 +54,13 @@ export interface CellOut {
 
 export interface Cell {
   id: number;
-  name: MultilingualText;
-  name_sanskrit?: string;
+  name: string;
+  name_sanskrit?: string | null;
   chakra_level: number;
-  chakra_name?: string;
-  description: MultilingualText;
-  affirmation: MultilingualText;
-  question?: MultilingualText;
-  keywords?: string[];
-  is_arrow_start?: boolean;
-  arrow_end?: number;
-  is_snake_head?: boolean;
-  snake_tail?: number;
+  description: string;
+  affirmation: string;
+  question?: string | null;
+  keywords?: string[] | null;
 }
 
 export interface GameCreate {

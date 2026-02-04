@@ -67,7 +67,9 @@ export const useUserStore = defineStore('user', () => {
   /**
    * Обновить профиль пользователя
    */
-  async function updateProfile(updates: Partial<Pick<UserProfile, 'username'>>): Promise<boolean> {
+  async function updateProfile(
+    updates: Partial<Pick<UserProfile, 'language_code_app' | 'has_seen_onboarding'>>,
+  ): Promise<boolean> {
     isLoading.value = true;
     error.value = null;
 
@@ -80,6 +82,20 @@ export const useUserStore = defineStore('user', () => {
       return false;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /**
+   * Завершить онбординг
+   */
+  async function completeOnboarding(): Promise<boolean> {
+    try {
+      const response = await api.post<UserProfile>('/api/users/me/onboarding');
+      profile.value = response.data;
+      return true;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Ошибка завершения онбординга';
+      return false;
     }
   }
 
@@ -128,6 +144,7 @@ export const useUserStore = defineStore('user', () => {
     fetchProfile,
     fetchStats,
     updateProfile,
+    completeOnboarding,
     updateBalance,
     incrementMovesUsed,
     reset,

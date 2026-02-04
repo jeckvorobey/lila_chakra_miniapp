@@ -12,10 +12,14 @@ import type {
   MoveResponse,
   DiceRollRequest,
   InsightCreate,
-  CellOut,
 } from 'src/types/game.interface';
 import type { TelegramAuthRequest, TelegramAuthResponse } from 'src/types/auth.interface';
 import type { UserOut, UserStats } from 'src/types/user.interface';
+import type {
+  PaymentCreate,
+  PaymentInitResponse,
+  PaymentPackage,
+} from 'src/types/payment.interface';
 
 // API аутентификации
 export const authApi = {
@@ -58,10 +62,18 @@ export const usersApi = {
    * Обновить настройки пользователя
    */
   async updateSettings(data: {
-    language_code?: string;
+    language_code_app?: string;
     has_seen_onboarding?: boolean;
   }): Promise<UserOut> {
     const response = await api.patch<UserOut>('/api/users/me', data);
+    return response.data;
+  },
+
+  /**
+   * Завершить онбординг
+   */
+  async completeOnboarding(): Promise<UserOut> {
+    const response = await api.post<UserOut>('/api/users/me/onboarding');
     return response.data;
   },
 };
@@ -158,21 +170,21 @@ export const movesApi = {
   },
 };
 
-// API клеток (если реализовано)
-export const cellsApi = {
+// API платежей
+export const paymentsApi = {
   /**
-   * Получить все клетки
+   * Получить пакеты пополнения
    */
-  async list(): Promise<CellOut[]> {
-    const response = await api.get<CellOut[]>('/api/cells');
+  async listPackages(): Promise<PaymentPackage[]> {
+    const response = await api.get<PaymentPackage[]>('/api/payments/packages');
     return response.data;
   },
 
   /**
-   * Получить клетку по ID
+   * Создать платёж
    */
-  async get(cellId: number): Promise<CellOut> {
-    const response = await api.get<CellOut>(`/api/cells/${cellId}`);
+  async createPayment(data: PaymentCreate): Promise<PaymentInitResponse> {
+    const response = await api.post<PaymentInitResponse>('/api/payments/create', data);
     return response.data;
   },
 };

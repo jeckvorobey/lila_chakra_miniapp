@@ -5,6 +5,7 @@ export interface UserOut {
   first_name: string;
   last_name?: string | null;
   language_code?: string;
+  language_code_app?: string | null;
   balance: number;
   photo_url?: string | null;
 
@@ -34,11 +35,6 @@ export interface UserOut {
 export interface UserStats {
   total_games: number;
   completed_games: number;
-  total_moves?: number;
-  arrows_taken?: number;
-  snakes_encountered?: number;
-  highest_cell?: number;
-  wins?: number;
   highest_chakra_reached?: number;
   total_arrows_hit?: number;
   total_snakes_hit?: number;

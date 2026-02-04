@@ -7,7 +7,7 @@
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <q-chip
-            :label="$t(`query.category.${game.category.toLowerCase()}`)"
+            :label="$t(`query.category.${game.category}`)"
             size="sm"
             color="primary"
             outline
@@ -48,15 +48,29 @@
           <template #subtitle>
             Клетка {{ move.start_cell }} → {{ move.final_cell }}
             <span
-              v-if="move.transition_type"
-              :class="move.transition_type === 'ARROW' ? 'text-positive' : 'text-negative'"
+              v-if="move.transition_type && move.transition_type !== 'none'"
+              :class="move.transition_type === 'arrow' ? 'text-positive' : 'text-negative'"
             >
-              ({{ move.transition_type === 'ARROW' ? 'Стрела' : 'Змея' }})
+              ({{ move.transition_type === 'arrow' ? 'Стрела' : 'Змея' }})
             </span>
           </template>
-          <div v-if="move.insight" class="text-body2 q-mt-sm">
+          <div v-if="move.player_insight" class="text-body2 q-mt-sm">
             <q-icon name="mdi-lightbulb" color="warning" class="q-mr-xs" />
-            {{ move.insight }}
+            {{ move.player_insight }}
+          </div>
+          <div v-if="move.ai_interpretation" class="text-body2 q-mt-sm">
+            <q-icon name="mdi-robot" color="primary" class="q-mr-xs" />
+            {{ move.ai_interpretation }}
+          </div>
+          <div class="q-mt-sm">
+            <q-btn
+              flat
+              dense
+              size="sm"
+              icon="mdi-pencil"
+              :label="$t('actions.write_insight')"
+              @click="editInsight(move)"
+            />
           </div>
         </q-timeline-entry>
       </q-timeline>
@@ -66,7 +80,7 @@
       <!-- Действия -->
       <div class="diary-detail__actions">
         <q-btn
-          v-if="game.status === 'IN_PROGRESS' || game.status === 'WAITING_FOR_6'"
+          v-if="game.status === 'in_progress' || game.status === 'waiting_for_6'"
           :label="$t('game.continue_game')"
           color="primary"
           unelevated
@@ -88,33 +102,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n';
+import { gamesApi, movesApi } from 'src/services/api';
+import type { GameDetail, MoveOut } from 'src/types/game.interface';
 import { LProgressBar } from 'src/components/base';
 
 const route = useRoute();
 const router = useRouter();
+const $q = useQuasar();
+const { t } = useI18n();
 
-interface Move {
-  id: string;
-  move_number: number;
-  dice_rolls: number[];
-  total_roll: number;
-  start_cell: number;
-  final_cell: number;
-  transition_type: 'ARROW' | 'SNAKE' | null;
-  insight?: string;
-}
-
-interface Game {
-  id: string;
-  query: string;
-  category: string;
-  status: string;
-  current_cell: number;
-  created_at: string;
-}
-
-const game = ref<Game | null>(null);
-const moves = ref<Move[]>([]);
+const game = ref<GameDetail | null>(null);
+const moves = ref<MoveOut[]>([]);
 const isLoading = ref(true);
 
 function formatDate(dateString: string): string {
@@ -126,14 +126,14 @@ function formatDate(dateString: string): string {
 }
 
 function getTransitionIcon(type: string | null): string {
-  if (type === 'ARROW') return 'mdi-arrow-up-bold';
-  if (type === 'SNAKE') return 'mdi-snake';
+  if (type === 'arrow') return 'mdi-arrow-up-bold';
+  if (type === 'snake') return 'mdi-snake';
   return 'mdi-circle';
 }
 
 function getTransitionColor(type: string | null): string {
-  if (type === 'ARROW') return 'positive';
-  if (type === 'SNAKE') return 'negative';
+  if (type === 'arrow') return 'positive';
+  if (type === 'snake') return 'negative';
   return 'primary';
 }
 
@@ -141,55 +141,42 @@ function continueGame() {
   void router.push('/game');
 }
 
-function loadGameDetails() {
+function editInsight(move: MoveOut) {
+  $q.dialog({
+    title: t('actions.write_insight'),
+    prompt: {
+      model: move.player_insight || '',
+      type: 'textarea',
+      isValid: (val) => val.trim().length >= 3,
+      autogrow: true,
+    },
+    cancel: true,
+    persistent: true,
+    ok: t('actions.save'),
+    cancelLabel: t('actions.cancel'),
+  }).onOk(async (insight: string) => {
+    const updated = await movesApi.saveInsight(move.id, { insight: insight.trim() });
+    const idx = moves.value.findIndex((m) => m.id === move.id);
+    if (idx >= 0) {
+      moves.value[idx] = updated;
+    }
+  });
+}
+
+async function loadGameDetails() {
   isLoading.value = true;
   const gameId = route.params.id as string;
 
-  // TODO: Загрузить из API
-  // game.value = await api.get(`/api/games/${gameId}`);
-  // moves.value = await api.get(`/api/games/${gameId}/moves`);
-
-  // Макетные данные пока
-  game.value = {
-    id: gameId,
-    query: 'Как найти свой путь в жизни?',
-    category: 'SELF_DEVELOPMENT',
-    status: 'IN_PROGRESS',
-    current_cell: 17,
-    created_at: new Date().toISOString(),
-  };
-
-  moves.value = [
-    {
-      id: '1',
-      move_number: 1,
-      dice_rolls: [6],
-      total_roll: 6,
-      start_cell: 0,
-      final_cell: 1,
-      transition_type: null,
-    },
-    {
-      id: '2',
-      move_number: 2,
-      dice_rolls: [4],
-      total_roll: 4,
-      start_cell: 1,
-      final_cell: 5,
-      transition_type: null,
-    },
-    {
-      id: '3',
-      move_number: 3,
-      dice_rolls: [6, 6],
-      total_roll: 12,
-      start_cell: 5,
-      final_cell: 17,
-      transition_type: 'ARROW',
-    },
-  ];
-
-  isLoading.value = false;
+  try {
+    const [gameData, movesData] = await Promise.all([
+      gamesApi.get(Number(gameId)),
+      gamesApi.getMoves(Number(gameId)),
+    ]);
+    game.value = gameData;
+    moves.value = movesData;
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 onMounted(() => {

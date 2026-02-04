@@ -5,13 +5,14 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { gamesApi, movesApi, cellsApi } from 'src/services/api';
+import { gamesApi, movesApi } from 'src/services/api';
+import { useReferenceStore } from 'src/stores/reference.store';
 import type {
   GameDetail,
   MoveOut,
   MoveResponse,
   CellBrief,
-  CellOut,
+  Cell,
   GameCreate,
   TransitionType,
   GameMode,
@@ -47,7 +48,7 @@ export const useGameStore = defineStore('game', () => {
   const currentGame = ref<GameDetail | null>(null);
   const moves = ref<MoveOut[]>([]);
   const currentCellInfo = ref<CellBrief | null>(null);
-  const cells = ref<CellOut[]>([]);
+  const cells = ref<Cell[]>([]);
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
@@ -322,7 +323,9 @@ export const useGameStore = defineStore('game', () => {
    */
   async function fetchAllCells(): Promise<void> {
     try {
-      cells.value = await cellsApi.list();
+      const referenceStore = useReferenceStore();
+      await referenceStore.fetchCells();
+      cells.value = referenceStore.cells;
     } catch (err) {
       console.error('Failed to fetch cells:', err);
     }
@@ -331,13 +334,15 @@ export const useGameStore = defineStore('game', () => {
   /**
    * Получить полную информацию о клетке по ID
    */
-  async function getCellInfo(cellId: number): Promise<CellOut | null> {
+  async function getCellInfo(cellId: number): Promise<Cell | null> {
     // Сначала попробовать из локального кэша
     const cached = cells.value.find((c) => c.id === cellId);
     if (cached) return cached;
 
     try {
-      return await cellsApi.get(cellId);
+      const referenceStore = useReferenceStore();
+      await referenceStore.fetchCells();
+      return referenceStore.getCell(cellId);
     } catch (err) {
       console.error(`Failed to fetch cell info for ${cellId}:`, err);
       return null;
