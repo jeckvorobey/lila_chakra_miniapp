@@ -21,11 +21,13 @@ const api = axios.create({ baseURL: apiBaseUrl });
 export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
 
-  // Глобальная обработка 401 для сброса сессии
+  // Глобальная обработка 401 для сброса сессии (кроме auth endpoints)
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
-      if (error?.response?.status === 401) {
+      const url = error?.config?.url || '';
+      const isAuthEndpoint = url.includes('/api/auth/');
+      if (error?.response?.status === 401 && !isAuthEndpoint) {
         authStore.logout();
         if (router.currentRoute.value.path !== '/') {
           await router.push('/');

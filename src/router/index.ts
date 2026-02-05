@@ -34,8 +34,9 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  // Проверка: приложение должно работать внутри Telegram
   Router.beforeEach((to) => {
-    if (to.name === 'telegram-required') {
+    if (to.meta.public) {
       return true;
     }
 

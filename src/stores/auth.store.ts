@@ -102,8 +102,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       saveToken(response.data.access_token);
       return true;
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Ошибка аутентификации';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { detail?: string } } };
+      const detail = axiosErr?.response?.data?.detail;
+      error.value = detail || (err instanceof Error ? err.message : 'Ошибка аутентификации');
+      console.error('[Auth] Ошибка аутентификации:', error.value);
       return false;
     } finally {
       isLoading.value = false;

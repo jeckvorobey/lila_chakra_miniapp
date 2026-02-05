@@ -20,8 +20,14 @@ export default boot(async ({ router }) => {
   }
 
   router.beforeEach(async (to) => {
-    if (!authStore.isAuthenticated) {
+    // Публичные маршруты доступны без авторизации
+    if (to.meta.public) {
       return true;
+    }
+
+    // Неавторизованных пользователей перенаправляем на telegram-required
+    if (!authStore.isAuthenticated) {
+      return { name: 'telegram-required' };
     }
 
     if (!userStore.profile && !userStore.isLoading) {
