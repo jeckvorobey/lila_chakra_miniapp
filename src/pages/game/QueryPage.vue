@@ -1,6 +1,18 @@
 <template>
   <q-page class="query-page" padding>
     <div class="query-page__content">
+      <!-- Выбор режима -->
+      <div class="q-mb-lg">
+        <div class="text-overline text-secondary q-mb-sm">Режим игры</div>
+        <q-option-group
+          v-model="gameMode"
+          :options="gameModeOptions"
+          type="radio"
+          color="primary"
+          inline
+        />
+      </div>
+
       <!-- Выбор категории -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">
@@ -65,18 +77,6 @@
           </q-item>
         </q-list>
       </div>
-
-      <!-- Выбор режима -->
-      <div class="q-mb-lg">
-        <div class="text-overline text-secondary q-mb-sm">Режим игры</div>
-        <q-option-group
-          v-model="gameMode"
-          :options="gameModeOptions"
-          type="radio"
-          color="primary"
-          inline
-        />
-      </div>
     </div>
 
     <!-- Кнопка начать -->
@@ -140,7 +140,8 @@ const categories = computed(() => [
 // Опции режима игры
 const gameModeOptions = [
   { value: 'free', label: 'Бесплатный (5 ходов/день)' },
-  { value: 'ai_incognito', label: 'AI Инкогнито (платный)' },
+  { value: 'ai_guide', label: 'ИИ Наставник (15 BE)' },
+  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 BE)' },
 ];
 
 // Примеры запросов
