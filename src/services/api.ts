@@ -35,7 +35,7 @@ export const authApi = {
    * Получить информацию о текущем пользователе
    */
   async getCurrentUser(): Promise<UserOut> {
-    const response = await api.get<UserOut>('/api/auth/me');
+    const response = await api.get<UserOut>('/api/users/me');
     return response.data;
   },
 };
