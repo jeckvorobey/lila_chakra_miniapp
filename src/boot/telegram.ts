@@ -27,7 +27,7 @@ export function getTelegramWebApp(): TelegramWebApp | null {
  */
 export function isInTelegram(): boolean {
   const tg = getTelegramWebApp();
-  return !!tg?.initData;
+  return !!tg?.initData && tg.initData.length > 0;
 }
 
 export default boot(({ app }) => {
@@ -61,7 +61,6 @@ export default boot(({ app }) => {
   // Сделать TG доступным глобально через provide/inject
   app.provide('telegram', tg);
 
-  // Логирование информации инициализации
   console.log('Telegram WebApp инициализирован:', {
     version: tg.version,
     platform: tg.platform,

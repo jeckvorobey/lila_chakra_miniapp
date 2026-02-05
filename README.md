@@ -279,13 +279,52 @@ export interface MoveOut {
 
 ## Telegram Mini App специфика
 
-Это приложение работает как Telegram Mini App. Для локального тестирования используйте режим разработки:
+Это приложение работает как Telegram Mini App и использует [Telegram WebApp SDK](https://core.telegram.org/bots/webapps).
+
+### Как работает определение Telegram окружения
+
+Приложение автоматически определяет, запущено ли оно внутри Telegram:
+
+1. **В `index.html`** подключается Telegram WebApp SDK:
+   ```html
+   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+   ```
+
+2. **В `src/boot/telegram.ts`** функция `isInTelegram()` проверяет:
+   - **Режим разработки** (`yarn dev`): Если SDK загружен — разрешает доступ (для тестирования в браузере)
+   - **Production**: Требует валидные данные `initData` от Telegram
+
+3. **В `src/router/index.ts`** guard проверяет перед каждым роутом:
+   - Если НЕ в Telegram → редирект на `/telegram-required`
+   - Если в Telegram → пропускает на нужную страницу
+
+### Локальная разработка
+
+Для локального тестирования используйте режим разработки:
 
 ```bash
 yarn dev
 ```
 
-Для production используйте URL приложения в настройках Telegram бота.
+Приложение откроется в браузере и будет доступно без Telegram. Однако некоторые функции (например, данные пользователя) могут быть недоступны.
+
+### Полноценное тестирование в Telegram
+
+Для тестирования всех функций откройте приложение через Telegram бота:
+
+1. Запустите dev сервер с ngrok или локальным туннелем:
+   ```bash
+   # Установите ngrok: https://ngrok.com/
+   ngrok http 5173
+   ```
+
+2. Скопируйте HTTPS URL из ngrok (например: `https://abc123.ngrok.io`)
+
+3. Откройте бота в Telegram и используйте команду `/start` или кнопку Mini App с этим URL
+
+### Production
+
+Для production используйте URL приложения в настройках Telegram бота (Menu Button URL или Web App URL).
 
 ## Production deployment
 
