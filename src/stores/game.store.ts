@@ -342,7 +342,7 @@ export const useGameStore = defineStore('game', () => {
     try {
       const referenceStore = useReferenceStore();
       await referenceStore.fetchCells();
-      return referenceStore.getCell(cellId);
+      return referenceStore.getCell(cellId) ?? null;
     } catch (err) {
       console.error(`Failed to fetch cell info for ${cellId}:`, err);
       return null;

@@ -192,7 +192,7 @@ async function complete() {
 }
 
 function skip() {
-  complete();
+  void complete();
 }
 </script>
 

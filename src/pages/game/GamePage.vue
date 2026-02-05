@@ -333,12 +333,11 @@ function openInsightModal() {
       isValid: (val) => val.trim().length >= 3,
       autogrow: true,
     },
-    cancel: true,
     persistent: true,
     ok: t('actions.save'),
-    cancelLabel: t('actions.cancel'),
-  }).onOk(async (insight: string) => {
-    await gameStore.saveInsight(lastMoveId.value as number, insight.trim());
+    cancel: t('actions.cancel'),
+  }).onOk((insight: string) => {
+    void gameStore.saveInsight(lastMoveId.value as number, insight.trim());
   });
 }
 

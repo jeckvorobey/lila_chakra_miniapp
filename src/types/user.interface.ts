@@ -40,4 +40,4 @@ export interface UserStats {
   total_snakes_hit?: number;
 }
 
-export interface UserProfile extends UserOut {}
+export type UserProfile = UserOut;

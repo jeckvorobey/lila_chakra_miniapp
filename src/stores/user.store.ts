@@ -26,11 +26,15 @@ export const useUserStore = defineStore('user', () => {
   const isAdmin = computed(() => profile.value?.is_admin ?? false);
   const canMakeMove = computed(() => {
     if (!profile.value) return false;
-    return profile.value.daily_moves_used < profile.value.daily_moves_limit;
+    const used = profile.value.daily_moves_used ?? 0;
+    const limit = profile.value.daily_moves_limit ?? 0;
+    return used < limit;
   });
   const movesRemaining = computed(() => {
     if (!profile.value) return 0;
-    return Math.max(0, profile.value.daily_moves_limit - profile.value.daily_moves_used);
+    const used = profile.value.daily_moves_used ?? 0;
+    const limit = profile.value.daily_moves_limit ?? 0;
+    return Math.max(0, limit - used);
   });
 
   // Действия
@@ -113,7 +117,7 @@ export const useUserStore = defineStore('user', () => {
    */
   function incrementMovesUsed(): void {
     if (profile.value) {
-      profile.value.daily_moves_used += 1;
+      profile.value.daily_moves_used = (profile.value.daily_moves_used ?? 0) + 1;
     }
   }
 

@@ -86,7 +86,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { gamesApi } from 'src/services/api';
-import type { GameBrief } from 'src/types/game.interface';
+import type { GameBrief, GameStatus } from 'src/types/game.interface';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -177,17 +177,17 @@ async function loadGames() {
   isLoading.value = true;
   try {
     const response = await gamesApi.list();
-    games.value = response.items.map((g) => ({
-      ...g,
-      magic_time_remaining: formatRemainingTime(g.magic_time_ends_at),
-    }));
+    games.value = response.items.map((g) => {
+      const remaining = formatRemainingTime(g.magic_time_ends_at);
+      return remaining ? { ...g, magic_time_remaining: remaining } : g;
+    });
   } finally {
     isLoading.value = false;
   }
 }
 
 onMounted(() => {
-  loadGames();
+  void loadGames();
 });
 </script>
 

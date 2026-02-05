@@ -150,16 +150,17 @@ function editInsight(move: MoveOut) {
       isValid: (val) => val.trim().length >= 3,
       autogrow: true,
     },
-    cancel: true,
     persistent: true,
     ok: t('actions.save'),
-    cancelLabel: t('actions.cancel'),
-  }).onOk(async (insight: string) => {
-    const updated = await movesApi.saveInsight(move.id, { insight: insight.trim() });
-    const idx = moves.value.findIndex((m) => m.id === move.id);
-    if (idx >= 0) {
-      moves.value[idx] = updated;
-    }
+    cancel: t('actions.cancel'),
+  }).onOk((insight: string) => {
+    void (async () => {
+      const updated = await movesApi.saveInsight(move.id, { insight: insight.trim() });
+      const idx = moves.value.findIndex((m) => m.id === move.id);
+      if (idx >= 0) {
+        moves.value[idx] = updated;
+      }
+    })();
   });
 }
 
@@ -180,7 +181,7 @@ async function loadGameDetails() {
 }
 
 onMounted(() => {
-  loadGameDetails();
+  void loadGameDetails();
 });
 </script>
 

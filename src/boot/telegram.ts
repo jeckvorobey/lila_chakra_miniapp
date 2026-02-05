@@ -4,7 +4,7 @@
  */
 
 import { boot } from 'quasar/wrappers';
-import type { TelegramWebApp, TelegramUser } from 'src/types/telegram.interface';
+import type { TelegramWebApp } from 'src/types/telegram.interface';
 
 declare global {
   interface Window {
