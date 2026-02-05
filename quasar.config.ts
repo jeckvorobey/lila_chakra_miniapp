@@ -18,7 +18,7 @@ export default defineConfig((ctx) => {
     css: ['app.scss'],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
-    extras: ['mdi-v7', 'material-icons'],
+    extras: ['fontawesome-v6', 'mdi-v7', 'material-icons'],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {

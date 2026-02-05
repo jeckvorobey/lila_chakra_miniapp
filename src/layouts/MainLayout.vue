@@ -71,9 +71,13 @@ const router = useRouter();
 const isGamePage = computed(() => route.path.startsWith('/game'));
 const isOnboarding = computed(() => route.path.startsWith('/onboarding'));
 const isSplash = computed(() => route.path === '/');
+const hideHeader = computed(() => route.meta.hideHeader === true);
+const hideBottomNav = computed(() => route.meta.hideBottomNav === true);
 
-const showHeader = computed(() => !isSplash.value);
-const showBottomNav = computed(() => !isOnboarding.value && !isSplash.value);
+const showHeader = computed(() => !isSplash.value && !hideHeader.value);
+const showBottomNav = computed(
+  () => !isOnboarding.value && !isSplash.value && !hideBottomNav.value,
+);
 const showBack = computed(() => route.meta.showBack === true);
 const showMenu = computed(() => isGamePage.value);
 

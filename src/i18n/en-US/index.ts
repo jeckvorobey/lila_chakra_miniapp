@@ -191,6 +191,11 @@ export default {
     not_found: 'Not found',
   },
 
+  // Telegram
+  telegram: {
+    required_message: 'Open the game from the Telegram app',
+  },
+
   // Чакры
   chakra: {
     1: 'Muladhara',

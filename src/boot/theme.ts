@@ -8,19 +8,27 @@ import { Dark } from 'quasar';
 
 type ThemeMode = 'dark' | 'light' | 'system';
 
-const STORAGE_KEY = 'lila-theme-mode';
+const STORAGE_KEY = 'lila-settings';
 
 /**
  * Получить сохранённую тему из localStorage
  */
 function getSavedTheme(): ThemeMode {
-  if (typeof localStorage === 'undefined') return 'dark';
+  if (typeof localStorage === 'undefined') return 'system';
 
   const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved === 'dark' || saved === 'light' || saved === 'system') {
-    return saved;
+  if (!saved) return 'system';
+
+  try {
+    const settings = JSON.parse(saved) as { theme?: ThemeMode };
+    if (settings.theme === 'dark' || settings.theme === 'light' || settings.theme === 'system') {
+      return settings.theme;
+    }
+  } catch (e) {
+    console.error('Ошибка разбора настроек темы:', e);
   }
-  return 'dark';
+
+  return 'system';
 }
 
 /**
@@ -50,19 +58,22 @@ function getTelegramTheme(): 'dark' | 'light' | null {
  * Определить, должен ли быть активен тёмный режим
  */
 function shouldBeDark(): boolean {
-  // Приоритет 1: Тема Telegram
+  // Приоритет 1: Сохранённое предпочтение
+  const savedTheme = getSavedTheme();
+  if (savedTheme === 'dark') return true;
+  if (savedTheme === 'light') return false;
+
+  // Приоритет 2: Тема Telegram
   const telegramTheme = getTelegramTheme();
   if (telegramTheme) {
     return telegramTheme === 'dark';
   }
 
-  // Приоритет 2: Сохранённое предпочтение
-  const savedTheme = getSavedTheme();
+  // Приоритет 3: Системная тема
   if (savedTheme === 'system') {
     return getSystemPreference();
   }
-
-  return savedTheme === 'dark';
+  return true;
 }
 
 export default boot(() => {

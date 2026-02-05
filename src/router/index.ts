@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { isInTelegram } from 'src/boot/telegram';
 
 /*
  * Если вы не собираете с режимом SSR, вы можете
@@ -31,6 +32,18 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
+  });
+
+  Router.beforeEach((to) => {
+    if (to.name === 'telegram-required') {
+      return true;
+    }
+
+    if (!isInTelegram()) {
+      return { name: 'telegram-required' };
+    }
+
+    return true;
   });
 
   return Router;

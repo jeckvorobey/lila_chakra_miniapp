@@ -4,14 +4,14 @@
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { Dark } from 'quasar';
 import type { ThemeMode, DiceMode, Settings } from 'src/types/settings.interface';
 
 const STORAGE_KEY = 'lila-settings';
 
 const DEFAULT_SETTINGS: Settings = {
-  theme: 'dark',
+  theme: 'system',
   soundEnabled: true,
   vibrationEnabled: true,
   diceMode: 'auto',
@@ -27,12 +27,34 @@ export const useSettingsStore = defineStore('settings', () => {
   const diceMode = ref<DiceMode>(DEFAULT_SETTINGS.diceMode);
   const notificationsEnabled = ref(DEFAULT_SETTINGS.notificationsEnabled);
   const language = ref(DEFAULT_SETTINGS.language);
+  const systemPrefersDark = ref(true);
+  const telegramTheme = ref<'dark' | 'light' | null>(null);
+
+  let isInitialized = false;
 
   // Приватные вспомогательные функции
 
-  function getSystemTheme(): boolean {
-    if (typeof window === 'undefined') return true;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function getTelegramTheme(): 'dark' | 'light' | null {
+    if (typeof window === 'undefined') return null;
+
+    const tg = (window as { Telegram?: { WebApp?: { colorScheme?: string } } }).Telegram
+      ?.WebApp;
+    if (tg?.colorScheme) {
+      return tg.colorScheme === 'dark' ? 'dark' : 'light';
+    }
+
+    return null;
+  }
+
+  function resolveIsDark(mode: ThemeMode): boolean {
+    if (mode === 'dark') return true;
+    if (mode === 'light') return false;
+
+    if (telegramTheme.value) {
+      return telegramTheme.value === 'dark';
+    }
+
+    return systemPrefersDark.value;
   }
 
   function applyTheme(isDark: boolean): void {
@@ -41,6 +63,34 @@ export const useSettingsStore = defineStore('settings', () => {
       document.body.classList.toggle('body--light', !isDark);
       document.body.classList.toggle('body--dark', isDark);
     }
+  }
+
+  function initSystemThemeDetection(): void {
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    systemPrefersDark.value = mediaQuery.matches;
+
+    mediaQuery.addEventListener('change', (e) => {
+      systemPrefersDark.value = e.matches;
+    });
+  }
+
+  function initTelegramThemeDetection(): void {
+    if (typeof window === 'undefined') return;
+
+    telegramTheme.value = getTelegramTheme();
+
+    const tg = (window as {
+      Telegram?: { WebApp?: { onEvent?: (event: string, cb: () => void) => void } };
+    }).Telegram?.WebApp;
+    if (!tg?.onEvent) return;
+
+    const themeChangedHandler = () => {
+      telegramTheme.value = getTelegramTheme();
+    };
+
+    tg.onEvent('themeChanged', themeChangedHandler);
   }
 
   function saveToStorage(): void {
@@ -87,15 +137,6 @@ export const useSettingsStore = defineStore('settings', () => {
    */
   function setTheme(mode: ThemeMode): void {
     theme.value = mode;
-
-    let isDark: boolean;
-    if (mode === 'system') {
-      isDark = getSystemTheme();
-    } else {
-      isDark = mode === 'dark';
-    }
-
-    applyTheme(isDark);
     saveToStorage();
   }
 
@@ -103,7 +144,7 @@ export const useSettingsStore = defineStore('settings', () => {
    * Переключаться между тёмной и светлой темами
    */
   function toggleTheme(): void {
-    const newTheme: ThemeMode = theme.value === 'dark' ? 'light' : 'dark';
+    const newTheme: ThemeMode = isDark.value ? 'light' : 'dark';
     setTheme(newTheme);
   }
 
@@ -171,25 +212,14 @@ export const useSettingsStore = defineStore('settings', () => {
    * Инициализировать настройки при запуске приложения
    */
   function init(): void {
+    if (isInitialized) return;
+    isInitialized = true;
+
     loadFromStorage();
+    initSystemThemeDetection();
+    initTelegramThemeDetection();
 
-    // Применить начальную тему
-    let isDark: boolean;
-    if (theme.value === 'system') {
-      isDark = getSystemTheme();
-    } else {
-      isDark = theme.value === 'dark';
-    }
-    applyTheme(isDark);
-
-    // Слушать изменения системной темы
-    if (typeof window !== 'undefined') {
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-        if (theme.value === 'system') {
-          applyTheme(e.matches);
-        }
-      });
-    }
+    applyTheme(isDark.value);
   }
 
   /**
@@ -204,7 +234,7 @@ export const useSettingsStore = defineStore('settings', () => {
     language.value = DEFAULT_SETTINGS.language;
 
     saveToStorage();
-    applyTheme(theme.value === 'dark');
+    applyTheme(isDark.value);
   }
 
   // Наблюдать за изменениями и автоматически сохранять
@@ -216,9 +246,18 @@ export const useSettingsStore = defineStore('settings', () => {
     { deep: true },
   );
 
+  const isDark = computed(() => resolveIsDark(theme.value));
+  const isLight = computed(() => !isDark.value);
+
+  watch(isDark, (newIsDark) => {
+    applyTheme(newIsDark);
+  });
+
   return {
     // Состояние
     theme,
+    isDark,
+    isLight,
     soundEnabled,
     vibrationEnabled,
     diceMode,

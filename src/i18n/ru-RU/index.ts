@@ -191,6 +191,11 @@ export default {
     not_found: 'Не найдено',
   },
 
+  // Telegram
+  telegram: {
+    required_message: 'Откройте игру из приложения Telegram',
+  },
+
   // Чакры
   chakra: {
     1: 'Муладхара',
