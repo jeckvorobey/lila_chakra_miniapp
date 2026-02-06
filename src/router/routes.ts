@@ -61,13 +61,14 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/TelegramRequiredPage.vue'),
         meta: { hideHeader: true, hideBottomNav: true },
       },
+      // Онбординг (внутри MainLayout для корректной работы QPage)
+      {
+        path: 'onboarding',
+        name: 'onboarding',
+        component: () => import('pages/onboarding/OnboardingPage.vue'),
+        meta: { hideHeader: true, hideBottomNav: true },
+      },
     ],
-  },
-  // Онбординг (отдельный макет)
-  {
-    path: '/onboarding',
-    name: 'onboarding',
-    component: () => import('pages/onboarding/OnboardingPage.vue'),
   },
   // 404 - Страница не найдена
   {

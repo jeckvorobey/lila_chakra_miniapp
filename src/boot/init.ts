@@ -26,14 +26,18 @@ export default boot(async ({ router }) => {
       return true;
     }
 
-    // 404 доступна всегда, чтобы избежать зацикливания редиректов
-    if (to.name === 'not-found') {
-      return true;
-    }
-
     // Неавторизованных пользователей перенаправляем на 404
     if (!authStore.isAuthenticated) {
+      // 404 доступна всегда, чтобы избежать зацикливания редиректов
+      if (to.name === 'not-found') {
+        return true;
+      }
       return { name: 'not-found' };
+    }
+
+    // Авторизованных пользователей с 404 перенаправляем на главную
+    if (to.name === 'not-found') {
+      return { path: '/game' };
     }
 
     if (!userStore.profile && !userStore.isLoading) {
