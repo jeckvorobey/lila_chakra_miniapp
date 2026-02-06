@@ -3,45 +3,48 @@ import { api } from 'boot/axios';
 import type { Cell } from 'src/types/game.interface';
 
 interface ReferenceState {
-  cells: Cell[];
+  cellCache: Record<number, Cell>;
   isLoading: boolean;
   error: string | null;
-  lastFetched: number | null;
 }
 
 export const useReferenceStore = defineStore('reference', {
   state: (): ReferenceState => ({
-    cells: [],
+    cellCache: {},
     isLoading: false,
     error: null,
-    lastFetched: null,
   }),
 
   getters: {
-    getCell: (state) => (id: number) => {
-      return state.cells.find((cell) => cell.id === id);
+    /**
+     * Получить клетку из кэша (синхронный)
+     */
+    getCell: (state) => (id: number): Cell | undefined => {
+      return state.cellCache[id];
     },
-    isLoaded: (state) => state.cells.length > 0,
   },
 
   actions: {
-    async fetchCells(force = false) {
-      // Если данные уже есть и не прошло много времени, не загружаем снова (кэширование)
-      // Например, кэш на 24 часа (или пока сессия активна)
-      if (this.isLoaded && !force) {
-        return;
+    /**
+     * Lazy-загрузка одной клетки по ID
+     */
+    async fetchCellById(cellId: number): Promise<Cell | null> {
+      // Если уже в кэше — вернуть сразу
+      if (this.cellCache[cellId]) {
+        return this.cellCache[cellId];
       }
 
       this.isLoading = true;
       this.error = null;
 
       try {
-        const response = await api.get<Cell[]>('/api/reference/cells');
-        this.cells = response.data;
-        this.lastFetched = Date.now();
+        const response = await api.get<Cell>(`/api/reference/cells/${cellId}`);
+        this.cellCache[cellId] = response.data;
+        return response.data;
       } catch (err) {
-        console.error('Failed to fetch cells reference:', err);
-        this.error = 'Не удалось загрузить данные игры';
+        console.error(`Не удалось загрузить клетку ${cellId}:`, err);
+        this.error = `Не удалось загрузить данные клетки ${cellId}`;
+        return null;
       } finally {
         this.isLoading = false;
       }

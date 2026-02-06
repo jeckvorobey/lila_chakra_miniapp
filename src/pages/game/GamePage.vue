@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
@@ -364,9 +364,6 @@ function showVictory() {
   });
 }
 
-onMounted(() => {
-  void gameStore.fetchAllCells();
-});
 </script>
 
 <style lang="scss" scoped>

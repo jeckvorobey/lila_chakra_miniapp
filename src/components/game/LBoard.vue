@@ -41,7 +41,6 @@
               v-for="cellId in getRowCells(9 - row)"
               :key="cellId"
               :cell-id="cellId"
-              :cell-name="getCellName(cellId)"
               :is-current-position="cellId === currentCell"
               :has-player="cellId === currentCell"
               :size="cellSize"
@@ -90,7 +89,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { ARROWS, SNAKES, CELLS_PER_ROW } from 'src/stores/game.store';
-import { useReferenceStore } from 'src/stores/reference.store';
 import LCell from './LCell.vue';
 import LChip from './LChip.vue';
 
@@ -109,8 +107,6 @@ const emit = defineEmits<{
   (e: 'cell-click', cellId: number): void;
   (e: 'cell-long-press', cellId: number): void;
 }>();
-
-const referenceStore = useReferenceStore();
 
 // Состояние масштабирования
 const zoom = ref(1);
@@ -163,11 +159,6 @@ const thumbStyle = {
   opacity: '0.5',
   borderRadius: '4px',
 };
-
-// Получить название клетки (из хранилища или пропсов)
-function getCellName(cellId: number): string {
-  return referenceStore.getCell(cellId)?.name || `Клетка ${cellId}`;
-}
 
 // Получить клетки для строки в зигзагообразном порядке
 function getRowCells(chakraLevel: number): number[] {

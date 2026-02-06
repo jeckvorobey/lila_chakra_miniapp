@@ -24,7 +24,7 @@
 
     <!-- Подсказка при наведении/касании -->
     <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
-      <div class="text-weight-medium">{{ cellName }}</div>
+      <div class="text-weight-medium">{{ cellId }}</div>
       <div v-if="isArrow" class="text-caption text-positive">
         {{ $t('transition.arrow_to') }} {{ arrowTarget }}
       </div>
@@ -41,7 +41,6 @@ import { ARROWS, SNAKES } from 'src/stores/game.store';
 
 interface Props {
   cellId: number;
-  cellName?: string;
   isCurrentPosition?: boolean;
   hasPlayer?: boolean;
   disabled?: boolean;
@@ -50,7 +49,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  cellName: '',
   isCurrentPosition: false,
   hasPlayer: false,
   disabled: false,

@@ -12,12 +12,12 @@ import type {
   MoveOut,
   MoveResponse,
   CellBrief,
-  Cell,
   GameCreate,
   TransitionType,
   GameMode,
   QueryCategory,
   DiceRollRequest,
+  Cell,
 } from 'src/types/game.interface';
 
 import {
@@ -48,7 +48,6 @@ export const useGameStore = defineStore('game', () => {
   const currentGame = ref<GameDetail | null>(null);
   const moves = ref<MoveOut[]>([]);
   const currentCellInfo = ref<CellBrief | null>(null);
-  const cells = ref<Cell[]>([]);
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
@@ -319,34 +318,11 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Загрузить данные всех клеток
-   */
-  async function fetchAllCells(): Promise<void> {
-    try {
-      const referenceStore = useReferenceStore();
-      await referenceStore.fetchCells();
-      cells.value = referenceStore.cells;
-    } catch (err) {
-      console.error('Failed to fetch cells:', err);
-    }
-  }
-
-  /**
-   * Получить полную информацию о клетке по ID
+   * Получить полную информацию о клетке по ID (lazy-loading)
    */
   async function getCellInfo(cellId: number): Promise<Cell | null> {
-    // Сначала попробовать из локального кэша
-    const cached = cells.value.find((c) => c.id === cellId);
-    if (cached) return cached;
-
-    try {
-      const referenceStore = useReferenceStore();
-      await referenceStore.fetchCells();
-      return referenceStore.getCell(cellId) ?? null;
-    } catch (err) {
-      console.error(`Failed to fetch cell info for ${cellId}:`, err);
-      return null;
-    }
+    const referenceStore = useReferenceStore();
+    return referenceStore.fetchCellById(cellId);
   }
 
   /**
@@ -363,7 +339,6 @@ export const useGameStore = defineStore('game', () => {
     currentGame.value = null;
     moves.value = [];
     currentCellInfo.value = null;
-    cells.value = [];
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
@@ -384,7 +359,6 @@ export const useGameStore = defineStore('game', () => {
     currentGame,
     moves,
     currentCellInfo,
-    cells,
     isLoading,
     isRolling,
     error,
@@ -420,7 +394,6 @@ export const useGameStore = defineStore('game', () => {
     loadGame,
     rollDice,
     manualMove,
-    fetchAllCells,
     getCellInfo,
     completeEntryMeditation,
     completeExitMeditation,
