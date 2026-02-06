@@ -6,6 +6,7 @@ import { boot } from 'quasar/wrappers';
 import { useAuthStore } from 'src/stores/auth.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useUserStore } from 'src/stores/user.store';
+import { isInTelegram } from 'src/boot/telegram';
 
 export default boot(async ({ router }) => {
   const settingsStore = useSettingsStore();
@@ -20,14 +21,19 @@ export default boot(async ({ router }) => {
   }
 
   router.beforeEach(async (to) => {
-    // Публичные маршруты доступны без авторизации
-    if (to.meta.public) {
+    // Проверка Telegram выполняется в роутере, здесь пропускаем дальше
+    if (!isInTelegram()) {
       return true;
     }
 
-    // Неавторизованных пользователей перенаправляем на telegram-required
+    // 404 доступна всегда, чтобы избежать зацикливания редиректов
+    if (to.name === 'not-found') {
+      return true;
+    }
+
+    // Неавторизованных пользователей перенаправляем на 404
     if (!authStore.isAuthenticated) {
-      return { name: 'telegram-required' };
+      return { name: 'not-found' };
     }
 
     if (!userStore.profile && !userStore.isLoading) {

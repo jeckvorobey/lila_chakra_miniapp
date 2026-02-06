@@ -59,7 +59,7 @@ const routes: RouteRecordRaw[] = [
         path: 'telegram-required',
         name: 'telegram-required',
         component: () => import('pages/TelegramRequiredPage.vue'),
-        meta: { hideHeader: true, hideBottomNav: true, public: true },
+        meta: { hideHeader: true, hideBottomNav: true },
       },
     ],
   },
@@ -72,6 +72,7 @@ const routes: RouteRecordRaw[] = [
   // 404 - Страница не найдена
   {
     path: '/:catchAll(.*)*',
+    name: 'not-found',
     component: () => import('pages/ErrorNotFound.vue'),
     meta: { public: true },
   },

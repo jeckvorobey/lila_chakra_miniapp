@@ -29,8 +29,8 @@ export default defineBoot(({ app, router }) => {
       const isAuthEndpoint = url.includes('/api/auth/');
       if (error?.response?.status === 401 && !isAuthEndpoint) {
         authStore.logout();
-        if (router.currentRoute.value.path !== '/') {
-          await router.push('/');
+        if (router.currentRoute.value.name !== 'not-found') {
+          await router.push({ name: 'not-found' });
         }
       }
       return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
