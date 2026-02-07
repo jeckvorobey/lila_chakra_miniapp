@@ -1,22 +1,7 @@
 <template>
   <q-page class="column" style="padding-bottom: 64px">
     <!-- No active game state -->
-    <div v-if="!hasActiveGame" class="col column items-center justify-center q-pa-xl">
-      <q-icon name="mdi-gamepad-variant" size="64px" color="primary" class="q-mb-md" />
-      <div class="text-h5 text-weight-medium q-mb-sm">{{ $t('game.title') }}</div>
-      <p class="text-body2 text-secondary text-center q-mb-lg" style="max-width: 280px">
-        {{ $t('onboarding.welcome_desc') }}
-      </p>
-      <q-btn
-        :label="$t('game.new_game')"
-        color="primary"
-        size="lg"
-        unelevated
-        icon="mdi-play"
-        class="q-px-xl"
-        @click="startNewGame"
-      />
-    </div>
+    <l-game-empty-state v-if="!hasActiveGame" />
 
     <!-- Active game -->
     <template v-else>
@@ -185,7 +170,7 @@ import { useQuasar } from 'quasar';
 import { useGameStore } from 'src/stores/game.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { LProgressBar } from 'src/components/base';
-import { LBoard, LCellCard, LDice, LDiceManual } from 'src/components/game';
+import { LBoard, LCellCard, LDice, LDiceManual, LGameEmptyState } from 'src/components/game';
 import LModal from 'src/components/base/LModal.vue';
 
 const $q = useQuasar();
@@ -222,10 +207,6 @@ const lastMoveId = computed(() => {
   const lastMove = gameStore.moves[gameStore.moves.length - 1];
   return lastMove?.id ?? null;
 });
-
-function startNewGame() {
-  void router.push('/game/new');
-}
 
 function rollDice() {
   showDiceModal.value = true;
