@@ -31,13 +31,19 @@
       </p>
 
       <!-- Плеер для аудио -->
+      <l-audio-player
+        :audio-url="meditationAudioUrl"
+        :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')"
+        class="q-mt-md"
+      />
+
+      <!-- Старый плеер оставлен по требованию, удалять нельзя -->
+      <!--
       <div class="meditation-page__player">
-        <!-- Визуализация волновой формы -->
         <div class="meditation-page__waveform">
           <span v-for="i in 20" :key="i" class="meditation-page__bar" :style="barStyle(i)" />
         </div>
 
-        <!-- Прогресс -->
         <div class="meditation-page__progress q-my-md">
           <span class="text-caption">{{ formatTime(currentTime) }}</span>
           <q-slider
@@ -53,7 +59,6 @@
           <span class="text-caption">{{ formatTime(duration) }}</span>
         </div>
 
-        <!-- Управление -->
         <div class="meditation-page__controls">
           <q-btn round flat icon="mdi-rewind-10" size="lg" @click="rewind" />
           <q-btn
@@ -67,6 +72,7 @@
           <q-btn round flat icon="mdi-fast-forward-10" size="lg" @click="forward" />
         </div>
       </div>
+      -->
 
       <!-- Кнопка пропуска (через 30 сек) -->
       <transition name="fade">
@@ -100,6 +106,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useGameStore } from 'src/stores/game.store';
+import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -107,6 +114,16 @@ const gameStore = useGameStore();
 
 // Тип медитации
 const isEntry = computed(() => route.params.type === 'entry');
+const meditationAudioUrl = computed(() => {
+  if (!gameStore.currentGame) {
+    return '';
+  }
+  return (
+    (isEntry.value
+      ? gameStore.currentGame.entry_meditation_audio_url
+      : gameStore.currentGame.exit_meditation_audio_url) ?? ''
+  );
+});
 
 // Состояние аудио
 const isPlaying = ref(false);
@@ -136,20 +153,20 @@ function particleStyle(index: number) {
 }
 
 // Генерировать стили полоск волновой формы
-function barStyle(index: number) {
-  const height = isPlaying.value ? 10 + Math.random() * 40 : 10 + Math.sin(index * 0.5) * 20;
+// function barStyle(index: number) {
+//   const height = isPlaying.value ? 10 + Math.random() * 40 : 10 + Math.sin(index * 0.5) * 20;
 
-  return {
-    height: `${height}px`,
-    animationDelay: `${index * 0.05}s`,
-  };
-}
+//   return {
+//     height: `${height}px`,
+//     animationDelay: `${index * 0.05}s`,
+//   };
+// }
 
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
+// function formatTime(seconds: number): string {
+//   const mins = Math.floor(seconds / 60);
+//   const secs = Math.floor(seconds % 60);
+//   return `${mins}:${secs.toString().padStart(2, '0')}`;
+// }
 
 function togglePlay() {
   isPlaying.value = !isPlaying.value;
@@ -189,19 +206,19 @@ function stopProgress() {
   }
 }
 
-function onSeek(value: number) {
-  currentTime.value = (value / 100) * duration.value;
-}
+// function onSeek(value: number) {
+//   currentTime.value = (value / 100) * duration.value;
+// }
 
-function rewind() {
-  currentTime.value = Math.max(0, currentTime.value - 10);
-  progress.value = (currentTime.value / duration.value) * 100;
-}
+// function rewind() {
+//   currentTime.value = Math.max(0, currentTime.value - 10);
+//   progress.value = (currentTime.value / duration.value) * 100;
+// }
 
-function forward() {
-  currentTime.value = Math.min(duration.value, currentTime.value + 10);
-  progress.value = (currentTime.value / duration.value) * 100;
-}
+// function forward() {
+//   currentTime.value = Math.min(duration.value, currentTime.value + 10);
+//   progress.value = (currentTime.value / duration.value) * 100;
+// }
 
 function skipMeditation() {
   canComplete.value = true;

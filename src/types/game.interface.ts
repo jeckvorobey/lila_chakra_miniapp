@@ -79,6 +79,8 @@ export interface GameOut {
   current_cell: number;
   entry_meditation_completed: boolean;
   exit_meditation_completed: boolean;
+  entry_meditation_audio_url?: string | null;
+  exit_meditation_audio_url?: string | null;
   total_moves: number;
   arrows_hit: number;
   snakes_hit: number;
