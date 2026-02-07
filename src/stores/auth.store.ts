@@ -114,11 +114,60 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Выйти и очистить все данные аутентификации
+   * Выйти и очистить все данные аутентификации.
+   * Вызывает backend logout для инвалидации сессии в Redis,
+   * затем очищает локальные данные и уведомляет другие вкладки.
    */
-  function logout(): void {
+  async function logout(): Promise<void> {
+    // 1. Вызвать backend logout для инвалидации сессии
+    if (token.value) {
+      try {
+        await api.post('/api/auth/logout');
+      } catch (err) {
+        console.warn('[Auth] Server logout failed:', err);
+      }
+    }
+
+    // 2. Очистить локальные данные
     clearToken();
     telegramUser.value = null;
+
+    // 3. Уведомить другие вкладки
+    notifyLogout();
+  }
+
+  /**
+   * Уведомить другие вкладки о logout через BroadcastChannel
+   */
+  function notifyLogout(): void {
+    if (typeof BroadcastChannel === 'undefined') return;
+
+    try {
+      const channel = new BroadcastChannel('lila-auth');
+      channel.postMessage({ type: 'logout' });
+      channel.close();
+    } catch (err) {
+      console.warn('[Auth] BroadcastChannel unavailable:', err);
+    }
+  }
+
+  /**
+   * Слушать logout события от других вкладок
+   */
+  function listenForLogout(): void {
+    if (typeof BroadcastChannel === 'undefined') return;
+
+    try {
+      const channel = new BroadcastChannel('lila-auth');
+      channel.onmessage = (event: MessageEvent) => {
+        if (event.data?.type === 'logout') {
+          clearToken();
+          telegramUser.value = null;
+        }
+      };
+    } catch (err) {
+      console.warn('[Auth] Failed to setup logout listener:', err);
+    }
   }
 
   /**
@@ -127,6 +176,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function init(): Promise<void> {
     loadToken();
     initTelegramUser();
+    listenForLogout();
 
     // Автоматическая аутентификация если есть initData, но нет токена
     if (initData.value && !token.value) {

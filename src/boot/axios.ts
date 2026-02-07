@@ -1,5 +1,6 @@
 import { defineBoot } from '#q-app/wrappers';
 import axios, { type AxiosInstance } from 'axios';
+import { Notify } from 'quasar';
 import { useAuthStore } from 'src/stores/auth.store';
 
 declare module 'vue' {
@@ -21,19 +22,36 @@ const api = axios.create({ baseURL: apiBaseUrl });
 export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
 
-  // Глобальная обработка 401 для сброса сессии (кроме auth endpoints)
+  // Глобальная обработка 401/403 для сброса сессии (кроме auth endpoints)
   api.interceptors.response.use(
     (response) => response,
     async (error) => {
+      const status = error?.response?.status;
       const url = error?.config?.url || '';
       const isAuthEndpoint = url.includes('/api/auth/');
-      if (error?.response?.status === 401 && !isAuthEndpoint) {
-        authStore.logout();
+
+      if ((status === 401 || status === 403) && !isAuthEndpoint) {
+        await authStore.logout();
+
+        // Показать уведомление при 403 (заблокированный пользователь)
+        if (status === 403) {
+          const detail =
+            (error?.response?.data?.detail as string) || 'Доступ запрещён';
+          Notify.create({
+            type: 'negative',
+            message: detail,
+            position: 'top',
+            timeout: 5000,
+          });
+        }
+
         if (router.currentRoute.value.name !== 'not-found') {
           await router.push({ name: 'not-found' });
         }
       }
-      return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
+      return Promise.reject(
+        error instanceof Error ? error : new Error('Request failed'),
+      );
     },
   );
 
