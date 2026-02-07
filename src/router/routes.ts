@@ -55,12 +55,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/profile/PaymentPage.vue'),
         meta: { title: 'payment.title', showBack: true },
       },
-      {
-        path: 'telegram-required',
-        name: 'telegram-required',
-        component: () => import('pages/TelegramRequiredPage.vue'),
-        meta: { hideHeader: true, hideBottomNav: true },
-      },
+      // Временно отключено для разработки (страница требования Telegram).
+      // {
+      //   path: 'telegram-required',
+      //   name: 'telegram-required',
+      //   component: () => import('pages/TelegramRequiredPage.vue'),
+      //   meta: { hideHeader: true, hideBottomNav: true },
+      // },
       // Онбординг (внутри MainLayout для корректной работы QPage)
       {
         path: 'onboarding',

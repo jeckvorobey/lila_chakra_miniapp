@@ -6,7 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
-import { isInTelegram } from 'src/boot/telegram';
+// import { isInTelegram } from 'src/boot/telegram';
 
 /*
  * Если вы не собираете с режимом SSR, вы можете
@@ -35,13 +35,14 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   });
 
   // Приложение должно открываться внутри Telegram
-  Router.beforeEach((to) => {
-    if (!isInTelegram() && to.name !== 'telegram-required') {
-      return { name: 'telegram-required' };
-    }
-
-    return true;
-  });
+  // Временно отключено для разработки (нужна проверка и редирект).
+  // Router.beforeEach((to) => {
+  //   if (!isInTelegram() && to.name !== 'telegram-required') {
+  //     return { name: 'telegram-required' };
+  //   }
+  //
+  //   return true;
+  // });
 
   return Router;
 });
