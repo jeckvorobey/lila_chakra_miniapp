@@ -1,23 +1,9 @@
 <template>
   <q-page class="diary-page" padding>
-    <!-- Вкладки фильтра -->
-    <q-tabs
-      v-model="filter"
-      class="q-mb-md"
-      align="justify"
-      indicator-color="primary"
-      active-color="primary"
-      narrow-indicator
-    >
-      <q-tab name="all" :label="$t('diary.filter.all')" />
-      <q-tab name="active" :label="$t('diary.filter.active')" />
-      <q-tab name="completed" :label="$t('diary.filter.completed')" />
-    </q-tabs>
-
     <!-- Список игр -->
-    <q-list v-if="filteredGames.length > 0" class="q-gutter-sm">
+    <q-list v-if="orderedGames.length > 0" class="q-gutter-sm">
       <q-card
-        v-for="game in filteredGames"
+        v-for="game in orderedGames"
         :key="game.id"
         class="diary-page__card"
         flat
@@ -95,21 +81,21 @@ interface DiaryGame extends GameBrief {
   magic_time_remaining?: string;
 }
 
-const filter = ref<'all' | 'active' | 'completed'>('all');
 const games = ref<DiaryGame[]>([]);
 const isLoading = ref(false);
 
-const filteredGames = computed(() => {
-  if (filter.value === 'all') return games.value;
-  if (filter.value === 'active') {
-    return games.value.filter(
-      (g) =>
-        g.status === 'waiting_for_6' ||
-        g.status === 'in_progress' ||
-        g.status === 'in_waiting_zone',
-    );
-  }
-  return games.value.filter((g) => g.status === 'completed');
+function isActiveStatus(status: GameStatus): boolean {
+  return status === 'waiting_for_6' || status === 'in_progress' || status === 'in_waiting_zone';
+}
+
+const orderedGames = computed(() => {
+  const ranked = games.value.map((game, index) => ({
+    game,
+    index,
+    rank: isActiveStatus(game.status) ? 0 : 1,
+  }));
+  ranked.sort((a, b) => (a.rank !== b.rank ? a.rank - b.rank : a.index - b.index));
+  return ranked.map((item) => item.game);
 });
 
 function getStatusColor(status: GameStatus): string {
