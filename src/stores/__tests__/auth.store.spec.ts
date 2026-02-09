@@ -70,7 +70,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
     setActivePinia(createPinia());
 
     // Устанавливаем mock BroadcastChannel
-    global.BroadcastChannel = MockBroadcastChannel as any;
+    global.BroadcastChannel = MockBroadcastChannel as unknown as typeof BroadcastChannel;
 
     // Очищаем localStorage
     localStorage.clear();
@@ -186,7 +186,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
 
     it('should handle missing BroadcastChannel gracefully', async () => {
       // Удаляем BroadcastChannel (старый браузер)
-      global.BroadcastChannel = undefined as any;
+      global.BroadcastChannel = undefined as unknown as typeof BroadcastChannel;
 
       const store = useAuthStore();
       store.token = 'test-jwt-token';
@@ -236,7 +236,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
 
     it('should not crash if BroadcastChannel is unavailable during init', async () => {
       // Удаляем BroadcastChannel
-      global.BroadcastChannel = undefined as any;
+      global.BroadcastChannel = undefined as unknown as typeof BroadcastChannel;
 
       const store = useAuthStore();
 
