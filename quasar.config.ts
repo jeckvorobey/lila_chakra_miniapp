@@ -88,9 +88,9 @@ export default defineConfig((ctx) => {
     devServer: {
       // https: true,
       open: false, // opens browser window automatically
-      // host: '127.0.0.1',
+      host: '0.0.0.0', // принимать подключения с любого интерфейса (нужно для ngrok)
       port: 5173,
-      allowedHosts: ['mammoth-light-bison.ngrok-free.app'],
+      allowedHosts: true, // разрешить любые хосты (ngrok, localtunnel и др.)
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
