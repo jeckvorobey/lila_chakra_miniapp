@@ -66,6 +66,7 @@ export default {
     move_count: 'Ход',
     your_position: 'Ваша позиция',
     outside_board: 'Вне поля',
+    progress: 'Прогресс',
     cell_info_load_error: 'Не удалось загрузить информацию о клетке',
     arrow_notify: 'Стрела! Подъём на клетку {cell}',
     snake_notify: 'Змея! Спуск на клетку {cell}',

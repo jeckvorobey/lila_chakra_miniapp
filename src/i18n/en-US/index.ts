@@ -66,6 +66,7 @@ export default {
     move_count: 'Move',
     your_position: 'Your Position',
     outside_board: 'Outside the board',
+    progress: 'Progress',
     cell_info_load_error: 'Failed to load cell information',
     arrow_notify: 'Arrow! Move up to cell {cell}',
     snake_notify: 'Snake! Move down to cell {cell}',

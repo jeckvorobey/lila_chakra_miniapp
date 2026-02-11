@@ -24,7 +24,7 @@
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
           <div class="text-subtitle2 text-weight-medium q-mb-md">Путь игры</div>
-          <l-progress-bar :current-cell="game.current_cell" :show-chakra-indicator="true" />
+          <l-progress-bar :current-cell="game.current_cell" />
         </q-card-section>
       </q-card>
 

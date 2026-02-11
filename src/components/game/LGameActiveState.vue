@@ -15,7 +15,6 @@
 
       <l-progress-bar
         :current-cell="gameStore.currentCell"
-        :show-chakra-indicator="true"
         class="q-mt-sm"
       />
     </div>
