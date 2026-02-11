@@ -61,6 +61,12 @@ export interface Cell {
   affirmation: string;
   question?: string | null;
   keywords?: string[] | null;
+  audio_url?: string | null;
+  image_url?: string | null;
+  is_arrow_start?: boolean;
+  arrow_end?: number | null;
+  is_snake_head?: boolean;
+  snake_tail?: number | null;
 }
 
 export interface GameCreate {

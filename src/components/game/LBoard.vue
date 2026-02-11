@@ -93,7 +93,6 @@ onMounted(async () => {
   height: 100%;
   min-height: 0;
   flex: 1 1 auto;
-  gap: 12px;
 
   &__shell {
     position: relative;
@@ -104,13 +103,21 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     padding: 16px;
-    border: 1px solid #ffffff1a;
+    border: 1px solid var(--lila-border);
     border-radius: 16px;
     background: linear-gradient(180deg, #0f0d1a 0%, #1a1625 100%);
+
+    .body--light & {
+      border: 1px solid var(--lila-border);
+      background: linear-gradient(180deg, #ffffff 0%, #f5f5f4 100%);
+      box-shadow: var(--lila-shadow);
+    }
   }
 
   &__grid-wrap {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     min-height: 0;
@@ -121,16 +128,21 @@ onMounted(async () => {
     position: relative;
     z-index: 2;
     display: grid;
+    flex: 1 1 auto;
     grid-template-rows: repeat(8, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
     width: 100%;
     height: 100%;
     min-height: 0;
     gap: 2px;
+    align-content: stretch;
   }
 
   &__row {
     display: grid;
     grid-template-columns: repeat(9, minmax(0, 1fr));
+    height: 100%;
+    min-height: 0;
     gap: 2px;
   }
 

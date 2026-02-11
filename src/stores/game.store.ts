@@ -395,9 +395,9 @@ export const useGameStore = defineStore('game', () => {
   /**
    * Получить полную информацию о клетке по ID (lazy-loading)
    */
-  async function getCellInfo(cellId: number): Promise<Cell | null> {
+  async function getCellInfo(cellId: number, forceRefresh = false): Promise<Cell | null> {
     const referenceStore = useReferenceStore();
-    return referenceStore.fetchCellById(cellId);
+    return referenceStore.fetchCellById(cellId, forceRefresh);
   }
 
   /**

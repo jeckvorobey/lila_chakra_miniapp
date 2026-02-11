@@ -60,10 +60,15 @@ export default {
     new_game: 'Новая игра',
     continue_game: 'Продолжить',
     end_game: 'Завершить игру',
+    end_confirm_title: 'Завершить игру?',
+    end_confirm_message: 'Вы уверены, что хотите завершить текущую игру?',
     current_cell: 'Текущая клетка',
     move_count: 'Ход',
     your_position: 'Ваша позиция',
     outside_board: 'Вне поля',
+    cell_info_load_error: 'Не удалось загрузить информацию о клетке',
+    arrow_notify: 'Стрела! Подъём на клетку {cell}',
+    snake_notify: 'Змея! Спуск на клетку {cell}',
   },
 
   // Запрос
@@ -99,6 +104,8 @@ export default {
     description: 'Описание',
     affirmation: 'Аффирмация',
     question: 'Вопрос для размышления',
+    sanskrit_name: 'Санскритское название',
+    keywords: 'Ключевые слова',
     ai_interpretation: 'AI Интерпретация',
   },
 

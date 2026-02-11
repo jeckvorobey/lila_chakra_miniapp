@@ -31,7 +31,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useQuasar } from 'quasar';
 import { ARROWS, SNAKES } from 'src/stores/game.store';
+import { getChakraColor } from 'src/data/chakra-colors';
 
 interface Props {
   cellId: number;
@@ -54,6 +56,8 @@ const emit = defineEmits<{
   (e: 'click', cellId: number): void;
   (e: 'long-press', cellId: number): void;
 }>();
+const $q = useQuasar();
+const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 
 const chakraLevel = computed(() => {
   if (props.cellId <= 0) return 0;
@@ -68,17 +72,6 @@ const snakeTarget = computed(() => SNAKES[props.cellId]);
 const isWinningCell = computed(() => props.cellId === 68);
 const isStartCell = computed(() => props.cellId === 1);
 const isTrapCell = computed(() => props.cellId === 72);
-
-const chakraColors: Record<number, string> = {
-  1: '#DC2626',
-  2: '#F97316',
-  3: '#EAB308',
-  4: '#22C55E',
-  5: '#06B6D4',
-  6: '#6B46C1',
-  7: '#9333EA',
-  8: '#F5F5F4',
-};
 
 function withAlpha(hexColor: string, alphaHex: string): string {
   return `${hexColor}${alphaHex}`;
@@ -99,7 +92,7 @@ const cellClasses = computed(() => [
 ]);
 
 const cellStyle = computed(() => {
-  const color = chakraColors[chakraLevel.value] || '#A1A1AA';
+  const color = getChakraColor(chakraLevel.value, isDarkMode.value);
 
   return {
     '--cell-bg': withAlpha(color, '10'),
@@ -208,10 +201,18 @@ function handleLongPress() {
     --cell-bg: #f5f5f430;
     --cell-text: #f5f5f4;
     --cell-border: #f5f5f4;
-    box-shadow: 0 0 8px #f5f5f440;
+    box-shadow: inset 0 0 0 2px #f5f5f4, 0 0 10px #f5f5f499;
+    position: relative;
 
     .l-cell__number {
       font-weight: 600;
+    }
+
+    .body--light & {
+      --cell-bg: #ffffff;
+      --cell-text: #1c1917;
+      --cell-border: #1c1917;
+      box-shadow: inset 0 0 0 2px #1c1917, 0 0 0 1px #1c191733;
     }
   }
 

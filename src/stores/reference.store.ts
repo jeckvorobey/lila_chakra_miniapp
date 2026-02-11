@@ -54,9 +54,9 @@ export const useReferenceStore = defineStore('reference', {
     /**
      * Lazy-загрузка одной клетки по ID
      */
-    async fetchCellById(cellId: number): Promise<Cell | null> {
+    async fetchCellById(cellId: number, forceRefresh = false): Promise<Cell | null> {
       // Если уже в кэше — вернуть сразу
-      if (this.cellCache[cellId]) {
+      if (!forceRefresh && this.cellCache[cellId]) {
         return this.cellCache[cellId];
       }
 

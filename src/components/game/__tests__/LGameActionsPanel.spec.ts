@@ -1,0 +1,130 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mount } from '@vue/test-utils';
+import type { CellBrief } from 'src/types/game.interface';
+import LGameActionsPanel from '../LGameActionsPanel.vue';
+
+const { mockEndGame, mockRouterPush, mockDialog, mockNotify } = vi.hoisted(() => ({
+  mockEndGame: vi.fn(),
+  mockRouterPush: vi.fn(),
+  mockDialog: vi.fn(),
+  mockNotify: vi.fn(),
+}));
+
+const mockGameStore = {
+  endGame: mockEndGame,
+  error: null as string | null,
+};
+
+vi.mock('src/stores/game.store', () => ({
+  useGameStore: () => mockGameStore,
+}));
+
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
+vi.mock('vue-router', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}));
+
+vi.mock('quasar', async () => {
+  const actual = await vi.importActual('quasar');
+  return {
+    ...actual,
+    useQuasar: () => ({
+      dialog: mockDialog,
+      notify: mockNotify,
+    }),
+  };
+});
+
+const currentCellInfo: CellBrief = {
+  id: 5,
+  name_ru: 'Клетка 5',
+  chakra_level: 1,
+  chakra_name: 'Муладхара',
+  affirmation_ru: 'Аффирмация',
+  transition_type: 'none',
+  transition_to: null,
+};
+
+function mountPanel() {
+  return mount(LGameActionsPanel, {
+    props: {
+      currentCell: 5,
+      currentCellInfo,
+      currentChakra: 1,
+      isWaitingForSix: false,
+    },
+    global: {
+      stubs: {
+        'q-card': {
+          template: '<div><slot /></div>',
+        },
+        'q-card-section': {
+          template: '<div><slot /></div>',
+        },
+        'q-avatar': {
+          template: '<div><slot /></div>',
+        },
+        'q-icon': true,
+        'q-btn': {
+          template:
+            "<button :data-testid=\"$attrs['data-testid']\" @click=\"$emit('click')\"><slot /></button>",
+        },
+        LDiceRollModal: {
+          template: '<div data-testid="dice-modal">{{ modelValue }}</div>',
+          props: ['modelValue'],
+        },
+      },
+    },
+  });
+}
+
+async function flushPromises(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
+describe('LGameActionsPanel', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGameStore.error = null;
+    mockDialog.mockReturnValue({
+      onOk: (handler: () => void) => {
+        handler();
+      },
+    });
+  });
+
+  it('по кнопке инфо эмитит событие показа текущей клетки', async () => {
+    const wrapper = mountPanel();
+    await wrapper.get('[data-testid="current-cell-info-btn"]').trigger('click');
+
+    expect(wrapper.emitted('show-current-cell-info')).toBeTruthy();
+  });
+
+  it('по кнопке броска открывает модалку кубика', async () => {
+    const wrapper = mountPanel();
+
+    expect(wrapper.get('[data-testid="dice-modal"]').text()).toBe('false');
+
+    await wrapper.get('[data-testid="open-dice-modal-btn"]').trigger('click');
+
+    expect(wrapper.get('[data-testid="dice-modal"]').text()).toBe('true');
+  });
+
+  it('подтверждает завершение игры и переводит на выходную медитацию', async () => {
+    mockEndGame.mockResolvedValue(true);
+
+    const wrapper = mountPanel();
+    await wrapper.get('[data-testid="end-game-btn"]').trigger('click');
+    await flushPromises();
+
+    expect(mockDialog).toHaveBeenCalled();
+    expect(mockEndGame).toHaveBeenCalledOnce();
+    expect(mockRouterPush).toHaveBeenCalledWith('/game/meditation/exit');
+  });
+});

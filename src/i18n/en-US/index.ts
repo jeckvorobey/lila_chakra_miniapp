@@ -60,10 +60,15 @@ export default {
     new_game: 'New Game',
     continue_game: 'Continue',
     end_game: 'End Game',
+    end_confirm_title: 'End game?',
+    end_confirm_message: 'Are you sure you want to end the current game?',
     current_cell: 'Current Cell',
     move_count: 'Move',
     your_position: 'Your Position',
     outside_board: 'Outside the board',
+    cell_info_load_error: 'Failed to load cell information',
+    arrow_notify: 'Arrow! Move up to cell {cell}',
+    snake_notify: 'Snake! Move down to cell {cell}',
   },
 
   // Запрос
@@ -99,6 +104,8 @@ export default {
     description: 'Description',
     affirmation: 'Affirmation',
     question: 'Reflection Question',
+    sanskrit_name: 'Sanskrit Name',
+    keywords: 'Keywords',
     ai_interpretation: 'AI Interpretation',
   },
 
