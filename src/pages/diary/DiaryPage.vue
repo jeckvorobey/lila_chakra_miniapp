@@ -57,6 +57,7 @@
         {{ $t('diary.empty') }}
       </p>
       <q-btn
+        v-if="!hasActiveGame"
         :label="$t('game.new_game')"
         color="primary"
         unelevated
@@ -73,6 +74,7 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { gamesApi } from 'src/services/api';
 import type { GameBrief, GameStatus } from 'src/types/game.interface';
+import { isActiveGameStatus } from 'src/data/game-status';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -83,16 +85,13 @@ interface DiaryGame extends GameBrief {
 
 const games = ref<DiaryGame[]>([]);
 const isLoading = ref(false);
-
-function isActiveStatus(status: GameStatus): boolean {
-  return status === 'waiting_for_6' || status === 'in_progress' || status === 'in_waiting_zone';
-}
+const hasActiveGame = computed(() => games.value.some((game) => isActiveGameStatus(game.status)));
 
 const orderedGames = computed(() => {
   const ranked = games.value.map((game, index) => ({
     game,
     index,
-    rank: isActiveStatus(game.status) ? 0 : 1,
+    rank: isActiveGameStatus(game.status) ? 0 : 1,
   }));
   ranked.sort((a, b) => (a.rank !== b.rank ? a.rank - b.rank : a.index - b.index));
   return ranked.map((item) => item.game);

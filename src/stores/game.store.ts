@@ -30,6 +30,7 @@ import {
   CELLS_PER_ROW,
   WAITING_ZONE,
 } from 'src/data/game-constants';
+import { isActiveGameStatus } from 'src/data/game-status';
 
 // Повторный экспорт игровых констант для удобства
 export {
@@ -63,9 +64,7 @@ export const useGameStore = defineStore('game', () => {
 
   // Вычисляемые значения
   const isGameActive = computed(
-    () =>
-      currentGame.value &&
-      ['waiting_for_6', 'in_progress', 'in_waiting_zone'].includes(currentGame.value.status),
+    () => (currentGame.value ? isActiveGameStatus(currentGame.value.status) : false),
   );
 
 
@@ -212,9 +211,7 @@ export const useGameStore = defineStore('game', () => {
   async function loadLatestActiveGame(): Promise<boolean> {
     try {
       const response = await gamesApi.list({ limit: 20, offset: 0 });
-      const activeGame = response.items.find((item) =>
-        ['waiting_for_6', 'in_progress', 'in_waiting_zone'].includes(item.status),
-      );
+      const activeGame = response.items.find((item) => isActiveGameStatus(item.status));
 
       if (!activeGame) {
         return false;

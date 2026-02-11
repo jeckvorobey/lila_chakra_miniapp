@@ -80,7 +80,7 @@
       <!-- Действия -->
       <div class="diary-detail__actions">
         <q-btn
-          v-if="game.status === 'in_progress' || game.status === 'waiting_for_6'"
+          v-if="hasActiveGame"
           :label="$t('game.continue_game')"
           color="primary"
           unelevated
@@ -88,6 +88,7 @@
           @click="continueGame"
         />
         <q-btn
+          v-if="!hasActiveGame"
           :label="$t('game.new_game')"
           color="primary"
           outline
@@ -106,6 +107,7 @@ import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { gamesApi, movesApi } from 'src/services/api';
 import type { GameDetail, MoveOut } from 'src/types/game.interface';
+import { isActiveGameStatus } from 'src/data/game-status';
 import { LProgressBar } from 'src/components/base';
 
 const route = useRoute();
@@ -116,6 +118,7 @@ const { t } = useI18n();
 const game = ref<GameDetail | null>(null);
 const moves = ref<MoveOut[]>([]);
 const isLoading = ref(true);
+const hasActiveGame = ref(false);
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -169,12 +172,16 @@ async function loadGameDetails() {
   const gameId = route.params.id as string;
 
   try {
-    const [gameData, movesData] = await Promise.all([
+    const [gameData, movesData, gamesList] = await Promise.all([
       gamesApi.get(Number(gameId)),
       gamesApi.getMoves(Number(gameId)),
+      gamesApi.list({ limit: 20, offset: 0 }).catch(() => null),
     ]);
     game.value = gameData;
     moves.value = movesData;
+    hasActiveGame.value = gamesList
+      ? gamesList.items.some((item) => isActiveGameStatus(item.status))
+      : isActiveGameStatus(gameData.status);
   } finally {
     isLoading.value = false;
   }
