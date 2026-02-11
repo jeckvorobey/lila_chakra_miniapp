@@ -6,6 +6,14 @@ import type { Cell } from 'src/types/game.interface';
  */
 export const referenceApi = {
   /**
+   * Получить список ID всех клеток.
+   */
+  async getCellIds(): Promise<number[]> {
+    const response = await api.get<number[]>('/reference/cells');
+    return response.data;
+  },
+
+  /**
    * Получить клетку по ID.
    */
   async getCellById(cellId: number): Promise<Cell> {

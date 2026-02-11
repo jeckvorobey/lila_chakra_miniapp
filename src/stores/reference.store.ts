@@ -3,6 +3,7 @@ import { referenceApi } from 'src/services/api';
 import type { Cell } from 'src/types/game.interface';
 
 interface ReferenceState {
+  boardCellIds: number[];
   cellCache: Record<number, Cell>;
   isLoading: boolean;
   error: string | null;
@@ -10,6 +11,7 @@ interface ReferenceState {
 
 export const useReferenceStore = defineStore('reference', {
   state: (): ReferenceState => ({
+    boardCellIds: [],
     cellCache: {},
     isLoading: false,
     error: null,
@@ -25,6 +27,30 @@ export const useReferenceStore = defineStore('reference', {
   },
 
   actions: {
+    /**
+     * Загрузить список ID клеток для рендера игрового поля.
+     */
+    async fetchBoardCellIds(): Promise<number[]> {
+      if (this.boardCellIds.length > 0) {
+        return this.boardCellIds;
+      }
+
+      this.isLoading = true;
+      this.error = null;
+
+      try {
+        const ids = await referenceApi.getCellIds();
+        this.boardCellIds = [...ids].sort((a, b) => a - b);
+        return this.boardCellIds;
+      } catch (err) {
+        console.error('Не удалось загрузить список клеток:', err);
+        this.error = 'Не удалось загрузить список клеток';
+        return [];
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
     /**
      * Lazy-загрузка одной клетки по ID
      */
