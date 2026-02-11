@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { api } from 'boot/axios';
+import { referenceApi } from 'src/services/api';
 import type { Cell } from 'src/types/game.interface';
 
 interface ReferenceState {
@@ -38,9 +38,9 @@ export const useReferenceStore = defineStore('reference', {
       this.error = null;
 
       try {
-        const response = await api.get<Cell>(`/api/reference/cells/${cellId}`);
-        this.cellCache[cellId] = response.data;
-        return response.data;
+        const cell = await referenceApi.getCellById(cellId);
+        this.cellCache[cellId] = cell;
+        return cell;
       } catch (err) {
         console.error(`Не удалось загрузить клетку ${cellId}:`, err);
         this.error = `Не удалось загрузить данные клетки ${cellId}`;

@@ -16,8 +16,54 @@ declare module 'vue' {
 // хорошей идеей переместить создание этого экземпляра внутрь
 // функции "export default () => {}" ниже (которая запускается отдельно
 // для каждого клиента)
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+function ensureLeadingSlash(value: string): string {
+  if (!value) return '/';
+  return value.startsWith('/') ? value : `/${value}`;
+}
+
+function trimTrailingSlashes(value: string): string {
+  return value.replace(/\/+$/, '');
+}
+
+function normalizeApiPrefix(prefix?: string): string {
+  const normalizedPrefix = ensureLeadingSlash((prefix || '/api').trim());
+  return normalizedPrefix === '/' ? '' : trimTrailingSlashes(normalizedPrefix);
+}
+
+function buildBaseUrl(apiUrl: string, apiPrefix: string): string {
+  const normalizedApiUrl = trimTrailingSlashes(apiUrl.trim());
+  return `${normalizedApiUrl}${apiPrefix}`;
+}
+
+function resolveApiBaseUrl(): string {
+  const apiPrefix = normalizeApiPrefix(import.meta.env.VITE_API_PREFIX);
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return apiUrl ? buildBaseUrl(apiUrl, apiPrefix) : apiPrefix || '/api';
+}
+
+const apiBaseUrl = resolveApiBaseUrl();
 const api = axios.create({ baseURL: apiBaseUrl });
+
+export function buildApiResourceUrl(path: string): string {
+  const trimmedPath = path.trim();
+  if (/^https?:\/\//.test(trimmedPath)) {
+    return trimmedPath;
+  }
+
+  const normalizedPath = ensureLeadingSlash(trimmedPath);
+  const baseURL = api.defaults.baseURL || apiBaseUrl;
+
+  if (/^https?:\/\//.test(baseURL)) {
+    return `${trimTrailingSlashes(baseURL)}${normalizedPath}`;
+  }
+
+  const normalizedBase = ensureLeadingSlash(baseURL);
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}${trimTrailingSlashes(normalizedBase)}${normalizedPath}`;
+  }
+
+  return `${trimTrailingSlashes(normalizedBase)}${normalizedPath}`;
+}
 
 export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
@@ -28,7 +74,7 @@ export default defineBoot(({ app, router }) => {
     async (error) => {
       const status = error?.response?.status;
       const url = error?.config?.url || '';
-      const isAuthEndpoint = url.includes('/api/auth/');
+      const isAuthEndpoint = url.includes('/auth/');
 
       if ((status === 401 || status === 403) && !isAuthEndpoint) {
         await authStore.logout();

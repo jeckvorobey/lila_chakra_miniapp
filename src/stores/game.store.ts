@@ -5,7 +5,7 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { gamesApi, movesApi } from 'src/services/api';
+import { audioApi, gamesApi, movesApi } from 'src/services/api';
 import { useReferenceStore } from 'src/stores/reference.store';
 import type {
   GameDetail,
@@ -19,6 +19,7 @@ import type {
   DiceRollRequest,
   Cell,
 } from 'src/types/game.interface';
+import type { MeditationAudioType } from 'src/types/audio.interface';
 
 import {
   ARROWS,
@@ -51,6 +52,9 @@ export const useGameStore = defineStore('game', () => {
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
+  const meditationAudioUrl = ref('');
+  const isMeditationAudioLoading = ref(false);
+  const meditationAudioError = ref<string | null>(null);
 
   // Состояние кубика
   const currentDiceRolls = ref<number[]>([]);
@@ -318,6 +322,27 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Загрузить аудио медитации по типу.
+   */
+  async function loadMeditationAudio(type: MeditationAudioType): Promise<void> {
+    isMeditationAudioLoading.value = true;
+    meditationAudioError.value = null;
+
+    try {
+      const response = await audioApi.getByType(type);
+      const firstAudio = response.items[0];
+      meditationAudioUrl.value = firstAudio ? audioApi.getStreamUrl(firstAudio.id) : '';
+    } catch (err: unknown) {
+      meditationAudioUrl.value = '';
+      const axiosErr = err as { response?: { data?: { detail?: string } } };
+      const detail = axiosErr?.response?.data?.detail;
+      meditationAudioError.value = detail || 'Не удалось загрузить аудио медитации';
+    } finally {
+      isMeditationAudioLoading.value = false;
+    }
+  }
+
+  /**
    * Получить полную информацию о клетке по ID (lazy-loading)
    */
   async function getCellInfo(cellId: number): Promise<Cell | null> {
@@ -342,6 +367,9 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
+    meditationAudioUrl.value = '';
+    isMeditationAudioLoading.value = false;
+    meditationAudioError.value = null;
     error.value = null;
   }
 
@@ -362,6 +390,9 @@ export const useGameStore = defineStore('game', () => {
     isLoading,
     isRolling,
     error,
+    meditationAudioUrl,
+    isMeditationAudioLoading,
+    meditationAudioError,
     currentDiceRolls,
     lastTransition,
     requiresAnotherRoll,
@@ -399,6 +430,7 @@ export const useGameStore = defineStore('game', () => {
     completeExitMeditation,
     endGame,
     saveInsight,
+    loadMeditationAudio,
     reset,
   };
 });

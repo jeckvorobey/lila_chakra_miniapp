@@ -4,7 +4,7 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { api } from 'src/boot/axios';
+import { usersApi } from 'src/services/api';
 import type { UserProfile, UserStats } from 'src/types/user.interface';
 
 export const useUserStore = defineStore('user', () => {
@@ -47,8 +47,7 @@ export const useUserStore = defineStore('user', () => {
     error.value = null;
 
     try {
-      const response = await api.get<UserProfile>('/api/users/me');
-      profile.value = response.data;
+      profile.value = await usersApi.getProfile();
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка загрузки профиля';
     } finally {
@@ -61,8 +60,7 @@ export const useUserStore = defineStore('user', () => {
    */
   async function fetchStats(): Promise<void> {
     try {
-      const response = await api.get<UserStats>('/api/users/me/stats');
-      stats.value = response.data;
+      stats.value = await usersApi.getStats();
     } catch (err) {
       console.error('Ошибка загрузки статистики:', err);
     }
@@ -78,8 +76,7 @@ export const useUserStore = defineStore('user', () => {
     error.value = null;
 
     try {
-      const response = await api.patch<UserProfile>('/api/users/me', updates);
-      profile.value = response.data;
+      profile.value = await usersApi.updateSettings(updates);
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка обновления профиля';
@@ -94,8 +91,7 @@ export const useUserStore = defineStore('user', () => {
    */
   async function completeOnboarding(): Promise<boolean> {
     try {
-      const response = await api.post<UserProfile>('/api/users/me/onboarding');
-      profile.value = response.data;
+      profile.value = await usersApi.completeOnboarding();
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Ошибка завершения онбординга';

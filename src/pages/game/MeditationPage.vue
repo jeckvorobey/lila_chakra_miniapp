@@ -21,21 +21,23 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { api } from 'src/boot/axios';
-import type { AudioByTypeResponse, MeditationAudioType } from 'src/types/audio.interface';
 import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
+import { useGameStore } from 'src/stores/game.store';
+import type { MeditationAudioType } from 'src/types/audio.interface';
 
 const route = useRoute();
 const $q = useQuasar();
+const gameStore = useGameStore();
+const { meditationAudioUrl, meditationAudioError } = storeToRefs(gameStore);
 
 // Тип медитации
 const isEntry = computed(() => route.params.type === 'entry');
 const meditationAudioType = computed<MeditationAudioType>(() =>
   isEntry.value ? 'meditation_entry' : 'meditation_exit',
 );
-const meditationAudioUrl = ref('');
 
 const canSkip = ref(false);
 let skipTimer: ReturnType<typeof setTimeout> | null = null;
@@ -44,19 +46,11 @@ function skipMeditation() {
 }
 
 async function loadMeditationAudio(): Promise<void> {
-  try {
-    const response = await api.get<AudioByTypeResponse>(
-      `/api/audio/by-type/${meditationAudioType.value}`,
-    );
-    const firstAudio = response.data.items[0];
-    meditationAudioUrl.value = firstAudio ? `/api/audio/${firstAudio.id}/stream` : '';
-  } catch (err: unknown) {
-    meditationAudioUrl.value = '';
-    const axiosErr = err as { response?: { data?: { detail?: string } } };
-    const detail = axiosErr?.response?.data?.detail;
+  await gameStore.loadMeditationAudio(meditationAudioType.value);
+  if (meditationAudioError.value) {
     $q.notify({
       type: 'negative',
-      message: detail || 'Не удалось загрузить аудио медитации',
+      message: meditationAudioError.value,
     });
   }
 }

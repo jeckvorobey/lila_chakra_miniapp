@@ -102,7 +102,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
       await store.logout();
 
       // Проверяем, что API был вызван
-      expect(mockApi.post).toHaveBeenCalledWith('/api/auth/logout');
+      expect(mockApi.post).toHaveBeenCalledWith('/auth/logout');
     });
 
     it('should clear token from store and localStorage', async () => {

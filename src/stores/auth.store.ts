@@ -6,8 +6,8 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from 'src/boot/axios';
+import { authApi } from 'src/services/api';
 import type { TelegramUser } from 'src/types/telegram.interface';
-import type { AuthResponse } from 'src/types/auth.interface';
 
 const TOKEN_KEY = 'lila-auth-token';
 
@@ -96,11 +96,11 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
 
     try {
-      const response = await api.post<AuthResponse>('/api/auth/telegram', {
+      const response = await authApi.authenticate({
         init_data: initData.value,
       });
 
-      saveToken(response.data.access_token);
+      saveToken(response.access_token);
       return true;
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string } } };
@@ -122,7 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
     // 1. Вызвать backend logout для инвалидации сессии
     if (token.value) {
       try {
-        await api.post('/api/auth/logout');
+        await authApi.logout();
       } catch (err) {
         console.warn('[Auth] Server logout failed:', err);
       }
