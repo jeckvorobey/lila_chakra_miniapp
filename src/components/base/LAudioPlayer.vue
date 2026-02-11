@@ -85,6 +85,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'error', error: Error): void;
+  (e: 'ended'): void;
 }>();
 
 const audioRef = ref<HTMLAudioElement | null>(null);
@@ -155,6 +156,7 @@ function handlePause() {
 
 function handleEnded() {
   isPlaying.value = false;
+  emit('ended');
 }
 
 function handleAudioError() {

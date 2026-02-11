@@ -16,6 +16,7 @@
         :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')"
         class="q-mt-md"
         @error="handleAudioError"
+        @ended="handleMeditationEnded"
       />
 
       <q-btn
@@ -53,7 +54,7 @@ const meditationAudioType = computed<MeditationAudioType>(() =>
 
 const isSkipping = ref(false);
 
-async function skipMeditation(): Promise<void> {
+async function completeMeditationAndGoGame(): Promise<void> {
   if (isSkipping.value) {
     return;
   }
@@ -81,6 +82,14 @@ async function skipMeditation(): Promise<void> {
   }
 
   await router.push('/game');
+}
+
+async function skipMeditation(): Promise<void> {
+  await completeMeditationAndGoGame();
+}
+
+async function handleMeditationEnded(): Promise<void> {
+  await completeMeditationAndGoGame();
 }
 
 function handleAudioError(error: Error): void {

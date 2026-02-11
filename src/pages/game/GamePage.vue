@@ -1,7 +1,7 @@
 <template>
   <q-page class="column" style="padding-bottom: 64px">
     <!-- No active game state -->
-    <l-game-empty-state v-if="!hasActiveGame" />
+    <l-game-empty-state v-if="showEmptyState" />
 
     <!-- Active game -->
     <template v-else>
@@ -163,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
@@ -181,6 +181,7 @@ const settingsStore = useSettingsStore();
 
 const showCellModal = ref(false);
 const showDiceModal = ref(false);
+const isRestoringGame = ref(false);
 const diceMode = ref<'auto' | 'manual'>('auto');
 const manualDiceValue = ref<number>(1);
 const lastDiceResult = ref<number | null>(null);
@@ -198,6 +199,7 @@ interface CellInfo {
 const selectedCell = ref<CellInfo | null>(null);
 
 const hasActiveGame = computed(() => gameStore.isGameActive);
+const showEmptyState = computed(() => !isRestoringGame.value && !hasActiveGame.value);
 const currentChakra = computed(() => {
   if (gameStore.currentCell <= 0) return 0;
   return Math.ceil(gameStore.currentCell / 9);
@@ -344,6 +346,16 @@ function showVictory() {
     void router.push('/game/meditation/exit');
   });
 }
+
+onMounted(async () => {
+  if (hasActiveGame.value) {
+    return;
+  }
+
+  isRestoringGame.value = true;
+  await gameStore.loadLatestActiveGame();
+  isRestoringGame.value = false;
+});
 
 </script>
 

@@ -207,6 +207,27 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Загрузить последнюю активную игру пользователя.
+   */
+  async function loadLatestActiveGame(): Promise<boolean> {
+    try {
+      const response = await gamesApi.list({ limit: 20, offset: 0 });
+      const activeGame = response.items.find((item) =>
+        ['waiting_for_6', 'in_progress', 'in_waiting_zone'].includes(item.status),
+      );
+
+      if (!activeGame) {
+        return false;
+      }
+
+      return await loadGame(activeGame.id);
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Не удалось загрузить активную игру';
+      return false;
+    }
+  }
+
+  /**
    * Бросить кубик (автоматический или ручной)
    */
   async function rollDice(manualValue?: number): Promise<MoveResponse | null> {
@@ -451,6 +472,7 @@ export const useGameStore = defineStore('game', () => {
     // Действия
     createGame,
     loadGame,
+    loadLatestActiveGame,
     rollDice,
     manualMove,
     getCellInfo,
