@@ -3,35 +3,14 @@
     <div class="l-board__shell">
       <div class="l-board__grid-wrap">
         <div class="l-board__grid">
-          <div
-            v-for="chakraLevel in displayRows"
-            :key="chakraLevel"
-            class="l-board__row"
-          >
-            <l-cell
-              v-for="cellId in getRowCells(chakraLevel)"
-              :key="cellId"
-              :cell-id="cellId"
-              :is-current-position="cellId === currentCell"
-              :has-player="cellId === currentCell"
-              @click="onCellClick"
-              @long-press="onCellLongPress"
-            />
+          <div v-for="chakraLevel in displayRows" :key="chakraLevel" class="l-board__row">
+            <l-cell v-for="cellId in getRowCells(chakraLevel)" :key="cellId" :cell-id="cellId"
+              :is-current-position="cellId === currentCell" :has-player="cellId === currentCell" @click="onCellClick"
+              @long-press="onCellLongPress" />
           </div>
         </div>
 
       </div>
-    </div>
-
-    <div class="l-board__indicator">
-      <q-chip
-        :color="currentCell > 0 ? `chakra-${currentChakra}` : 'grey'"
-        text-color="white"
-        icon="mdi-map-marker"
-        size="md"
-      >
-        {{ currentCell > 0 ? currentCell : $t('game.outside_board') }}
-      </q-chip>
     </div>
   </div>
 </template>
@@ -76,11 +55,6 @@ const boardCellIds = computed(() => {
 const displayRows = computed(() =>
   Array.from({ length: CHAKRA_ROWS }, (_, index) => CHAKRA_ROWS - index),
 );
-
-const currentChakra = computed(() => {
-  if (props.currentCell <= 0) return 0;
-  return Math.ceil(props.currentCell / CELLS_PER_ROW);
-});
 
 function getRowCells(chakraLevel: number): number[] {
   const startCell = (chakraLevel - 1) * CELLS_PER_ROW + 1;
