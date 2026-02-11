@@ -80,7 +80,7 @@
       <!-- Действия -->
       <div class="diary-detail__actions">
         <q-btn
-          v-if="hasActiveGame"
+          v-if="isCurrentGameActive"
           :label="$t('game.continue_game')"
           color="primary"
           unelevated
@@ -88,7 +88,7 @@
           @click="continueGame"
         />
         <q-btn
-          v-if="!hasActiveGame"
+          v-if="!isCurrentGameActive && !hasAnyActiveGame"
           :label="$t('game.new_game')"
           color="primary"
           outline
@@ -118,7 +118,8 @@ const { t } = useI18n();
 const game = ref<GameDetail | null>(null);
 const moves = ref<MoveOut[]>([]);
 const isLoading = ref(true);
-const hasActiveGame = ref(false);
+const isCurrentGameActive = ref(false);
+const hasAnyActiveGame = ref(false);
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -179,9 +180,10 @@ async function loadGameDetails() {
     ]);
     game.value = gameData;
     moves.value = movesData;
-    hasActiveGame.value = gamesList
+    isCurrentGameActive.value = isActiveGameStatus(gameData.status);
+    hasAnyActiveGame.value = gamesList
       ? gamesList.items.some((item) => isActiveGameStatus(item.status))
-      : isActiveGameStatus(gameData.status);
+      : isCurrentGameActive.value;
   } finally {
     isLoading.value = false;
   }
