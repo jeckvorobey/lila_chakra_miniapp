@@ -20,26 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useGameStore } from 'src/stores/game.store';
+import { useQuasar } from 'quasar';
+import { api } from 'src/boot/axios';
+import type { AudioByTypeResponse, MeditationAudioType } from 'src/types/audio.interface';
 import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
 
 const route = useRoute();
-const gameStore = useGameStore();
+const $q = useQuasar();
 
 // Тип медитации
 const isEntry = computed(() => route.params.type === 'entry');
-const meditationAudioUrl = computed(() => {
-  if (!gameStore.currentGame) {
-    return '';
-  }
-  return (
-    (isEntry.value
-      ? gameStore.currentGame.entry_meditation_audio_url
-      : gameStore.currentGame.exit_meditation_audio_url) ?? ''
-  );
-});
+const meditationAudioType = computed<MeditationAudioType>(() =>
+  isEntry.value ? 'meditation_entry' : 'meditation_exit',
+);
+const meditationAudioUrl = ref('');
 
 const canSkip = ref(false);
 let skipTimer: ReturnType<typeof setTimeout> | null = null;
@@ -47,10 +43,30 @@ let skipTimer: ReturnType<typeof setTimeout> | null = null;
 function skipMeditation() {
 }
 
+async function loadMeditationAudio(): Promise<void> {
+  try {
+    const response = await api.get<AudioByTypeResponse>(
+      `/api/audio/by-type/${meditationAudioType.value}`,
+    );
+    const firstAudio = response.data.items[0];
+    meditationAudioUrl.value = firstAudio ? `/api/audio/${firstAudio.id}/stream` : '';
+  } catch (err: unknown) {
+    meditationAudioUrl.value = '';
+    const axiosErr = err as { response?: { data?: { detail?: string } } };
+    const detail = axiosErr?.response?.data?.detail;
+    $q.notify({
+      type: 'negative',
+      message: detail || 'Не удалось загрузить аудио медитации',
+    });
+  }
+}
+
 onMounted(() => {
   skipTimer = setTimeout(() => {
     canSkip.value = true;
   }, 30000);
+
+  void loadMeditationAudio();
 });
 
 onUnmounted(() => {
@@ -59,4 +75,11 @@ onUnmounted(() => {
     skipTimer = null;
   }
 });
+
+watch(
+  () => meditationAudioType.value,
+  () => {
+    void loadMeditationAudio();
+  },
+);
 </script>
