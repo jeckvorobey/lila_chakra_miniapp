@@ -11,24 +11,36 @@
       </p>
 
       <!-- Плеер для аудио -->
-      <l-audio-player :audio-url="meditationAudioUrl"
-        :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')" class="q-mt-md" />
+      <l-audio-player
+        :audio-url="meditationAudioUrl"
+        :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')"
+        class="q-mt-md"
+        @error="handleAudioError"
+      />
 
-      <q-btn :label="$t('meditation.skip')" flat color="grey" class="q-mt-xl" @click="skipMeditation" />
+      <q-btn
+        :label="$t('meditation.skip')"
+        flat
+        color="grey"
+        class="q-mt-xl"
+        :loading="isSkipping"
+        @click="skipMeditation"
+      />
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
 import { useGameStore } from 'src/stores/game.store';
 import type { MeditationAudioType } from 'src/types/audio.interface';
 
 const route = useRoute();
+const router = useRouter();
 const $q = useQuasar();
 const gameStore = useGameStore();
 const { meditationAudioUrl, meditationAudioError } = storeToRefs(gameStore);
@@ -39,10 +51,43 @@ const meditationAudioType = computed<MeditationAudioType>(() =>
   isEntry.value ? 'meditation_entry' : 'meditation_exit',
 );
 
-const canSkip = ref(false);
-let skipTimer: ReturnType<typeof setTimeout> | null = null;
+const isSkipping = ref(false);
 
-function skipMeditation() {
+async function skipMeditation(): Promise<void> {
+  if (isSkipping.value) {
+    return;
+  }
+
+  // Если игра не загружена, просто вернуть пользователя на экран игры.
+  if (!gameStore.currentGame) {
+    await router.push('/game');
+    return;
+  }
+
+  isSkipping.value = true;
+
+  const isCompleted = isEntry.value
+    ? await gameStore.completeEntryMeditation()
+    : await gameStore.completeExitMeditation();
+
+  isSkipping.value = false;
+
+  if (!isCompleted) {
+    $q.notify({
+      type: 'negative',
+      message: gameStore.error || 'Не удалось пропустить медитацию',
+    });
+    return;
+  }
+
+  await router.push('/game');
+}
+
+function handleAudioError(error: Error): void {
+  $q.notify({
+    type: 'negative',
+    message: error.message || 'Ошибка воспроизведения аудио',
+  });
 }
 
 async function loadMeditationAudio(): Promise<void> {
@@ -56,18 +101,11 @@ async function loadMeditationAudio(): Promise<void> {
 }
 
 onMounted(() => {
-  skipTimer = setTimeout(() => {
-    canSkip.value = true;
-  }, 30000);
-
   void loadMeditationAudio();
 });
 
 onUnmounted(() => {
-  if (skipTimer) {
-    clearTimeout(skipTimer);
-    skipTimer = null;
-  }
+  gameStore.clearMeditationAudio();
 });
 
 watch(

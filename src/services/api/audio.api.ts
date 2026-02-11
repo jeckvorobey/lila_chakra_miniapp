@@ -19,4 +19,14 @@ export const audioApi = {
   getStreamUrl(audioId: number): string {
     return buildApiResourceUrl(`/audio/${audioId}/stream`);
   },
+
+  /**
+   * Получить аудиопоток как Blob (с авторизацией через axios).
+   */
+  async getStreamBlob(audioId: number): Promise<Blob> {
+    const response = await api.get<Blob>(`/audio/${audioId}/stream`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };

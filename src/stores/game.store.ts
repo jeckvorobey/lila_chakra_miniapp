@@ -145,6 +145,17 @@ export const useGameStore = defineStore('game', () => {
     return WAITING_ZONE.has(cellId);
   }
 
+  /**
+   * Освободить object URL, если он создан через URL.createObjectURL.
+   */
+  function revokeMeditationAudioUrl(): void {
+    if (!meditationAudioUrl.value) return;
+    if (!meditationAudioUrl.value.startsWith('blob:')) return;
+    if (typeof URL === 'undefined') return;
+
+    URL.revokeObjectURL(meditationAudioUrl.value);
+  }
+
   // Действия
 
   /**
@@ -329,10 +340,19 @@ export const useGameStore = defineStore('game', () => {
     meditationAudioError.value = null;
 
     try {
+      revokeMeditationAudioUrl();
+      meditationAudioUrl.value = '';
+
       const response = await audioApi.getByType(type);
       const firstAudio = response.items[0];
-      meditationAudioUrl.value = firstAudio ? audioApi.getStreamUrl(firstAudio.id) : '';
+      if (!firstAudio) {
+        return;
+      }
+
+      const audioBlob = await audioApi.getStreamBlob(firstAudio.id);
+      meditationAudioUrl.value = URL.createObjectURL(audioBlob);
     } catch (err: unknown) {
+      revokeMeditationAudioUrl();
       meditationAudioUrl.value = '';
       const axiosErr = err as { response?: { data?: { detail?: string } } };
       const detail = axiosErr?.response?.data?.detail;
@@ -340,6 +360,15 @@ export const useGameStore = defineStore('game', () => {
     } finally {
       isMeditationAudioLoading.value = false;
     }
+  }
+
+  /**
+   * Очистить URL медитационного аудио и освободить ресурсы браузера.
+   */
+  function clearMeditationAudio(): void {
+    revokeMeditationAudioUrl();
+    meditationAudioUrl.value = '';
+    meditationAudioError.value = null;
   }
 
   /**
@@ -367,9 +396,8 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
-    meditationAudioUrl.value = '';
+    clearMeditationAudio();
     isMeditationAudioLoading.value = false;
-    meditationAudioError.value = null;
     error.value = null;
   }
 
@@ -431,6 +459,7 @@ export const useGameStore = defineStore('game', () => {
     endGame,
     saveInsight,
     loadMeditationAudio,
+    clearMeditationAudio,
     reset,
   };
 });

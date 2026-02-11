@@ -50,6 +50,7 @@
         @play="handlePlay"
         @pause="handlePause"
         @ended="handleEnded"
+        @error="handleAudioError"
       />
     </q-card-section>
   </q-card>
@@ -154,6 +155,19 @@ function handlePause() {
 
 function handleEnded() {
   isPlaying.value = false;
+}
+
+function handleAudioError() {
+  const mediaError = audioRef.value?.error;
+  const code = mediaError?.code;
+
+  let message = 'Не удалось воспроизвести аудио';
+  if (code === 1) message = 'Воспроизведение аудио прервано';
+  if (code === 2) message = 'Ошибка сети при загрузке аудио';
+  if (code === 3) message = 'Ошибка декодирования аудио';
+  if (code === 4) message = 'Аудиоформат не поддерживается';
+
+  emit('error', new Error(message));
 }
 
 function resetPlayer() {
