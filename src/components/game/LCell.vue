@@ -1,28 +1,22 @@
 <template>
   <div :class="cellClasses" :style="cellStyle" @click="handleClick" @long-press="handleLongPress">
-    <!-- Номер клетки -->
     <span class="l-cell__number">{{ cellId }}</span>
 
-    <!-- Специальный индикатор (стрела/змея) -->
     <q-icon
       v-if="isArrow"
       name="mdi-arrow-up-bold"
       class="l-cell__icon l-cell__icon--arrow"
-      size="16px"
+      size="12px"
     />
     <q-icon
       v-else-if="isSnake"
       name="mdi-snake"
       class="l-cell__icon l-cell__icon--snake"
-      size="16px"
+      size="12px"
     />
 
-    <!-- Индикатор фишки игрока -->
-    <div v-if="hasPlayer" class="l-cell__player">
-      <div class="l-cell__player-dot" />
-    </div>
+    <div v-if="hasPlayer" class="l-cell__player" />
 
-    <!-- Подсказка при наведении/касании -->
     <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
       <div class="text-weight-medium">{{ cellId }}</div>
       <div v-if="isArrow" class="text-caption text-positive">
@@ -52,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   isCurrentPosition: false,
   hasPlayer: false,
   disabled: false,
-  showTooltip: true,
+  showTooltip: false,
   size: 'md',
 });
 
@@ -61,38 +55,58 @@ const emit = defineEmits<{
   (e: 'long-press', cellId: number): void;
 }>();
 
-// Рассчитать уровень чакры (1-8)
 const chakraLevel = computed(() => {
   if (props.cellId <= 0) return 0;
   return Math.ceil(props.cellId / 9);
 });
 
-// Проверить наличие специальных клеток
 const isArrow = computed(() => props.cellId in ARROWS);
 const isSnake = computed(() => props.cellId in SNAKES);
 const arrowTarget = computed(() => ARROWS[props.cellId]);
 const snakeTarget = computed(() => SNAKES[props.cellId]);
 
-// Это победная клетка (68)?
 const isWinningCell = computed(() => props.cellId === 68);
+const isStartCell = computed(() => props.cellId === 1);
+const isTrapCell = computed(() => props.cellId === 72);
+
+const chakraColors: Record<number, string> = {
+  1: '#DC2626',
+  2: '#F97316',
+  3: '#EAB308',
+  4: '#22C55E',
+  5: '#06B6D4',
+  6: '#6B46C1',
+  7: '#9333EA',
+  8: '#F5F5F4',
+};
+
+function withAlpha(hexColor: string, alphaHex: string): string {
+  return `${hexColor}${alphaHex}`;
+}
 
 const cellClasses = computed(() => [
   'l-cell',
-  `l-cell--size-${props.size}`,
-  `l-cell--chakra-${chakraLevel.value}`,
   {
     'l-cell--current': props.isCurrentPosition,
     'l-cell--arrow': isArrow.value,
     'l-cell--snake': isSnake.value,
     'l-cell--winning': isWinningCell.value,
+    'l-cell--start': isStartCell.value,
+    'l-cell--trap': isTrapCell.value,
     'l-cell--disabled': props.disabled,
     'l-cell--has-player': props.hasPlayer,
   },
 ]);
 
-const cellStyle = computed(() => ({
-  '--chakra-color': `var(--chakra-${chakraLevel.value})`,
-}));
+const cellStyle = computed(() => {
+  const color = chakraColors[chakraLevel.value] || '#A1A1AA';
+
+  return {
+    '--cell-bg': withAlpha(color, '10'),
+    '--cell-text': withAlpha(color, '80'),
+    '--cell-border': 'transparent',
+  };
+});
 
 function handleClick() {
   if (!props.disabled) {
@@ -113,80 +127,56 @@ function handleLongPress() {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
   user-select: none;
+  overflow: hidden;
+  background: var(--cell-bg);
+  border: 1px solid var(--cell-border);
 
-  // Базовые стили
-  background: var(--lila-surface);
-  border: 1px solid var(--lila-border);
-
-  // Размеры
-  &--size-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 10px;
+  &__number {
+    z-index: 2;
+    color: var(--cell-text);
+    font-size: clamp(12px, 1.45vw, 22px);
+    font-weight: 500;
+    line-height: 1;
   }
 
-  &--size-md {
-    width: 40px;
-    height: 40px;
-    font-size: 12px;
-  }
+  &__icon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    z-index: 2;
+    opacity: 0.9;
 
-  &--size-lg {
-    width: 48px;
-    height: 48px;
-    font-size: 14px;
-  }
+    &--arrow {
+      color: #22c55e;
+    }
 
-  // Цвета чакр (тонкий фоновый оттенок)
-  @for $i from 1 through 8 {
-    &--chakra-#{$i} {
-      background: linear-gradient(
-        135deg,
-        rgba(var(--chakra-#{$i}-rgb, 107, 70, 193), 0.1),
-        transparent
-      );
-      border-color: rgba(var(--chakra-#{$i}-rgb, 107, 70, 193), 0.3);
+    &--snake {
+      color: #ef4444;
     }
   }
 
-  // Текущая позиция
-  &--current {
-    border-color: var(--chakra-color);
-    box-shadow: 0 0 12px var(--chakra-color);
-    animation: cell-pulse 2s ease-in-out infinite;
+  &__player {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    width: 62%;
+    height: 76%;
+    border-radius: 10px;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
+    box-shadow: 0 0 12px #9333ea99;
   }
 
-  // Клетка со стрелой
-  &--arrow {
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), transparent);
-    }
-  }
-
-  // Клетка со змеёй
-  &--snake {
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), transparent);
-    }
-  }
-
-  // Победная клетка (68)
-  &--winning {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(147, 51, 234, 0.3));
-    border-color: var(--chakra-8);
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+  &__tooltip {
+    background: var(--lila-surface-elevated);
+    color: var(--lila-text-primary);
+    border: 1px solid var(--lila-border);
   }
 
   &--disabled {
@@ -194,89 +184,51 @@ function handleLongPress() {
     cursor: not-allowed;
   }
 
+  &--start {
+    --cell-bg: #dc262630;
+    --cell-text: #dc2626;
+    --cell-border: #dc2626;
+    box-shadow: 0 0 6px #dc262640;
+
+    .l-cell__number {
+      font-weight: 600;
+    }
+  }
+
+  &--trap {
+    --cell-bg: #f5f5f420;
+    --cell-text: #f5f5f4;
+
+    .l-cell__number {
+      font-weight: 500;
+    }
+  }
+
+  &--winning {
+    --cell-bg: #f5f5f430;
+    --cell-text: #f5f5f4;
+    --cell-border: #f5f5f4;
+    box-shadow: 0 0 8px #f5f5f440;
+
+    .l-cell__number {
+      font-weight: 600;
+    }
+  }
+
+  &--current {
+    --cell-bg: #eab30830;
+    --cell-text: #eab308;
+    --cell-border: #6b46c1;
+    border-width: 2px;
+    box-shadow: 0 0 8px #6b46c160;
+
+    .l-cell__number {
+      font-weight: 600;
+    }
+  }
+
   &--has-player {
-    z-index: 10;
-  }
-
-  // Эффект наведения
-  &:hover:not(&--disabled) {
-    transform: scale(1.1);
-    z-index: 5;
-  }
-
-  &:active:not(&--disabled) {
-    transform: scale(0.95);
-  }
-
-  // Номер
-  &__number {
-    font-weight: 600;
-    color: var(--lila-text-primary);
-    z-index: 1;
-  }
-
-  // Иконки
-  &__icon {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    z-index: 2;
-
-    &--arrow {
-      color: var(--lila-success);
-    }
-
-    &--snake {
-      color: var(--lila-error);
-    }
-  }
-
-  // Индикатор игрока
-  &__player {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 3;
-
-    &-dot {
-      width: 60%;
-      height: 60%;
-      background: var(--lila-primary);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--lila-primary);
-      animation: player-pulse 1.5s ease-in-out infinite;
-    }
-  }
-
-  &__tooltip {
-    background: var(--lila-surface-elevated);
-    color: var(--lila-text-primary);
-    border: 1px solid var(--lila-border);
-    padding: var(--space-sm) var(--space-md);
-  }
-}
-
-@keyframes cell-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 8px var(--chakra-color);
-  }
-  50% {
-    box-shadow: 0 0 16px var(--chakra-color);
-  }
-}
-
-@keyframes player-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
+    z-index: 4;
   }
 }
 </style>
