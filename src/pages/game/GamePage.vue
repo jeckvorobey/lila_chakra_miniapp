@@ -1,11 +1,11 @@
 <template>
   <q-page class="column" style="padding-bottom: 64px">
-    <!-- No active game state -->
+    <!-- Нет активной игры -->
     <l-game-empty-state v-if="showEmptyState" />
 
-    <!-- Active game -->
+    <!-- Активная игра -->
     <template v-else>
-      <!-- Game info header -->
+      <!-- Заголовок информации об игре -->
       <div class="q-pa-md bg-glass">
         <div class="row items-center q-gutter-sm">
           <q-chip
@@ -28,7 +28,7 @@
         />
       </div>
 
-      <!-- Game board -->
+      <!-- Игровое поле -->
       <div class="col scroll q-pa-sm">
         <l-board
           :current-cell="gameStore.currentCell"
@@ -38,11 +38,11 @@
         />
       </div>
 
-      <!-- Action panel -->
+      <!-- Панель действий -->
       <div class="game-actions">
         <q-card flat class="bg-glass rounded-borders-top">
           <q-card-section class="q-pa-md">
-            <!-- Current cell info -->
+            <!-- Информация о текущей клетке -->
             <div v-if="gameStore.currentCellInfo" class="row items-center q-mb-md">
               <q-avatar
                 :style="{ background: `var(--chakra-${currentChakra})` }"
@@ -63,13 +63,13 @@
               <q-btn flat round dense icon="mdi-information-outline" @click="showCellInfo" />
             </div>
 
-            <!-- Waiting for 6 message -->
+            <!-- Сообщение об ожидании 6 -->
             <div v-if="gameStore.isWaitingFor6" class="text-center q-mb-md">
               <q-icon name="mdi-dice-6" size="24px" color="warning" class="q-mr-sm" />
               <span class="text-body2 text-secondary">{{ $t('dice.waiting_for_6') }}</span>
             </div>
 
-            <!-- Dice button -->
+            <!-- Кнопка броска кубика -->
             <div class="row justify-center q-gutter-sm">
               <q-btn
                 :label="$t('dice.roll')"
@@ -83,7 +83,7 @@
               />
             </div>
 
-            <!-- End game button -->
+            <!-- Кнопка завершения игры -->
             <div class="row justify-center q-mt-md">
               <q-btn
                 :label="$t('game.end_game')"
@@ -98,7 +98,7 @@
       </div>
     </template>
 
-    <!-- Cell info modal -->
+    <!-- Модальное окно информации о клетке -->
     <l-cell-card
       v-if="selectedCell"
       v-model="showCellModal"
@@ -112,7 +112,7 @@
       @write-insight="openInsightModal"
     />
 
-    <!-- Dice modal -->
+    <!-- Модальное окно кубика -->
     <l-modal v-model="showDiceModal" :title="$t('dice.roll')" position="bottom">
       <div class="column items-center q-pa-md">
         <q-btn-toggle
