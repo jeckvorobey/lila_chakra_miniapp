@@ -1,12 +1,9 @@
 <template>
   <div class="l-dice-container">
     <div
+      ref="diceRef"
       class="l-dice"
-      :class="{
-        'l-dice--rolling': isRolling,
-        'l-dice--result': showResult,
-      }"
-      :style="diceStyle"
+      :style="{ '--dice-size': `${size}px` }"
     >
       <!-- 6 граней кубика -->
       <div class="l-dice__face l-dice__face--1">
@@ -45,7 +42,10 @@
     </div>
 
     <!-- Тень -->
-    <div class="l-dice__shadow" :class="{ 'l-dice__shadow--rolling': isRolling }" />
+    <div
+      class="l-dice__shadow"
+      :class="{ 'l-dice__shadow--airborne': phase !== 'idle' }"
+    />
 
     <!-- Отображение результата -->
     <transition name="fade">
@@ -61,8 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useSettingsStore } from 'src/stores/settings.store';
+import { useDiceAnimation } from 'src/composables/useDiceAnimation';
 
 interface Props {
   result?: number | null;
@@ -81,67 +82,55 @@ const emit = defineEmits<{
 }>();
 
 const settingsStore = useSettingsStore();
+const diceRef = ref<HTMLElement | null>(null);
 const showResult = ref(false);
-const finalRotation = ref({ x: 0, y: 0, z: 0 });
 
-// Вращения для отображения каждой грани
-const faceRotations: Record<number, { x: number; y: number }> = {
-  1: { x: 0, y: 0 },
-  2: { x: 0, y: -90 },
-  3: { x: -90, y: 0 },
-  4: { x: 90, y: 0 },
-  5: { x: 0, y: 90 },
-  6: { x: 180, y: 0 },
-};
-
-const diceStyle = computed(() => {
-  if (props.isRolling) {
-    return {
-      '--dice-size': `${props.size}px`,
-    };
-  }
-
-  const rot = finalRotation.value;
-  return {
-    '--dice-size': `${props.size}px`,
-    transform: `rotateX(${rot.x}deg) rotateY(${rot.y}deg) rotateZ(${rot.z}deg)`,
-  };
+const { phase, startLoop, landOnFace, stop } = useDiceAnimation({
+  diceEl: diceRef,
 });
 
-// Наблюдать за изменениями результата для анимации в конечную позицию
-watch(
-  () => props.result,
-  (newResult) => {
-    if (newResult && newResult >= 1 && newResult <= 6) {
-      showResult.value = false;
-      const rotation = faceRotations[newResult] || { x: 0, y: 0 };
-      // Добавить дополнительные вращения для визуального эффекта
-      finalRotation.value = {
-        x: rotation.x + 360 * 2,
-        y: rotation.y + 360 * 2,
-        z: 0,
-      };
-
-      // Показать значок результата после анимации
-      setTimeout(() => {
-        showResult.value = true;
-        settingsStore.vibrate([50, 30, 50]);
-        emit('roll-complete', newResult);
-      }, 500);
-    }
-  },
-);
-
-// Сброс при начале броска
+// Запуск анимации при начале броска
 watch(
   () => props.isRolling,
   (rolling) => {
     if (rolling) {
       showResult.value = false;
       settingsStore.playSound('dice-roll');
+
+      if (props.result && props.result >= 1 && props.result <= 6) {
+        // Результат уже есть — сразу приземляемся
+        void doLanding(props.result);
+      } else {
+        startLoop();
+      }
+    } else if (phase.value !== 'idle') {
+      stop();
     }
   },
 );
+
+// Получение результата во время вращения
+watch(
+  () => props.result,
+  (newResult) => {
+    if (
+      newResult &&
+      newResult >= 1 &&
+      newResult <= 6 &&
+      (props.isRolling || phase.value === 'looping')
+    ) {
+      void doLanding(newResult);
+    }
+  },
+);
+
+async function doLanding(face: number): Promise<void> {
+  await landOnFace(face);
+
+  showResult.value = true;
+  settingsStore.vibrate([50, 30, 50]);
+  emit('roll-complete', face);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -163,15 +152,7 @@ watch(
   height: var(--dice-size);
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  &--rolling {
-    animation: dice-roll 2s ease-out forwards;
-  }
-
-  &--result {
-    animation: dice-bounce 0.3s ease-out;
-  }
+  will-change: transform;
 
   &__face {
     position: absolute;
@@ -279,10 +260,11 @@ watch(
     height: 20px;
     background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 
-    &--rolling {
-      animation: shadow-shrink 2s ease-out forwards;
+    &--airborne {
+      opacity: 0.3;
+      transform: translateX(-50%) scale(0.5);
     }
   }
 
@@ -296,49 +278,6 @@ watch(
   &__result-badge {
     font-size: 24px;
     padding: 8px 16px;
-  }
-}
-
-@keyframes dice-roll {
-  0% {
-    transform: translateY(0) rotateX(0) rotateY(0) rotateZ(0);
-  }
-  15% {
-    transform: translateY(-120px) rotateX(180deg) rotateY(90deg) rotateZ(45deg);
-  }
-  50% {
-    transform: translateY(-80px) rotateX(540deg) rotateY(360deg) rotateZ(180deg);
-  }
-  75% {
-    transform: translateY(-20px) rotateX(720deg) rotateY(540deg) rotateZ(270deg);
-  }
-  100% {
-    transform: translateY(0) rotateX(var(--final-x, 720deg)) rotateY(var(--final-y, 720deg))
-      rotateZ(360deg);
-  }
-}
-
-@keyframes dice-bounce {
-  0% {
-    transform: translateY(-10px);
-  }
-  50% {
-    transform: translateY(5px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-@keyframes shadow-shrink {
-  0%,
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: translateX(-50%) scale(0.5);
   }
 }
 

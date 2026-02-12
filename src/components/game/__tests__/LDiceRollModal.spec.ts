@@ -34,6 +34,7 @@ vi.mock('src/stores/game.store', () => ({
 vi.mock('src/stores/settings.store', () => ({
   useSettingsStore: () => ({
     vibrate: mockVibrate,
+    playSound: vi.fn(),
   }),
 }));
 
@@ -147,7 +148,7 @@ describe('LDiceRollModal', () => {
     vi.useRealTimers();
   });
 
-  it('авто-режим вызывает rollDice и закрывает модалку после минимальной задержки', async () => {
+  it('авто-режим вызывает rollDice и устанавливает result после минимальной задержки', async () => {
     mockRollDice.mockResolvedValue(createMoveResponse());
 
     const wrapper = mountModal();
@@ -155,11 +156,41 @@ describe('LDiceRollModal', () => {
 
     expect(mockRollDice).toHaveBeenCalledOnce();
 
-    await vi.advanceTimersByTimeAsync(1199);
+    // Ждём минимальную задержку 3000ms
+    await vi.advanceTimersByTimeAsync(2999);
     await flushPromises();
+
+    // result ещё не установлен (задержка не прошла)
+    const dice = wrapper.findComponent({ name: 'LDice' });
+    expect(dice.props('result')).toBeNull();
+
+    await vi.advanceTimersByTimeAsync(1);
+    await flushPromises();
+
+    // Теперь result установлен, isRolling всё ещё true (ждёт roll-complete)
+    expect(dice.props('result')).toBe(4);
+    expect(dice.props('isRolling')).toBe(true);
+  });
+
+  it('закрывает модалку после получения roll-complete и паузы', async () => {
+    mockRollDice.mockResolvedValue(createMoveResponse());
+
+    const wrapper = mountModal();
+    await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
+
+    // Минимальная задержка
+    await vi.advanceTimersByTimeAsync(3000);
+    await flushPromises();
+
+    // Эмулируем roll-complete от LDice
+    const dice = wrapper.findComponent({ name: 'LDice' });
+    dice.vm.$emit('roll-complete', 4);
+    await nextTick();
+
+    // Модалка ещё не закрыта — ждём RESULT_VIEW_DELAY_MS (600ms)
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
 
-    await vi.advanceTimersByTimeAsync(551);
+    await vi.advanceTimersByTimeAsync(600);
     await flushPromises();
 
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
@@ -194,7 +225,17 @@ describe('LDiceRollModal', () => {
     const wrapper = mountModal();
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
-    await vi.advanceTimersByTimeAsync(1800);
+    // Минимальная задержка
+    await vi.advanceTimersByTimeAsync(3000);
+    await flushPromises();
+
+    // roll-complete
+    const dice = wrapper.findComponent({ name: 'LDice' });
+    dice.vm.$emit('roll-complete', 4);
+    await nextTick();
+
+    // RESULT_VIEW_DELAY_MS
+    await vi.advanceTimersByTimeAsync(600);
     await flushPromises();
 
     expect(mockNotify).toHaveBeenCalledWith(
@@ -204,5 +245,19 @@ describe('LDiceRollModal', () => {
       expect.objectContaining({ message: 'game.arrow_notify:23' }),
     );
     expect(mockDialog).toHaveBeenCalled();
+  });
+
+  it('показывает ошибку если rollDice вернул null', async () => {
+    mockRollDice.mockResolvedValue(null);
+    mockGameStore.error = 'Ошибка сети';
+
+    const wrapper = mountModal();
+    await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
+
+    await flushPromises();
+
+    expect(mockNotify).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'negative', message: 'Ошибка сети' }),
+    );
   });
 });

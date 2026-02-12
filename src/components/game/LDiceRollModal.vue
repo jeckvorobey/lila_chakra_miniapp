@@ -1,29 +1,32 @@
 <template>
-  <l-modal
-    v-model="isOpen"
-    :title="t('dice.roll')"
-    position="bottom"
-    data-testid="dice-roll-modal"
-  >
-    <div class="column items-center q-pa-md">
+  <l-modal v-model="isOpen" position="bottom" data-testid="dice-roll-modal">
+    <div class="column items-center justify-between l-dice-modal__content">
       <q-btn-toggle
         v-model="diceMode"
         :options="diceModeOptions"
-        class="q-mb-lg"
         toggle-color="primary"
+        class="q-mb-md"
         rounded
         unelevated
       />
 
       <template v-if="diceMode === 'auto'">
-        <l-dice :result="lastDiceResult" :is-rolling="isRollingVisual" :size="120" />
+        <div class="col column items-center justify-center">
+          <l-dice
+            :result="lastDiceResult"
+            :is-rolling="isRollingVisual"
+            :size="120"
+            @roll-complete="onRollComplete"
+          />
+        </div>
+
         <q-btn
           :label="t('dice.roll')"
           color="primary"
           size="lg"
           unelevated
           :loading="isSubmitting"
-          class="q-mt-lg q-px-xl"
+          class="q-mt-md full-width"
           data-testid="dice-auto-roll-btn"
           @click="performAutoRoll"
         />
@@ -36,7 +39,7 @@
       <div v-if="gameStore.currentDiceRolls.length > 1" class="q-mt-md text-center">
         <div class="text-caption text-secondary">
           {{ gameStore.currentDiceRolls.join(' + ') }} =
-          <strong>{{ gameStore.currentDiceRolls.reduce((a: number, b: number) => a + b, 0) }}</strong>
+          <strong>{{gameStore.currentDiceRolls.reduce((a: number, b: number) => a + b, 0)}}</strong>
         </div>
       </div>
     </div>
@@ -59,8 +62,8 @@ interface Props {
   modelValue: boolean;
 }
 
-const MIN_ROLL_DELAY_MS = 1200;
-const RESULT_SETTLE_DELAY_MS = 550;
+const MIN_ROLL_DELAY_MS = 3000;
+const RESULT_VIEW_DELAY_MS = 600;
 
 const props = defineProps<Props>();
 
@@ -79,6 +82,9 @@ const manualDiceValue = ref<number>(1);
 const lastDiceResult = ref<number | null>(null);
 const isRollingVisual = ref(false);
 const isSubmitting = ref(false);
+
+// Хранение результата для обработки после roll-complete
+let pendingResult: MoveResponse | null = null;
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -125,6 +131,33 @@ function showVictoryDialog(): void {
   });
 }
 
+/** Обработка завершения анимации приземления кубика */
+async function onRollComplete(): Promise<void> {
+  isRollingVisual.value = false;
+
+  // Пауза для просмотра результата
+  await sleep(RESULT_VIEW_DELAY_MS);
+
+  const result = pendingResult;
+  pendingResult = null;
+
+  if (!result) return;
+
+  settingsStore.vibrate([30, 20, 50]);
+
+  if (result.move.is_triple_six) {
+    $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
+  }
+
+  notifyTransition(result);
+
+  isOpen.value = false;
+
+  if (result.is_victory) {
+    showVictoryDialog();
+  }
+}
+
 async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<void> {
   if (isSubmitting.value) {
     return;
@@ -132,19 +165,16 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
 
   isSubmitting.value = true;
   isRollingVisual.value = true;
+  lastDiceResult.value = null;
+  pendingResult = null;
 
   try {
     const startedAt = Date.now();
     const result = await rollFn();
     const elapsed = Date.now() - startedAt;
 
-    if (elapsed < MIN_ROLL_DELAY_MS) {
-      await sleep(MIN_ROLL_DELAY_MS - elapsed);
-    }
-
-    isRollingVisual.value = false;
-
     if (!result) {
+      isRollingVisual.value = false;
       $q.notify({
         type: 'negative',
         message: gameStore.error || t('error.generic'),
@@ -152,22 +182,22 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
       return;
     }
 
+    // Минимальная длительность loop-анимации
+    if (elapsed < MIN_ROLL_DELAY_MS) {
+      await sleep(MIN_ROLL_DELAY_MS - elapsed);
+    }
+
+    // Устанавливаем результат — LDice переключится с loop на landing
+    pendingResult = result;
     lastDiceResult.value = result.move.dice_rolls[result.move.dice_rolls.length - 1] ?? null;
-    await sleep(RESULT_SETTLE_DELAY_MS);
 
-    settingsStore.vibrate([30, 20, 50]);
-
-    if (result.move.is_triple_six) {
-      $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
-    }
-
-    notifyTransition(result);
-
-    isOpen.value = false;
-
-    if (result.is_victory) {
-      showVictoryDialog();
-    }
+    // Дальнейшая логика (notify, закрытие) — в onRollComplete
+  } catch {
+    isRollingVisual.value = false;
+    $q.notify({
+      type: 'negative',
+      message: gameStore.error || t('error.generic'),
+    });
   } finally {
     isSubmitting.value = false;
   }
@@ -182,3 +212,10 @@ function performManualRoll(value: number): void {
   void executeRoll(() => gameStore.manualMove(value));
 }
 </script>
+
+<style lang="scss" scoped>
+.l-dice-modal__content {
+  min-height: 340px;
+  padding: 8px 0 16px;
+}
+</style>
