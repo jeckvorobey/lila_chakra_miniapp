@@ -204,6 +204,25 @@ export default {
     required_message: 'Open the game from the Telegram app',
   },
 
+  // Referral program
+  referral: {
+    title: 'Invite Friend',
+    description: 'Share the game with your friends and get bonuses on your balance!',
+    your_link: 'Your referral link',
+    copy: 'Copy',
+    copied: 'Link copied',
+    rules_title: 'How it works?',
+    rules: [
+      'Send your unique link to a friend.',
+      'When a friend registers using your link, you receive a bonus.',
+      'For each invited friend, 2 VE is credited to your balance.',
+      'Bonuses can be used to pay for games with AI.',
+    ],
+    total_referrals: 'Total referrals',
+    bonus_earned: 'Bonuses earned',
+    share_message: "👋 Hey! 😊 I want to tell you about an amazing game called Lila 🎲 — it really helps you understand yourself and find your path 🌟 It gave me so much clarity and answers to important questions! I'm sure you'll love it too — join us! ✨🙏",
+  },
+
   // Чакры
   chakra: {
     1: 'Muladhara',

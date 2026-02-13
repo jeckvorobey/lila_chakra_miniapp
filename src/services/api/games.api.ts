@@ -70,8 +70,8 @@ export const gamesApi = {
   /**
    * Получить ходы игры.
    */
-  async getMoves(gameId: number): Promise<MoveOut[]> {
-    const response = await api.get<MoveOut[]>(`/games/${gameId}/moves`);
+  async getMoves(gameId: number, sort: 'asc' | 'desc' = 'desc'): Promise<MoveOut[]> {
+    const response = await api.get<MoveOut[]>(`/games/${gameId}/moves`, { params: { sort } });
     return response.data;
   },
 

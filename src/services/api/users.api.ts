@@ -38,4 +38,12 @@ export const usersApi = {
     const response = await api.post<UserOut>('/users/me/onboarding');
     return response.data;
   },
+
+  /**
+   * Получить реферальные данные пользователя.
+   */
+  async getReferralData(): Promise<{ code: string; link: string }> {
+    const response = await api.get<{ code: string; link: string }>('/users/me/referral-code');
+    return response.data;
+  },
 };

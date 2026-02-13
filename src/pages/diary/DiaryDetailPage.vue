@@ -29,7 +29,19 @@
       </q-card>
 
       <!-- Временная шкала ходов -->
-      <div class="text-subtitle2 text-weight-medium q-mb-sm">История ходов</div>
+      <div class="row items-center q-mb-sm">
+        <div class="text-subtitle2 text-weight-medium q-mr-sm">История ходов</div>
+        <q-btn
+          flat
+          dense
+          round
+          size="sm"
+          :icon="sortOrder === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+          @click="toggleSort"
+        >
+          <q-tooltip>{{ sortOrder === 'asc' ? 'Сначала старые' : 'Сначала новые' }}</q-tooltip>
+        </q-btn>
+      </div>
       <q-timeline v-if="moves.length > 0" color="primary">
         <q-timeline-entry
           v-for="move in moves"
@@ -120,6 +132,7 @@ const moves = ref<MoveOut[]>([]);
 const isLoading = ref(true);
 const isCurrentGameActive = ref(false);
 const hasAnyActiveGame = ref(false);
+const sortOrder = ref<'asc' | 'desc'>('desc');
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -143,6 +156,13 @@ function getTransitionColor(type: string | null): string {
 
 function continueGame() {
   void router.push('/game');
+}
+
+async function toggleSort() {
+  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  if (game.value) {
+    moves.value = await gamesApi.getMoves(game.value.id, sortOrder.value);
+  }
 }
 
 function editInsight(move: MoveOut) {
@@ -175,7 +195,7 @@ async function loadGameDetails() {
   try {
     const [gameData, movesData, gamesList] = await Promise.all([
       gamesApi.get(Number(gameId)),
-      gamesApi.getMoves(Number(gameId)),
+      gamesApi.getMoves(Number(gameId), sortOrder.value),
       gamesApi.list({ limit: 20, offset: 0 }).catch(() => null),
     ]);
     game.value = gameData;

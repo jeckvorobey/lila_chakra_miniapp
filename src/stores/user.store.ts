@@ -11,6 +11,7 @@ export const useUserStore = defineStore('user', () => {
   // Состояние
   const profile = ref<UserProfile | null>(null);
   const stats = ref<UserStats | null>(null);
+  const referralData = ref<{ code: string; link: string } | null>(null);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
@@ -63,6 +64,17 @@ export const useUserStore = defineStore('user', () => {
       stats.value = await usersApi.getStats();
     } catch (err) {
       console.error('Ошибка загрузки статистики:', err);
+    }
+  }
+
+  /**
+   * Загрузить реферальные данные
+   */
+  async function fetchReferralData(): Promise<void> {
+    try {
+      referralData.value = await usersApi.getReferralData();
+    } catch (err) {
+      console.error('Ошибка загрузки реферальных данных:', err);
     }
   }
 
@@ -130,6 +142,7 @@ export const useUserStore = defineStore('user', () => {
     // Состояние
     profile,
     stats,
+    referralData,
     isLoading,
     error,
 
@@ -143,6 +156,7 @@ export const useUserStore = defineStore('user', () => {
     // Действия
     fetchProfile,
     fetchStats,
+    fetchReferralData,
     updateProfile,
     completeOnboarding,
     updateBalance,

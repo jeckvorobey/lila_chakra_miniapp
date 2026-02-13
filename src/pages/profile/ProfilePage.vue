@@ -161,7 +161,7 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable>
+      <q-item clickable @click="$router.push('/profile/referral')">
         <q-item-section avatar>
           <q-icon name="mdi-share-variant" />
         </q-item-section>
