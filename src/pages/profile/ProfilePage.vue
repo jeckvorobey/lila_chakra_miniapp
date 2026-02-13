@@ -18,7 +18,7 @@
         <div class="col">
           <div class="text-overline text-secondary">{{ $t('profile.balance') }}</div>
           <div class="text-h4 text-weight-bold text-primary">
-            {{ userStore.balance }} <span class="text-body1">ВЕ</span>
+            {{ userStore.balance }} <span class="text-body1">ТКН</span>
           </div>
         </div>
         <q-btn

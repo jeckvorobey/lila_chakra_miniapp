@@ -1,7 +1,7 @@
 export interface PaymentPackage {
   amount_rub: number;
-  amount_ve: number;
-  bonus_ve: number;
+  amount_tkn: number;
+  bonus_tkn: number;
   label: string;
 }
 
@@ -14,6 +14,6 @@ export interface PaymentInitResponse {
   payment_id: number;
   confirmation_url: string;
   amount_rub: number;
-  amount_ve: number;
-  bonus_ve: number;
+  amount_tkn: number;
+  bonus_tkn: number;
 }

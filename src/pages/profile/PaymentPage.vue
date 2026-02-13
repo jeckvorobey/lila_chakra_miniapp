@@ -17,10 +17,10 @@
         @click="selectedPackage = pkg.amount_rub"
       >
         <q-card-section class="text-center">
-          <q-badge v-if="pkg.bonus_ve > 0" color="positive" floating>
-            +{{ pkg.bonus_ve }} ВЕ
+          <q-badge v-if="pkg.bonus_tkn > 0" color="positive" floating>
+            +{{ pkg.bonus_tkn }} ТКН
           </q-badge>
-          <div class="text-h5 text-weight-bold text-primary">{{ pkg.amount_ve }} ВЕ</div>
+          <div class="text-h5 text-weight-bold text-primary">{{ pkg.amount_tkn }} ТКН</div>
           <div class="text-body2">{{ pkg.amount_rub }} ₽</div>
         </q-card-section>
       </q-card>
@@ -31,7 +31,7 @@
       <q-card-section>
         <div class="row justify-between q-mb-sm">
           <span>Пакет</span>
-          <span class="text-weight-medium">{{ selectedPackageData?.amount_ve }} ВЕ</span>
+          <span class="text-weight-medium">{{ selectedPackageData?.amount_tkn }} ТКН</span>
         </div>
         <q-separator class="q-my-sm" />
         <div class="row justify-between">

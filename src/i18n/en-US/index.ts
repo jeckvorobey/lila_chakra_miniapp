@@ -158,10 +158,10 @@ export default {
     promo_code: 'Promo Code',
     apply: 'Apply',
     package: {
-      small: '5 VE',
-      medium: '10 VE',
-      large: '20 VE (+5%)',
-      xl: '50 VE (+10%)',
+      small: '5 TKN',
+      medium: '10 TKN',
+      large: '20 TKN (+5%)',
+      xl: '50 TKN (+10%)',
     },
   },
 
@@ -215,7 +215,7 @@ export default {
     rules: [
       'Send your unique link to a friend.',
       'When a friend registers using your link, you receive a bonus.',
-      'For each invited friend, 2 VE is credited to your balance.',
+      'For each invited friend, 2 TKN is credited to your balance.',
       'Bonuses can be used to pay for games with AI.',
     ],
     total_referrals: 'Total referrals',
