@@ -15,7 +15,7 @@
       size="12px"
     />
 
-    <div v-if="hasPlayer" class="l-cell__player" />
+    <div v-if="shouldRenderPlayer" class="l-cell__player" />
 
     <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
       <div class="text-weight-medium">{{ cellId }}</div>
@@ -69,6 +69,7 @@ const isArrow = computed(() => props.cellId in gameStore.arrowsMap);
 const isSnake = computed(() => props.cellId in gameStore.snakesMap);
 const arrowTarget = computed(() => gameStore.arrowsMap[props.cellId]);
 const snakeTarget = computed(() => gameStore.snakesMap[props.cellId]);
+const shouldRenderPlayer = computed(() => props.hasPlayer && gameStore.displayCell !== -1);
 
 const isWinningCell = computed(() => props.cellId === 68);
 const isStartCell = computed(() => props.cellId === 1);
@@ -88,7 +89,7 @@ const cellClasses = computed(() => [
     'l-cell--start': isStartCell.value,
     'l-cell--trap': isTrapCell.value,
     'l-cell--disabled': props.disabled,
-    'l-cell--has-player': props.hasPlayer,
+    'l-cell--has-player': shouldRenderPlayer.value,
   },
 ]);
 

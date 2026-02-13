@@ -63,8 +63,15 @@ export const useGameStore = defineStore('game', () => {
     finalCell: number;
     transitionType: TransitionType;
   }
+  interface ActiveTransition {
+    type: 'arrow' | 'snake';
+    startCellId: number;
+    endCellId: number;
+  }
   const displayCell = ref(0);
   const isChipAnimating = ref(false);
+  const activeTransition = ref<ActiveTransition | null>(null);
+  const transitionAnimationResolver = ref<(() => void) | null>(null);
   let pendingAnimation: PendingAnimation | null = null;
 
   // Вычисляемые значения
@@ -463,14 +470,43 @@ export const useGameStore = defineStore('game', () => {
       }
     }
 
-    // Переход (стрела/змея): пауза и прыжок
+    // Переход (стрела/змея): запускаем SVG-анимацию оверлея
     if (transitionType !== 'none' && final !== to) {
-      await sleep(500);
+      displayCell.value = -1;
+      activeTransition.value = {
+        type: transitionType,
+        startCellId: to,
+        endCellId: final,
+      };
+
+      await new Promise<void>((resolve) => {
+        let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+        let isResolved = false;
+        const safeResolve = () => {
+          if (isResolved) return;
+          isResolved = true;
+          if (fallbackTimer) {
+            clearTimeout(fallbackTimer);
+            fallbackTimer = null;
+          }
+          resolve();
+        };
+
+        fallbackTimer = setTimeout(safeResolve, 5000);
+        transitionAnimationResolver.value = safeResolve;
+      });
+
       displayCell.value = final;
-      await sleep(250);
+      activeTransition.value = null;
+      transitionAnimationResolver.value = null;
+      await sleep(200);
     }
 
     isChipAnimating.value = false;
+  }
+
+  function onTransitionAnimationEnd(): void {
+    transitionAnimationResolver.value?.();
   }
 
   function sleep(ms: number): Promise<void> {
@@ -489,6 +525,8 @@ export const useGameStore = defineStore('game', () => {
     requiresAnotherRoll.value = false;
     displayCell.value = 0;
     isChipAnimating.value = false;
+    activeTransition.value = null;
+    transitionAnimationResolver.value = null;
     pendingAnimation = null;
     clearMeditationAudio();
     isMeditationAudioLoading.value = false;
@@ -522,6 +560,7 @@ export const useGameStore = defineStore('game', () => {
     requiresAnotherRoll,
     displayCell,
     isChipAnimating,
+    activeTransition,
 
     // Вычисляемые значения
     isGameActive,
@@ -560,6 +599,7 @@ export const useGameStore = defineStore('game', () => {
     loadMeditationAudio,
     clearMeditationAudio,
     startChipAnimation,
+    onTransitionAnimationEnd,
     reset,
   };
 });

@@ -2,7 +2,7 @@
   <div class="l-board">
     <div class="l-board__shell">
       <div class="l-board__grid-wrap">
-        <div class="l-board__grid">
+        <div ref="gridRef" class="l-board__grid">
           <div v-for="chakraLevel in displayRows" :key="chakraLevel" class="l-board__row">
             <l-cell v-for="cellId in getRowCells(chakraLevel)" :key="cellId" :cell-id="cellId"
               :is-current-position="cellId === currentCell" :has-player="cellId === currentCell" @click="onCellClick"
@@ -10,34 +10,54 @@
           </div>
         </div>
 
+        <l-transition-overlay
+          v-if="showTransitions && transition && gridRef"
+          :key="`${transition.type}-${transition.startCellId}-${transition.endCellId}`"
+          :type="transition.type"
+          :start-cell-id="transition.startCellId"
+          :end-cell-id="transition.endCellId"
+          :grid-el="gridRef"
+          @animation-end="emit('transition-end')"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { CHAKRA_ROWS, CELLS_PER_ROW } from 'src/stores/game.store';
 import { useReferenceStore } from 'src/stores/reference.store';
 import LCell from './LCell.vue';
+import LTransitionOverlay from './LTransitionOverlay.vue';
+
+interface BoardTransition {
+  type: 'arrow' | 'snake';
+  startCellId: number;
+  endCellId: number;
+}
 
 interface Props {
   currentCell: number;
   showTransitions?: boolean;
   interactive?: boolean;
+  transition?: BoardTransition | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showTransitions: true,
   interactive: true,
+  transition: null,
 });
 
 const emit = defineEmits<{
   (e: 'cell-click', cellId: number): void;
   (e: 'cell-long-press', cellId: number): void;
+  (e: 'transition-end'): void;
 }>();
 
 const referenceStore = useReferenceStore();
+const gridRef = ref<HTMLElement | null>(null);
 
 const fallbackCellIds = Array.from(
   { length: CHAKRA_ROWS * CELLS_PER_ROW },

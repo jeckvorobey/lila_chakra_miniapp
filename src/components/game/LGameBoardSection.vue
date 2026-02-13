@@ -3,9 +3,11 @@
     <l-board
       class="col fit"
       :current-cell="currentCell"
+      :transition="gameStore.activeTransition"
       :show-transitions="true"
       @cell-click="onCellClick"
       @cell-long-press="onCellLongPress"
+      @transition-end="onTransitionEnd"
     />
 
     <l-cell-card
@@ -73,6 +75,10 @@ function onCellClick(cellId: number): void {
 
 function onCellLongPress(cellId: number): void {
   void showCellInfoById(cellId);
+}
+
+function onTransitionEnd(): void {
+  gameStore.onTransitionAnimationEnd();
 }
 
 function openInsightModal(): void {

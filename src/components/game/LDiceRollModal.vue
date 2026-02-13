@@ -8,9 +8,10 @@
         class="q-mb-md"
         rounded
         unelevated
+        :disable="isSubmitting || isRollingVisual"
       />
 
-      <template v-if="diceMode === 'auto'">
+      <template v-if="showDiceVisual">
         <div class="col column items-center justify-center">
           <l-dice
             :result="lastDiceResult"
@@ -21,6 +22,7 @@
         </div>
 
         <q-btn
+          v-if="diceMode === 'auto'"
           :label="t('dice.roll')"
           color="primary"
           size="lg"
@@ -47,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import type { MoveResponse } from 'src/types/game.interface';
@@ -81,9 +83,7 @@ const manualDiceValue = ref<number>(1);
 const lastDiceResult = ref<number | null>(null);
 const isRollingVisual = ref(false);
 const isSubmitting = ref(false);
-
-// Хранение результата для обработки после roll-complete
-let pendingResult: MoveResponse | null = null;
+const pendingResult = ref<MoveResponse | null>(null);
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -94,6 +94,14 @@ const diceModeOptions = computed(() => [
   { label: t('dice.auto'), value: 'auto' },
   { label: t('dice.manual'), value: 'manual' },
 ]);
+const showDiceVisual = computed(
+  () =>
+    diceMode.value === 'auto' ||
+    isRollingVisual.value ||
+    isSubmitting.value ||
+    pendingResult.value !== null ||
+    lastDiceResult.value !== null,
+);
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -108,8 +116,8 @@ async function onRollComplete(): Promise<void> {
   // Пауза для просмотра результата
   await sleep(RESULT_VIEW_DELAY_MS);
 
-  const result = pendingResult;
-  pendingResult = null;
+  const result = pendingResult.value;
+  pendingResult.value = null;
 
   if (!result) return;
 
@@ -131,7 +139,7 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
   isSubmitting.value = true;
   isRollingVisual.value = true;
   lastDiceResult.value = null;
-  pendingResult = null;
+  pendingResult.value = null;
 
   try {
     const startedAt = Date.now();
@@ -153,7 +161,7 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
     }
 
     // Устанавливаем результат — LDice переключится с loop на landing
-    pendingResult = result;
+    pendingResult.value = result;
     lastDiceResult.value = result.move.dice_rolls[result.move.dice_rolls.length - 1] ?? null;
 
     // Дальнейшая логика (notify, закрытие) — в onRollComplete
@@ -176,6 +184,18 @@ function performManualRoll(value: number): void {
   manualDiceValue.value = value;
   void executeRoll(() => gameStore.manualMove(value));
 }
+
+watch(
+  () => props.modelValue,
+  (isModalOpen) => {
+    if (isModalOpen) return;
+
+    isRollingVisual.value = false;
+    isSubmitting.value = false;
+    lastDiceResult.value = null;
+    pendingResult.value = null;
+  },
+);
 </script>
 
 <style lang="scss" scoped>
