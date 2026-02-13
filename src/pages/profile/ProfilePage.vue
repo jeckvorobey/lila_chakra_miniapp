@@ -142,7 +142,7 @@
 
     <!-- Support links -->
     <q-list bordered separator class="rounded-borders bg-surface">
-      <q-item clickable>
+      <q-item clickable @click="$router.push('/profile/rules')">
         <q-item-section avatar>
           <q-icon name="mdi-book-open-variant" />
         </q-item-section>
@@ -172,7 +172,7 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable>
+      <q-item clickable @click="$router.push('/profile/about')">
         <q-item-section avatar>
           <q-icon name="mdi-information-outline" />
         </q-item-section>

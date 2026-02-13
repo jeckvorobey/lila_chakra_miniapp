@@ -257,6 +257,53 @@ export default {
     share_message: "👋 Hey! 😊 I want to tell you about an amazing game called Lila 🎲 — it really helps you understand yourself and find your path 🌟 It gave me so much clarity and answers to important questions! I'm sure you'll love it too — join us! ✨🙏",
   },
 
+  // Game Rules
+  rules: {
+    title: 'Game Rules',
+    general_title: 'General Rules',
+    general_board: 'Game board: 72 cells, 8 levels (chakras)',
+    general_dice_auto: 'Dice roll — automatic, random result',
+    general_dice_manual: 'Manual input — for your own dice, you choose the rolled value',
+    general_arrows: 'Arrows of virtue — move you up the board',
+    general_snakes: 'Snakes of vice — move you down the board',
+    general_sixes: 'You need to roll a six to enter the game',
+    modes_title: 'Game Modes',
+    mode_free_title: 'Free',
+    mode_free_desc:
+      'Play without AI interpretation. We recommend writing your thoughts and insights in a notebook.',
+    mode_ai_title: 'With AI Mentor',
+    mode_ai_desc:
+      'Full AI interpretation of every move. All data is saved in your game diary.',
+    mode_incognito_title: 'With AI Mentor (Incognito)',
+    mode_incognito_desc:
+      'AI interpretation without long-term storage. Only moves are saved; interpretations are deleted after the game ends. We recommend writing insights in a notebook.',
+    extra_question_title: 'Extra Question',
+    extra_question_desc:
+      'In any mode, you can ask the AI Mentor an additional question to get clarification on the interpretation.',
+    tkn: 'TKN',
+  },
+
+  // About
+  about: {
+    title: 'About',
+    description_title: 'Description',
+    description_text:
+      'Lila Chakra is a digital adaptation of the ancient Indian game of self-discovery "Lila" (2000–5000 years old). The app combines the wisdom of tradition with modern AI technology for deep interpretation of your journey.',
+    developer_title: 'Developer',
+    developer_name: 'Sole proprietor Sergei Alexandrovich Vorobev',
+    developer_inn: 'TIN: XXXXXXXXXXXX',
+    contacts_title: 'Contact Information',
+    contacts_email: 'email@example.com',
+    contacts_telegram: '@support_bot',
+    legal_title: 'Legal Information',
+    legal_personal_data:
+      'Personal data processing is carried out in accordance with Federal Law No. 152-FZ "On Personal Data".',
+    legal_age_restriction: 'Age restriction: 16+',
+    legal_ai_disclaimer:
+      'AI interpretations are advisory in nature and do not constitute professional psychological or medical advice.',
+    version: 'Version',
+  },
+
   // Чакры
   chakra: {
     1: 'Muladhara',
