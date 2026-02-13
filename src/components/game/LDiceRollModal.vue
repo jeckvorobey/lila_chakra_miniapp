@@ -49,7 +49,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import type { MoveResponse } from 'src/types/game.interface';
 import LModal from 'src/components/base/LModal.vue';
@@ -62,18 +61,18 @@ interface Props {
   modelValue: boolean;
 }
 
-const MIN_ROLL_DELAY_MS = 3000;
-const RESULT_VIEW_DELAY_MS = 600;
+const MIN_ROLL_DELAY_MS = 2000;
+const RESULT_VIEW_DELAY_MS = 450;
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
+  (e: 'roll-finished', result: MoveResponse): void;
 }>();
 
 const { t } = useI18n();
 const $q = useQuasar();
-const router = useRouter();
 const gameStore = useGameStore();
 const settingsStore = useSettingsStore();
 
@@ -102,35 +101,6 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
-function notifyTransition(result: MoveResponse): void {
-  if (result.move.transition_type === 'arrow') {
-    $q.notify({
-      type: 'positive',
-      message: t('game.arrow_notify', { cell: result.move.final_cell }),
-      icon: 'mdi-arrow-up-bold',
-    });
-    return;
-  }
-
-  if (result.move.transition_type === 'snake') {
-    $q.notify({
-      type: 'negative',
-      message: t('game.snake_notify', { cell: result.move.final_cell }),
-      icon: 'mdi-snake',
-    });
-  }
-}
-
-function showVictoryDialog(): void {
-  $q.dialog({
-    title: t('victory.title'),
-    message: t('victory.message'),
-    ok: t('victory.meditation'),
-  }).onOk(() => {
-    void router.push('/game/meditation/exit');
-  });
-}
-
 /** Обработка завершения анимации приземления кубика */
 async function onRollComplete(): Promise<void> {
   isRollingVisual.value = false;
@@ -149,13 +119,8 @@ async function onRollComplete(): Promise<void> {
     $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
   }
 
-  notifyTransition(result);
-
   isOpen.value = false;
-
-  if (result.is_victory) {
-    showVictoryDialog();
-  }
+  emit('roll-finished', result);
 }
 
 async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<void> {

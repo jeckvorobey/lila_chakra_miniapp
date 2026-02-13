@@ -46,17 +46,6 @@
       class="l-dice__shadow"
       :class="{ 'l-dice__shadow--airborne': phase !== 'idle' }"
     />
-
-    <!-- Отображение результата -->
-    <transition name="fade">
-      <div v-if="showResult && result" class="l-dice__result">
-        <q-badge
-          :color="result === 6 ? 'warning' : 'primary'"
-          :label="String(result)"
-          class="l-dice__result-badge text-h5"
-        />
-      </div>
-    </transition>
   </div>
 </template>
 
@@ -83,7 +72,6 @@ const emit = defineEmits<{
 
 const settingsStore = useSettingsStore();
 const diceRef = ref<HTMLElement | null>(null);
-const showResult = ref(false);
 
 const { phase, startLoop, landOnFace, stop } = useDiceAnimation({
   diceEl: diceRef,
@@ -94,7 +82,6 @@ watch(
   () => props.isRolling,
   (rolling) => {
     if (rolling) {
-      showResult.value = false;
       settingsStore.playSound('dice-roll');
 
       if (props.result && props.result >= 1 && props.result <= 6) {
@@ -127,7 +114,6 @@ watch(
 async function doLanding(face: number): Promise<void> {
   await landOnFace(face);
 
-  showResult.value = true;
   settingsStore.vibrate([50, 30, 50]);
   emit('roll-complete', face);
 }
@@ -267,27 +253,5 @@ async function doLanding(face: number): Promise<void> {
       transform: translateX(-50%) scale(0.5);
     }
   }
-
-  &__result {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  &__result-badge {
-    font-size: 24px;
-    padding: 8px 16px;
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

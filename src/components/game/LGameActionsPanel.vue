@@ -41,6 +41,7 @@
             unelevated
             icon="mdi-dice-multiple"
             class="q-px-xl"
+            :disable="gameStore.isChipAnimating"
             data-testid="open-dice-modal-btn"
             @click="showDiceModal = true"
           />
@@ -60,7 +61,7 @@
       </q-card-section>
     </q-card>
 
-    <l-dice-roll-modal v-model="showDiceModal" />
+    <l-dice-roll-modal v-model="showDiceModal" @roll-finished="onRollFinished" />
   </div>
 </template>
 
@@ -70,7 +71,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
-import type { CellBrief } from 'src/types/game.interface';
+import type { CellBrief, MoveResponse } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
 import LDiceRollModal from './LDiceRollModal.vue';
 
@@ -106,6 +107,44 @@ const currentCellTitle = computed(() => props.currentCellInfo?.name_ru || t('gam
 const currentChakraLabel = computed(() =>
   props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
 );
+
+/**
+ * Обработка завершения броска: анимация → уведомление → победа
+ */
+async function onRollFinished(result: MoveResponse): Promise<void> {
+  await gameStore.startChipAnimation();
+  notifyTransition(result);
+
+  if (result.is_victory) {
+    showVictoryDialog();
+  }
+}
+
+function notifyTransition(result: MoveResponse): void {
+  if (result.move.transition_type === 'arrow') {
+    $q.notify({
+      type: 'positive',
+      message: t('game.arrow_notify', { cell: result.move.final_cell }),
+      icon: 'mdi-arrow-up-bold',
+    });
+  } else if (result.move.transition_type === 'snake') {
+    $q.notify({
+      type: 'negative',
+      message: t('game.snake_notify', { cell: result.move.final_cell }),
+      icon: 'mdi-snake',
+    });
+  }
+}
+
+function showVictoryDialog(): void {
+  $q.dialog({
+    title: t('victory.title'),
+    message: t('victory.message'),
+    ok: t('victory.meditation'),
+  }).onOk(() => {
+    void router.push('/game/meditation/exit');
+  });
+}
 
 async function endGame(): Promise<void> {
   if (isEndingGame.value) {

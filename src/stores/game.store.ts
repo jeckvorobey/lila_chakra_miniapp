@@ -4,7 +4,7 @@
  */
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { audioApi, gamesApi, movesApi } from 'src/services/api';
 import { useReferenceStore } from 'src/stores/reference.store';
 import type {
@@ -62,6 +62,17 @@ export const useGameStore = defineStore('game', () => {
   const lastTransition = ref<TransitionType>('none');
   const requiresAnotherRoll = ref(false);
 
+  // Анимация фишки на доске
+  interface PendingAnimation {
+    startCell: number;
+    endCell: number;
+    finalCell: number;
+    transitionType: TransitionType;
+  }
+  const displayCell = ref(0);
+  const isChipAnimating = ref(false);
+  let pendingAnimation: PendingAnimation | null = null;
+
   // Вычисляемые значения
   const isGameActive = computed(
     () => (currentGame.value ? isActiveGameStatus(currentGame.value.status) : false),
@@ -99,6 +110,13 @@ export const useGameStore = defineStore('game', () => {
   const snakesHit = computed(() => currentGame.value?.snakes_hit ?? 0);
 
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
+
+  // Синхронизация displayCell с currentCell вне анимации
+  watch(currentCell, (val) => {
+    if (!isChipAnimating.value) {
+      displayCell.value = val;
+    }
+  }, { immediate: true });
 
   // Вспомогательные функции
 
@@ -258,6 +276,15 @@ export const useGameStore = defineStore('game', () => {
       currentCellInfo.value = response.cell_info;
       requiresAnotherRoll.value = response.requires_another_roll;
 
+      // Сохранить данные анимации ДО обновления current_cell
+      isChipAnimating.value = true;
+      pendingAnimation = {
+        startCell: response.move.start_cell,
+        endCell: response.move.end_cell,
+        finalCell: response.move.final_cell,
+        transitionType: response.move.transition_type,
+      };
+
       // Обновить состояние игры
       currentGame.value.status = response.game_status;
       currentGame.value.current_cell = response.move.final_cell;
@@ -405,6 +432,52 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Пошаговая анимация фишки по доске.
+   * Перемещает displayCell клетка за клеткой от startCell до endCell,
+   * при стреле/змее — пауза и прыжок на finalCell.
+   */
+  async function startChipAnimation(): Promise<void> {
+    const anim = pendingAnimation;
+    pendingAnimation = null;
+
+    if (!anim) {
+      isChipAnimating.value = false;
+      return;
+    }
+
+    const { startCell: from, endCell: to, finalCell: final, transitionType } = anim;
+
+    // Первый вход на доску (start_cell = 0): появление сразу на endCell
+    if (from === 0) {
+      await sleep(200);
+      displayCell.value = to;
+      await sleep(300);
+    } else {
+      // Пошаговая анимация
+      const steps = Math.abs(to - from);
+      const stepDelay = steps <= 3 ? 320 : steps <= 6 ? 260 : 200;
+
+      for (let cell = from + 1; cell <= to; cell++) {
+        displayCell.value = cell;
+        await sleep(stepDelay);
+      }
+    }
+
+    // Переход (стрела/змея): пауза и прыжок
+    if (transitionType !== 'none' && final !== to) {
+      await sleep(500);
+      displayCell.value = final;
+      await sleep(250);
+    }
+
+    isChipAnimating.value = false;
+  }
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => { setTimeout(resolve, ms); });
+  }
+
+  /**
    * Сбросить хранилище при выходе
    */
   function reset(): void {
@@ -414,6 +487,9 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
+    displayCell.value = 0;
+    isChipAnimating.value = false;
+    pendingAnimation = null;
     clearMeditationAudio();
     isMeditationAudioLoading.value = false;
     error.value = null;
@@ -442,6 +518,8 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls,
     lastTransition,
     requiresAnotherRoll,
+    displayCell,
+    isChipAnimating,
 
     // Вычисляемые значения
     isGameActive,
@@ -479,6 +557,7 @@ export const useGameStore = defineStore('game', () => {
     saveInsight,
     loadMeditationAudio,
     clearMeditationAudio,
+    startChipAnimation,
     reset,
   };
 });

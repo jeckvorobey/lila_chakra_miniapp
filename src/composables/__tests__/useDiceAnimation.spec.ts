@@ -5,10 +5,10 @@ import { useDiceAnimation } from '../useDiceAnimation';
 // Маппинг граней → финальные углы (из LDice.vue)
 const FACE_ANGLES: Record<number, { x: number; y: number }> = {
   1: { x: 0, y: 0 },
-  2: { x: 0, y: -90 },
+  2: { x: 0, y: 90 },
   3: { x: -90, y: 0 },
   4: { x: 90, y: 0 },
-  5: { x: 0, y: 90 },
+  5: { x: 0, y: -90 },
   6: { x: 180, y: 0 },
 };
 
@@ -118,10 +118,18 @@ describe('useDiceAnimation', () => {
         const lastKeyframe = keyframes[keyframes.length - 1]!;
         const transform = lastKeyframe.transform as string;
 
-        // Финальная позиция должна содержать правильные углы для грани
+        // Финальные углы содержат extraSpins (полные обороты),
+        // поэтому проверяем конгруэнтность mod 360
         const expected = FACE_ANGLES[face]!;
-        expect(transform).toContain(`rotateX(${expected.x}deg)`);
-        expect(transform).toContain(`rotateY(${expected.y}deg)`);
+        const normalize = (deg: number) => ((deg % 360) + 360) % 360;
+
+        const xMatch = transform.match(/rotateX\((-?[\d.]+)deg\)/);
+        const yMatch = transform.match(/rotateY\((-?[\d.]+)deg\)/);
+        expect(xMatch).not.toBeNull();
+        expect(yMatch).not.toBeNull();
+
+        expect(normalize(Number(xMatch![1]))).toBeCloseTo(normalize(expected.x), 0);
+        expect(normalize(Number(yMatch![1]))).toBeCloseTo(normalize(expected.y), 0);
       },
     );
 
@@ -167,7 +175,7 @@ describe('useDiceAnimation', () => {
 
       // Проверяем что transform установлен на элементе
       expect(diceEl.style.transform).toContain('rotateX(0deg)');
-      expect(diceEl.style.transform).toContain('rotateY(90deg)');
+      expect(diceEl.style.transform).toContain('rotateY(-90deg)');
     });
   });
 

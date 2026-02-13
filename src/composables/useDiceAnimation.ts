@@ -9,12 +9,15 @@ interface UseDiceAnimationOptions {
 /** Углы вращения для отображения каждой грани кубика */
 const FACE_ANGLES: Record<number, { x: number; y: number }> = {
   1: { x: 0, y: 0 },
-  2: { x: 0, y: -90 },
+  2: { x: 0, y: 90 },
   3: { x: -90, y: 0 },
   4: { x: 90, y: 0 },
-  5: { x: 0, y: 90 },
+  5: { x: 0, y: -90 },
   6: { x: 180, y: 0 },
 };
+
+const LOOP_DURATION_MS = 900;
+const LANDING_DURATION_MS = 860;
 
 function rand(min: number, max: number): number {
   return Math.random() * (max - min) + min;
@@ -24,27 +27,61 @@ function randInt(min: number, max: number): number {
   return Math.floor(rand(min, max + 1));
 }
 
+interface TransformConfig {
+  x: number;
+  y: number;
+  z: number;
+  tx?: number;
+  ty?: number;
+  scaleX?: number;
+  scaleY?: number;
+}
+
+function createTransform(config: TransformConfig): string {
+  const tx = config.tx ?? 0;
+  const ty = config.ty ?? 0;
+  const chunks = [
+    `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px)`,
+    `rotateX(${config.x.toFixed(2)}deg)`,
+    `rotateY(${config.y.toFixed(2)}deg)`,
+    `rotateZ(${config.z.toFixed(2)}deg)`,
+  ];
+
+  if (config.scaleX !== undefined || config.scaleY !== undefined) {
+    chunks.push(`scaleX(${(config.scaleX ?? 1).toFixed(2)})`);
+    chunks.push(`scaleY(${(config.scaleY ?? 1).toFixed(2)})`);
+  }
+
+  return chunks.join(' ');
+}
+
 export function useDiceAnimation({ diceEl }: UseDiceAnimationOptions) {
   const phase = ref<DicePhase>('idle');
   let loopAnimation: Animation | null = null;
   let landingAnimation: Animation | null = null;
 
-  /** Бесконечная loop-анимация — хаотичное вращение пока ждём ответ API */
+  /**
+   * Бесконечная loop-анимация — органичное кувыркание,
+   * пока ждём ответ API.
+   */
   function startLoop(): void {
     const el = diceEl.value;
     if (!el) return;
 
     cancelAll();
 
+    // Плавный цикл: подъём вверх в первой половине и мягкий спуск во второй.
+    // Последний кадр замкнут (кратен 360), поэтому на повторе нет рывка.
     const keyframes: Keyframe[] = [
-      { transform: 'rotateX(0deg) rotateY(0deg) rotateZ(0deg)', offset: 0 },
-      { transform: 'rotateX(120deg) rotateY(240deg) rotateZ(60deg)', offset: 0.25 },
-      { transform: 'rotateX(240deg) rotateY(120deg) rotateZ(180deg)', offset: 0.5 },
-      { transform: 'rotateX(360deg) rotateY(360deg) rotateZ(360deg)', offset: 1 },
+      { transform: createTransform({ x: 0, y: 0, z: 0, ty: 0 }), offset: 0 },
+      { transform: createTransform({ x: 180, y: 270, z: 90, ty: -12 }), offset: 0.25 },
+      { transform: createTransform({ x: 360, y: 540, z: 180, ty: -22 }), offset: 0.5 },
+      { transform: createTransform({ x: 540, y: 810, z: 270, ty: -12 }), offset: 0.75 },
+      { transform: createTransform({ x: 720, y: 1080, z: 360, ty: 0 }), offset: 1 },
     ];
 
     loopAnimation = el.animate(keyframes, {
-      duration: 800,
+      duration: LOOP_DURATION_MS,
       iterations: Infinity,
       easing: 'linear',
     });
@@ -54,13 +91,20 @@ export function useDiceAnimation({ diceEl }: UseDiceAnimationOptions) {
 
   /**
    * Финальная анимация приземления на конкретную грань.
-   * Отменяет loop, проигрывает подброс→падение→bounce→settle.
+   * Физика без подпрыгиваний:
+   * небольшой подъём -> спуск -> финальное падение на целевую грань.
+   * Конец анимации всегда фиксируется в точный угол целевой грани.
    */
   async function landOnFace(face: number): Promise<void> {
     const el = diceEl.value;
     if (!el) return;
 
-    // Отменить loop
+    const currentTransform = getComputedStyle(el).transform;
+    const startTransform =
+      currentTransform !== 'none'
+        ? currentTransform
+        : createTransform({ x: 0, y: 0, z: 0, tx: 0, ty: 0, scaleX: 1, scaleY: 1 });
+
     if (loopAnimation) {
       loopAnimation.cancel();
       loopAnimation = null;
@@ -70,64 +114,61 @@ export function useDiceAnimation({ diceEl }: UseDiceAnimationOptions) {
 
     const target = FACE_ANGLES[face] ?? { x: 0, y: 0 };
 
-    // Рандомизация для уникальности каждого броска
-    const extraSpins = randInt(2, 3); // 2-3 полных оборота перед финалом
-    const launchHeight = rand(100, 140); // высота подброса
-    const wobbleDeg = rand(2, 5); // wobble при settle
+    const extraSpinsX = randInt(1, 2);
+    const extraSpinsY = randInt(2, 3);
+    const zTwist = rand(10, 18);
+    const driftX = rand(-10, 10);
 
-    const finalX = target.x + 360 * extraSpins;
-    const finalY = target.y + 360 * extraSpins;
+    // Накопленные углы: target + полные обороты (визуально та же грань).
+    const finalX = target.x + 360 * extraSpinsX;
+    const finalY = target.y + 360 * extraSpinsY;
 
     const keyframes: Keyframe[] = [
-      // Start — текущая позиция (начинаем с нуля)
       {
-        transform: 'translateY(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)',
         offset: 0,
+        transform: startTransform,
+        easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
       },
-      // Launch (0–30%): подброс вверх + быстрое вращение
       {
-        transform: `translateY(-${launchHeight}px) rotateX(${finalX * 0.4}deg) rotateY(${finalY * 0.4}deg) rotateZ(45deg)`,
+        // Доснимаем оставшийся подъём и продолжаем вращение
         offset: 0.3,
-        easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
-      },
-      // Descent (30–60%): падение + замедление
-      {
-        transform: `translateY(-${launchHeight * 0.3}px) rotateX(${finalX * 0.75}deg) rotateY(${finalY * 0.75}deg) rotateZ(20deg)`,
-        offset: 0.6,
-        easing: 'cubic-bezier(0.33, 0, 0.67, 1)',
-      },
-      // First bounce (60–72%): отскок ~15px
-      {
-        transform: `translateY(0px) rotateX(${finalX * 0.9}deg) rotateY(${finalY * 0.9}deg) rotateZ(10deg)`,
-        offset: 0.68,
+        transform: createTransform({
+          x: finalX * 0.45,
+          y: finalY * 0.45,
+          z: zTwist,
+          tx: driftX,
+          ty: -18,
+        }),
+        easing: 'cubic-bezier(0.4, 0, 1, 1)',
       },
       {
-        transform: `translateY(-15px) rotateX(${finalX * 0.93}deg) rotateY(${finalY * 0.93}deg) rotateZ(5deg)`,
+        // Плавный спуск без bounce
         offset: 0.72,
-      },
-      // Second bounce (72–85%): мелкий отскок ~4px
-      {
-        transform: `translateY(0px) rotateX(${finalX * 0.97}deg) rotateY(${finalY * 0.97}deg) rotateZ(2deg)`,
-        offset: 0.8,
-      },
-      {
-        transform: `translateY(-4px) rotateX(${finalX * 0.98}deg) rotateY(${finalY * 0.98}deg) rotateZ(1deg)`,
-        offset: 0.85,
-      },
-      // Settle (85–100%): wobble → финальная позиция
-      {
-        transform: `translateY(0px) rotateX(${finalX + wobbleDeg}deg) rotateY(${finalY - wobbleDeg}deg) rotateZ(-${wobbleDeg * 0.5}deg)`,
-        offset: 0.92,
+        transform: createTransform({
+          x: finalX * 0.88,
+          y: finalY * 0.88,
+          z: zTwist * 0.25,
+          tx: driftX * 0.35,
+          ty: 8,
+        }),
+        easing: 'cubic-bezier(0.2, 0.9, 0.2, 1)',
       },
       {
-        transform: `translateY(0px) rotateX(${target.x}deg) rotateY(${target.y}deg) rotateZ(0deg)`,
+        // Финальное "падение" и фиксация нужной грани
         offset: 1,
+        transform: createTransform({
+          x: finalX,
+          y: finalY,
+          z: 0,
+          tx: 0,
+          ty: 0,
+        }),
       },
     ];
 
     landingAnimation = el.animate(keyframes, {
-      duration: 1400,
-      easing: 'linear', // easing задан на отдельных keyframe'ах
+      duration: LANDING_DURATION_MS,
+      easing: 'linear',
       fill: 'forwards',
     });
 

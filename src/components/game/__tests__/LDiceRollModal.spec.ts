@@ -156,8 +156,8 @@ describe('LDiceRollModal', () => {
 
     expect(mockRollDice).toHaveBeenCalledOnce();
 
-    // Ждём минимальную задержку 3000ms
-    await vi.advanceTimersByTimeAsync(2999);
+    // Ждём минимальную задержку 2000ms
+    await vi.advanceTimersByTimeAsync(1999);
     await flushPromises();
 
     // result ещё не установлен (задержка не прошла)
@@ -179,7 +179,7 @@ describe('LDiceRollModal', () => {
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
     // Минимальная задержка
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.advanceTimersByTimeAsync(2000);
     await flushPromises();
 
     // Эмулируем roll-complete от LDice
@@ -187,10 +187,10 @@ describe('LDiceRollModal', () => {
     dice.vm.$emit('roll-complete', 4);
     await nextTick();
 
-    // Модалка ещё не закрыта — ждём RESULT_VIEW_DELAY_MS (600ms)
+    // Модалка ещё не закрыта — ждём RESULT_VIEW_DELAY_MS (450ms)
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
 
-    await vi.advanceTimersByTimeAsync(600);
+    await vi.advanceTimersByTimeAsync(450);
     await flushPromises();
 
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
@@ -208,7 +208,7 @@ describe('LDiceRollModal', () => {
     expect(mockManualMove).toHaveBeenCalledWith(5);
   });
 
-  it('обрабатывает тройную шестерку, переход и победу', async () => {
+  it('обрабатывает тройную шестерку и эмитит roll-finished', async () => {
     const response = createMoveResponse({
       move: {
         ...createMoveResponse().move,
@@ -226,7 +226,7 @@ describe('LDiceRollModal', () => {
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
     // Минимальная задержка
-    await vi.advanceTimersByTimeAsync(3000);
+    await vi.advanceTimersByTimeAsync(2000);
     await flushPromises();
 
     // roll-complete
@@ -235,16 +235,18 @@ describe('LDiceRollModal', () => {
     await nextTick();
 
     // RESULT_VIEW_DELAY_MS
-    await vi.advanceTimersByTimeAsync(600);
+    await vi.advanceTimersByTimeAsync(450);
     await flushPromises();
 
+    // Тройная шестёрка — уведомление показывается в модалке
     expect(mockNotify).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'dice.burned' }),
     );
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'game.arrow_notify:23' }),
-    );
-    expect(mockDialog).toHaveBeenCalled();
+
+    // Переход и победа делегированы наверх через emit
+    const emitted = wrapper.emitted('roll-finished') ?? [];
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]?.[0]).toEqual(response);
   });
 
   it('показывает ошибку если rollDice вернул null', async () => {

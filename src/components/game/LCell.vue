@@ -164,6 +164,24 @@ function handleLongPress() {
     transform: translate(-50%, -50%);
     background: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
     box-shadow: 0 0 12px #9333ea99;
+    animation: chip-step 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  @keyframes chip-step {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.6);
+    }
+
+    60% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
   }
 
   &__tooltip {

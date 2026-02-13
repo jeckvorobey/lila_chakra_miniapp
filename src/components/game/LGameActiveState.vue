@@ -19,7 +19,7 @@
       />
     </div>
 
-    <l-game-board-section ref="boardSectionRef" class="col" :current-cell="gameStore.currentCell" />
+    <l-game-board-section ref="boardSectionRef" class="col" :current-cell="gameStore.displayCell" />
 
     <l-game-actions-panel
       :current-cell="gameStore.currentCell"
