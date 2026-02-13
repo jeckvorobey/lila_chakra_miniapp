@@ -98,7 +98,6 @@ const showDiceVisual = computed(
   () =>
     diceMode.value === 'auto' ||
     isRollingVisual.value ||
-    isSubmitting.value ||
     pendingResult.value !== null ||
     lastDiceResult.value !== null,
 );
@@ -180,9 +179,46 @@ function performAutoRoll(): void {
   void executeRoll(() => gameStore.rollDice());
 }
 
+async function executeManualRoll(value: number): Promise<void> {
+  if (isSubmitting.value) {
+    return;
+  }
+
+  isSubmitting.value = true;
+  pendingResult.value = null;
+  lastDiceResult.value = null;
+  isRollingVisual.value = false;
+
+  try {
+    const result = await gameStore.rollDice(value);
+
+    if (!result) {
+      $q.notify({
+        type: 'negative',
+        message: gameStore.error || t('error.generic'),
+      });
+      return;
+    }
+
+    if (result.move.is_triple_six) {
+      $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
+    }
+
+    isOpen.value = false;
+    emit('roll-finished', result);
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: gameStore.error || t('error.generic'),
+    });
+  } finally {
+    isSubmitting.value = false;
+  }
+}
+
 function performManualRoll(value: number): void {
   manualDiceValue.value = value;
-  void executeRoll(() => gameStore.rollDice(value));
+  void executeManualRoll(value);
 }
 
 watch(

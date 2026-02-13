@@ -205,6 +205,26 @@ describe('LDiceRollModal', () => {
     expect(mockRollDice).toHaveBeenCalledWith(5);
   });
 
+  it('в ручном режиме не запускает анимацию кубика и закрывает модалку сразу после ответа', async () => {
+    const response = createMoveResponse();
+    mockRollDice.mockResolvedValue(response);
+
+    const wrapper = mountModal();
+    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: 'LDice' }).exists()).toBe(false);
+
+    await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
+    await flushPromises();
+
+    expect(mockRollDice).toHaveBeenCalledWith(5);
+    expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+    const emitted = wrapper.emitted('roll-finished') ?? [];
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]?.[0]).toEqual(response);
+  });
+
   it('обрабатывает тройную шестерку и эмитит roll-finished', async () => {
     const response = createMoveResponse({
       move: {
