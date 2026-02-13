@@ -57,6 +57,7 @@ export default {
   // Игра
   game: {
     title: 'Игра',
+    home_title: 'Главная',
     new_game: 'Новая игра',
     continue_game: 'Продолжить',
     end_game: 'Завершить игру',
@@ -75,6 +76,7 @@ export default {
   // Запрос
   query: {
     title: 'Ваш запрос',
+    category_title: 'Категория',
     your_question: 'Что вы хотите исследовать?',
     placeholder: 'Опишите вашу ситуацию или вопрос...',
     examples: 'Примеры',
@@ -84,6 +86,8 @@ export default {
       career: 'Карьера',
       health: 'Здоровье',
       finance: 'Финансы',
+      personality: 'Личность',
+      freedom: 'Свобода',
       spirituality: 'Духовность',
       self_development: 'Саморазвитие',
     },
@@ -123,7 +127,7 @@ export default {
   diary: {
     title: 'Дневник',
     empty: 'Пока нет игр. Начните своё первое путешествие!',
-    active: 'Активная',
+    active: 'Активна',
     completed: 'Завершена',
     abandoned: 'Прервана',
     magic_time: 'Осталось магического времени',

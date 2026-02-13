@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
         path: 'game',
         name: 'game',
         component: () => import('pages/game/GamePage.vue'),
-        meta: { title: '' }, // Без заголовка для страницы игры
+        meta: { title: 'game.home_title' },
       },
       {
         path: 'game/new',
@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
         path: 'diary/:id',
         name: 'diary-detail',
         component: () => import('pages/diary/DiaryDetailPage.vue'),
-        meta: { showBack: true },
+        meta: { title: 'diary.title', showBack: true },
       },
       // Маршруты профиля
       {

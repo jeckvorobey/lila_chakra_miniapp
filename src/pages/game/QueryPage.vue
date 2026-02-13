@@ -16,7 +16,7 @@
       <!-- Выбор категории -->
       <div class="q-mb-lg">
         <div class="text-overline text-secondary q-mb-sm">
-          {{ $t('query.category.relationships').split(' ')[0] }}
+          {{ $t('query.category_title') }}
         </div>
         <div class="row q-gutter-sm">
           <q-chip

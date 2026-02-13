@@ -190,6 +190,7 @@ function editInsight(move: MoveOut) {
 
 async function loadGameDetails() {
   isLoading.value = true;
+  route.meta.title = 'diary.title';
   const gameId = route.params.id as string;
 
   try {
@@ -201,6 +202,7 @@ async function loadGameDetails() {
     game.value = gameData;
     moves.value = movesData;
     isCurrentGameActive.value = isActiveGameStatus(gameData.status);
+    route.meta.title = isCurrentGameActive.value ? 'diary.active' : 'diary.completed';
     hasAnyActiveGame.value = gamesList
       ? gamesList.items.some((item) => isActiveGameStatus(item.status))
       : isCurrentGameActive.value;

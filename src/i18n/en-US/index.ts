@@ -57,6 +57,7 @@ export default {
   // Игра
   game: {
     title: 'Game',
+    home_title: 'Home',
     new_game: 'New Game',
     continue_game: 'Continue',
     end_game: 'End Game',
@@ -75,6 +76,7 @@ export default {
   // Запрос
   query: {
     title: 'Your Question',
+    category_title: 'Category',
     your_question: 'What would you like to explore?',
     placeholder: 'Describe your situation or question...',
     examples: 'Examples',
@@ -84,6 +86,8 @@ export default {
       career: 'Career',
       health: 'Health',
       finance: 'Finance',
+      personality: 'Personality',
+      freedom: 'Freedom',
       spirituality: 'Spirituality',
       self_development: 'Self Development',
     },

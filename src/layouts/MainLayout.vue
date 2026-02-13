@@ -62,11 +62,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { LBottomNav } from 'src/components/navigation';
 import { LThemeToggle } from 'src/components/base';
 
 const route = useRoute();
 const router = useRouter();
+const i18n = useI18n();
 
 const isGamePage = computed(() => route.path.startsWith('/game'));
 const isOnboarding = computed(() => route.path.startsWith('/onboarding'));
@@ -83,7 +85,11 @@ const showMenu = computed(() => isGamePage.value);
 
 const pageTitle = computed(() => {
   const title = route.meta.title;
-  return typeof title === 'string' ? title : '';
+  if (typeof title !== 'string' || title.length === 0) {
+    return '';
+  }
+
+  return i18n.te(title) ? i18n.t(title) : title;
 });
 
 function goBack() {
