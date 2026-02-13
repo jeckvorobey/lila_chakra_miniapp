@@ -36,6 +36,8 @@ export interface UserStats {
   total_games: number;
   completed_games: number;
   highest_chakra_reached?: number;
+  current_chakra?: number;
+  has_active_game?: boolean;
   total_arrows_hit?: number;
   total_snakes_hit?: number;
 }

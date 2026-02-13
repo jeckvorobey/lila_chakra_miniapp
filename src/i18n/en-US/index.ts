@@ -142,6 +142,8 @@ export default {
     games_played: 'Games Played',
     games_completed: 'Completed',
     highest_level: 'Highest Level',
+    current_chakra: 'Current Chakra Level',
+    no_active_games: 'No active games',
     settings: 'Settings',
     feedback: 'Feedback',
     rules: 'Game Rules',

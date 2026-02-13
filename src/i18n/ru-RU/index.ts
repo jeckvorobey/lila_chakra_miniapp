@@ -142,6 +142,8 @@ export default {
     games_played: 'Игр сыграно',
     games_completed: 'Завершено',
     highest_level: 'Высший уровень',
+    current_chakra: 'Текущий уровень чакры',
+    no_active_games: 'Активных игр нет',
     settings: 'Настройки',
     feedback: 'Обратная связь',
     rules: 'Правила игры',

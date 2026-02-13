@@ -34,20 +34,31 @@
     <div class="row q-gutter-sm q-mb-lg">
       <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
-          <div class="text-h5 text-weight-bold text-primary">{{ stats.gamesPlayed }}</div>
-          <div class="text-caption text-secondary">{{ $t('profile.games_played') }}</div>
+          <template v-if="userStore.stats?.has_active_game">
+            <div class="text-h5 text-weight-bold text-primary">{{ stats.currentLevel }}</div>
+            <div class="text-caption text-secondary">
+              {{ stats.currentLevel === 8 ? $t('profile.highest_level') : $t('profile.current_chakra') }}
+            </div>
+          </template>
+          <template v-else>
+            <div class="text-subtitle2 text-weight-bold text-secondary q-mb-xs">
+              {{ $t('profile.no_active_games') }}
+            </div>
+            <q-btn
+              :label="$t('game.new_game')"
+              color="primary"
+              flat
+              dense
+              size="sm"
+              @click="$router.push('/game/setup')"
+            />
+          </template>
         </q-card-section>
       </q-card>
       <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
           <div class="text-h5 text-weight-bold text-positive">{{ stats.gamesCompleted }}</div>
           <div class="text-caption text-secondary">{{ $t('profile.games_completed') }}</div>
-        </q-card-section>
-      </q-card>
-      <q-card flat bordered class="col bg-surface">
-        <q-card-section class="text-center">
-          <div class="text-h5 text-weight-bold text-warning">{{ stats.highestLevel }}</div>
-          <div class="text-caption text-secondary">{{ $t('profile.highest_level') }}</div>
         </q-card-section>
       </q-card>
     </div>
@@ -194,7 +205,8 @@ const userInitials = computed(() => {
 const stats = computed(() => ({
   gamesPlayed: userStore.stats?.total_games ?? 0,
   gamesCompleted: userStore.stats?.completed_games ?? 0,
-  highestLevel: userStore.stats?.highest_chakra_reached ?? 0,
+  highestLevel: userStore.stats?.highest_chakra_reached ?? 1,
+  currentLevel: userStore.stats?.current_chakra ?? 0,
 }));
 
 onMounted(() => {
