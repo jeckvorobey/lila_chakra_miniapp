@@ -62,7 +62,6 @@
         class="full-width"
         size="lg"
         unelevated
-        :disable="!selected"
         @click="confirm"
       />
     </div>
@@ -70,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useSettingsStore } from 'src/stores/settings.store';
 
 interface Props {
@@ -85,7 +84,16 @@ const emit = defineEmits<{
 }>();
 
 const settingsStore = useSettingsStore();
-const selected = ref<number | null>(props.modelValue ?? null);
+const selected = ref<number>(props.modelValue ?? 1);
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (typeof value === 'number' && value >= 1 && value <= 6) {
+      selected.value = value;
+    }
+  },
+);
 
 function selectValue(value: number) {
   selected.value = value;
@@ -95,10 +103,8 @@ function selectValue(value: number) {
 }
 
 function confirm() {
-  if (selected.value) {
-    settingsStore.vibrate([30, 20, 50]);
-    emit('confirm', selected.value);
-  }
+  settingsStore.vibrate([30, 20, 50]);
+  emit('confirm', selected.value);
 }
 </script>
 

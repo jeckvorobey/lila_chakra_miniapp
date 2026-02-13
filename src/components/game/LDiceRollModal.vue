@@ -182,7 +182,7 @@ function performAutoRoll(): void {
 
 function performManualRoll(value: number): void {
   manualDiceValue.value = value;
-  void executeRoll(() => gameStore.manualMove(value));
+  void executeRoll(() => gameStore.rollDice(value));
 }
 
 watch(

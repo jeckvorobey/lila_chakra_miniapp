@@ -432,13 +432,6 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Ручной ход (псевдоним для rollDice)
-   */
-  async function manualMove(value: number): Promise<MoveResponse | null> {
-    return rollDice(value);
-  }
-
-  /**
    * Пошаговая анимация фишки по доске.
    * Перемещает displayCell клетка за клеткой от startCell до endCell,
    * при стреле/змее — пауза и прыжок на finalCell.
@@ -590,7 +583,6 @@ export const useGameStore = defineStore('game', () => {
     loadGame,
     loadLatestActiveGame,
     rollDice,
-    manualMove,
     getCellInfo,
     completeEntryMeditation,
     completeExitMeditation,

@@ -155,3 +155,74 @@ describe('game.store meditation audio', () => {
     expect(store.meditationAudioError).toBe('Нет доступа к аудио');
   });
 });
+
+describe('game.store rollDice', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.clearAllMocks();
+  });
+
+  it('при ручном вводе отправляет manual_value в тот же endpoint броска', async () => {
+    const store = useGameStore();
+
+    store.currentGame = {
+      id: 77,
+      user_id: 15,
+      query: 'Тестовый запрос для ручного броска',
+      category: 'career',
+      mode: 'free',
+      status: 'in_progress',
+      current_cell: 10,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 2,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 10,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+    };
+
+    mockGamesApi.rollDice.mockResolvedValue({
+      move: {
+        id: 5,
+        game_id: 77,
+        move_number: 3,
+        dice_rolls: [4],
+        total_roll: 4,
+        is_triple_six: false,
+        start_cell: 10,
+        end_cell: 14,
+        final_cell: 14,
+        transition_type: 'none',
+        transition_from: null,
+        transition_to: null,
+        ai_interpretation: null,
+        player_insight: null,
+        created_at: '2026-02-08T14:33:14.866798Z',
+      },
+      cell_info: {
+        id: 14,
+        name_ru: 'Клетка',
+        chakra_level: 2,
+        chakra_name: 'Свадхистана',
+        affirmation_ru: 'Аффирмация',
+        transition_type: 'none',
+        transition_to: null,
+      },
+      game_status: 'in_progress',
+      requires_another_roll: false,
+      is_entry_move: false,
+      is_victory: false,
+    });
+
+    await store.rollDice(4);
+
+    expect(mockGamesApi.rollDice).toHaveBeenCalledWith(77, {
+      is_manual: true,
+      manual_value: 4,
+    });
+  });
+});

@@ -6,14 +6,12 @@ import type { MoveResponse } from 'src/types/game.interface';
 
 const {
   mockRollDice,
-  mockManualMove,
   mockNotify,
   mockDialog,
   mockRouterPush,
   mockVibrate,
 } = vi.hoisted(() => ({
   mockRollDice: vi.fn(),
-  mockManualMove: vi.fn(),
   mockNotify: vi.fn(),
   mockDialog: vi.fn(),
   mockRouterPush: vi.fn(),
@@ -22,7 +20,6 @@ const {
 
 const mockGameStore = {
   rollDice: mockRollDice,
-  manualMove: mockManualMove,
   currentDiceRolls: [] as number[],
   error: null as string | null,
 };
@@ -196,8 +193,8 @@ describe('LDiceRollModal', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
   });
 
-  it('ручной режим вызывает manualMove с выбранным значением', async () => {
-    mockManualMove.mockResolvedValue(createMoveResponse());
+  it('ручной режим вызывает rollDice с выбранным значением', async () => {
+    mockRollDice.mockResolvedValue(createMoveResponse());
 
     const wrapper = mountModal();
     (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
@@ -205,7 +202,7 @@ describe('LDiceRollModal', () => {
 
     await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
 
-    expect(mockManualMove).toHaveBeenCalledWith(5);
+    expect(mockRollDice).toHaveBeenCalledWith(5);
   });
 
   it('обрабатывает тройную шестерку и эмитит roll-finished', async () => {
