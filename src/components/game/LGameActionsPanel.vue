@@ -1,6 +1,6 @@
 <template>
   <div class="game-actions full-width">
-    <q-card flat class="bg-glass rounded-borders-top">
+    <q-card flat bordered class="bg-surface q-ma-sm">
       <q-card-section class="q-pa-md">
         <div class="row items-center q-mb-md">
           <q-avatar
@@ -188,10 +188,5 @@ function confirmEndGame(): void {
   bottom: 0;
   z-index: 10;
   width: 100%;
-}
-
-.rounded-borders-top {
-  border-radius: 24px 24px 0 0;
-  border-top: 1px solid var(--lila-border);
 }
 </style>
