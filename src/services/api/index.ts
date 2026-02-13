@@ -5,3 +5,4 @@ export { movesApi } from './moves.api';
 export { paymentsApi } from './payments.api';
 export { referenceApi } from './reference.api';
 export { audioApi } from './audio.api';
+export { feedbackApi } from './feedback.api';

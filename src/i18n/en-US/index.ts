@@ -146,10 +146,38 @@ export default {
     no_active_games: 'No active games',
     settings: 'Settings',
     feedback: 'Feedback',
+    my_requests: 'My Requests',
     rules: 'Game Rules',
     about: 'About',
     invite: 'Invite Friend',
     logout: 'Logout',
+  },
+
+  // Feedback
+  feedback: {
+    title: 'Feedback',
+    subtitle: 'Tell us what we can improve: report an issue or suggest a new feature.',
+    input_label: 'Your message',
+    placeholder: 'Describe the issue, idea, or suggestion...',
+    hint: 'We read every request and try to respond as quickly as possible.',
+    submit: 'Send',
+    validation_min: 'Please enter at least 10 characters',
+    success: 'Thank you! Your request has been sent.',
+    error_submit: 'Failed to send your request. Please try again.',
+    my_requests_title: 'My Requests',
+    empty_title: 'No requests yet',
+    empty_text: 'Once you send a message, it will appear here.',
+    created_at: 'Created',
+    eta_at: 'Estimated completion date',
+    admin_comment: 'Support comment',
+    error_load: 'Failed to load requests',
+    status: {
+      new: 'New',
+      processed: 'Processed',
+      in_progress: 'In progress',
+      completed: 'Completed',
+      rejected: 'Rejected',
+    },
   },
 
   // Оплата

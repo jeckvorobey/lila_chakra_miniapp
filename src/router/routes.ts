@@ -61,6 +61,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/profile/ReferralPage.vue'),
         meta: { title: 'referral.title', showBack: true },
       },
+      {
+        path: 'profile/feedback',
+        name: 'feedback',
+        component: () => import('pages/profile/FeedbackPage.vue'),
+        meta: { title: 'feedback.title', showBack: true },
+      },
+      {
+        path: 'profile/my-requests',
+        name: 'my-requests',
+        component: () => import('pages/profile/MyRequestsPage.vue'),
+        meta: { title: 'feedback.my_requests_title', showBack: true },
+      },
       // Временно отключено для разработки (страница требования Telegram).
       // {
       //   path: 'telegram-required',

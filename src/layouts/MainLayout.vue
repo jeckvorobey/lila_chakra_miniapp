@@ -99,7 +99,7 @@ function openRules() {
 }
 
 function openFeedback() {
-  void router.push('/feedback');
+  void router.push('/profile/feedback');
 }
 </script>
 

@@ -152,11 +152,21 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable>
+      <q-item clickable @click="$router.push('/profile/feedback')">
         <q-item-section avatar>
           <q-icon name="mdi-message-outline" />
         </q-item-section>
         <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+
+      <q-item clickable @click="$router.push('/profile/my-requests')">
+        <q-item-section avatar>
+          <q-icon name="mdi-format-list-bulleted-square" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.my_requests') }}</q-item-section>
         <q-item-section side>
           <q-icon name="mdi-chevron-right" />
         </q-item-section>
