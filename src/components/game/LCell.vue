@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { ARROWS, SNAKES } from 'src/stores/game.store';
+import { useGameStore } from 'src/stores/game.store';
 import { getChakraColor } from 'src/data/chakra-colors';
 
 interface Props {
@@ -57,6 +57,7 @@ const emit = defineEmits<{
   (e: 'long-press', cellId: number): void;
 }>();
 const $q = useQuasar();
+const gameStore = useGameStore();
 const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 
 const chakraLevel = computed(() => {
@@ -64,10 +65,10 @@ const chakraLevel = computed(() => {
   return Math.ceil(props.cellId / 9);
 });
 
-const isArrow = computed(() => props.cellId in ARROWS);
-const isSnake = computed(() => props.cellId in SNAKES);
-const arrowTarget = computed(() => ARROWS[props.cellId]);
-const snakeTarget = computed(() => SNAKES[props.cellId]);
+const isArrow = computed(() => props.cellId in gameStore.arrowsMap);
+const isSnake = computed(() => props.cellId in gameStore.snakesMap);
+const arrowTarget = computed(() => gameStore.arrowsMap[props.cellId]);
+const snakeTarget = computed(() => gameStore.snakesMap[props.cellId]);
 
 const isWinningCell = computed(() => props.cellId === 68);
 const isStartCell = computed(() => props.cellId === 1);

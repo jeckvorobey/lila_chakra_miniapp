@@ -69,6 +69,14 @@ export interface Cell {
   snake_tail?: number | null;
 }
 
+export interface CellReference {
+  id: number;
+  is_arrow_start: boolean;
+  arrow_end: number | null;
+  is_snake_head: boolean;
+  snake_tail: number | null;
+}
+
 export interface GameCreate {
   query: string;
   category: QueryCategory;

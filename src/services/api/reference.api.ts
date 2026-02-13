@@ -1,15 +1,15 @@
 import { api } from 'src/boot/axios';
-import type { Cell } from 'src/types/game.interface';
+import type { Cell, CellReference } from 'src/types/game.interface';
 
 /**
  * API справочных данных.
  */
 export const referenceApi = {
   /**
-   * Получить список ID всех клеток.
+   * Получить список клеток с данными о переходах (стрелы/змеи).
    */
-  async getCellIds(): Promise<number[]> {
-    const response = await api.get<number[]>('/reference/cells');
+  async getCells(): Promise<CellReference[]> {
+    const response = await api.get<CellReference[]>('/reference/cells');
     return response.data;
   },
 

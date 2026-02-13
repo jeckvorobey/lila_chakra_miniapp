@@ -80,7 +80,7 @@ function onCellLongPress(cellId: number) {
 }
 
 onMounted(async () => {
-  await referenceStore.fetchBoardCellIds();
+  await referenceStore.fetchBoardCells();
 });
 </script>
 

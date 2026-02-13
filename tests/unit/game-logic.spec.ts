@@ -5,13 +5,19 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  ARROWS,
-  SNAKES,
   WINNING_CELL,
-  MAX_CELL,
   CELLS_PER_ROW,
   WAITING_ZONE,
 } from 'src/data/game-constants';
+
+// Тестовые данные стрел и змей (соответствуют CELLS_DATA из бэкенда)
+const ARROWS: Record<number, number> = {
+  10: 23, 17: 69, 20: 32, 22: 60, 27: 41, 28: 50, 37: 66, 45: 67, 46: 62,
+};
+const SNAKES: Record<number, number> = {
+  12: 8, 16: 4, 24: 7, 29: 6, 44: 9, 52: 35, 55: 3, 61: 13, 63: 2, 72: 51,
+};
+const MAX_CELL = 72;
 
 describe('Game Constants', () => {
   describe('ARROWS', () => {

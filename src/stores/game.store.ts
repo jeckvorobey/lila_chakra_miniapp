@@ -22,10 +22,7 @@ import type {
 import type { MeditationAudioType } from 'src/types/audio.interface';
 
 import {
-  ARROWS,
-  SNAKES,
   WINNING_CELL,
-  MAX_CELL,
   CHAKRA_ROWS,
   CELLS_PER_ROW,
   WAITING_ZONE,
@@ -34,10 +31,7 @@ import { isActiveGameStatus } from 'src/data/game-status';
 
 // Повторный экспорт игровых констант для удобства
 export {
-  ARROWS,
-  SNAKES,
   WINNING_CELL,
-  MAX_CELL,
   CHAKRA_ROWS,
   CELLS_PER_ROW,
   WAITING_ZONE,
@@ -128,29 +122,35 @@ export const useGameStore = defineStore('game', () => {
     return Math.ceil(cellId / CELLS_PER_ROW);
   }
 
+  // Данные о переходах из reference store (SSOT)
+  const referenceStore = useReferenceStore();
+  const arrowsMap = computed(() => referenceStore.arrowsMap);
+  const snakesMap = computed(() => referenceStore.snakesMap);
+  const maxCell = computed(() => referenceStore.maxCell);
+
   /**
    * Проверить, является ли клетка началом стрелы
    */
   function isArrowStart(cellId: number): boolean {
-    return cellId in ARROWS;
+    return cellId in arrowsMap.value;
   }
 
   /**
    * Проверить, является ли клетка головой змеи
    */
   function isSnakeHead(cellId: number): boolean {
-    return cellId in SNAKES;
+    return cellId in snakesMap.value;
   }
 
   /**
    * Получить информацию о переходе для клетки
    */
   function getTransition(cellId: number): { type: TransitionType; to: number | null } {
-    if (cellId in ARROWS) {
-      return { type: 'arrow', to: ARROWS[cellId] ?? null };
+    if (cellId in arrowsMap.value) {
+      return { type: 'arrow', to: arrowsMap.value[cellId] ?? null };
     }
-    if (cellId in SNAKES) {
-      return { type: 'snake', to: SNAKES[cellId] ?? null };
+    if (cellId in snakesMap.value) {
+      return { type: 'snake', to: snakesMap.value[cellId] ?? null };
     }
     return { type: 'none', to: null };
   }
@@ -496,11 +496,13 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
+    // Данные переходов (из API)
+    arrowsMap,
+    snakesMap,
+    maxCell,
+
     // Константы
-    ARROWS,
-    SNAKES,
     WINNING_CELL,
-    MAX_CELL,
     CHAKRA_ROWS,
     CELLS_PER_ROW,
     WAITING_ZONE,

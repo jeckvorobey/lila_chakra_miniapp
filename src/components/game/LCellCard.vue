@@ -116,7 +116,6 @@ import { useI18n } from 'vue-i18n';
 import type { Cell } from 'src/types/game.interface';
 import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
 import LModal from '../base/LModal.vue';
-import { ARROWS, SNAKES } from 'src/stores/game.store';
 
 interface Props {
   modelValue: boolean;
@@ -144,29 +143,17 @@ const avatarTextColor = computed(() =>
   getChakraAvatarTextColor(rowChakraLevel.value, isDarkMode.value),
 );
 
-const isArrow = computed(() => {
-  if (props.cell.is_arrow_start !== undefined) {
-    return props.cell.is_arrow_start;
-  }
+const isArrow = computed(() => props.cell.is_arrow_start ?? false);
 
-  return props.cell.id in ARROWS;
-});
-
-const isSnake = computed(() => {
-  if (props.cell.is_snake_head !== undefined) {
-    return props.cell.is_snake_head;
-  }
-
-  return props.cell.id in SNAKES;
-});
+const isSnake = computed(() => props.cell.is_snake_head ?? false);
 
 const transitionTarget = computed(() => {
   if (isArrow.value) {
-    return props.cell.arrow_end ?? ARROWS[props.cell.id] ?? '';
+    return props.cell.arrow_end ?? '';
   }
 
   if (isSnake.value) {
-    return props.cell.snake_tail ?? SNAKES[props.cell.id] ?? '';
+    return props.cell.snake_tail ?? '';
   }
 
   return '';
