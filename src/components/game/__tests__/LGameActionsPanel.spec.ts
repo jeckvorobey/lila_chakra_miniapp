@@ -3,15 +3,17 @@ import { mount } from '@vue/test-utils';
 import type { CellBrief } from 'src/types/game.interface';
 import LGameActionsPanel from '../LGameActionsPanel.vue';
 
-const { mockEndGame, mockRouterPush, mockDialog, mockNotify } = vi.hoisted(() => ({
+const { mockEndGame, mockRouterPush, mockDialog, mockNotify, mockStartChipAnimation } = vi.hoisted(() => ({
   mockEndGame: vi.fn(),
   mockRouterPush: vi.fn(),
   mockDialog: vi.fn(),
   mockNotify: vi.fn(),
+  mockStartChipAnimation: vi.fn(),
 }));
 
 const mockGameStore = {
   endGame: mockEndGame,
+  startChipAnimation: mockStartChipAnimation,
   error: null as string | null,
 };
 
@@ -75,7 +77,13 @@ function mountPanel() {
             "<button :data-testid=\"$attrs['data-testid']\" @click=\"$emit('click')\"><slot /></button>",
         },
         LDiceRollModal: {
-          template: '<div data-testid="dice-modal">{{ modelValue }}</div>',
+          template:
+            '<div data-testid="dice-modal">' +
+            '{{ modelValue }}' +
+            '<button data-testid="dice-finished-btn" @click="$emit(\'roll-finished\', ' +
+            "{ move: { transition_type: 'none', final_cell: 5 }, is_victory: false }" +
+            ')" />' +
+            '</div>',
           props: ['modelValue'],
         },
       },
@@ -92,6 +100,7 @@ describe('LGameActionsPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGameStore.error = null;
+    mockStartChipAnimation.mockResolvedValue(undefined);
     mockDialog.mockReturnValue({
       onOk: (handler: () => void) => {
         handler();
@@ -114,6 +123,16 @@ describe('LGameActionsPanel', () => {
     await wrapper.get('[data-testid="open-dice-modal-btn"]').trigger('click');
 
     expect(wrapper.get('[data-testid="dice-modal"]').text()).toBe('true');
+  });
+
+  it('после завершения броска эмитит событие показа информации о текущей клетке', async () => {
+    const wrapper = mountPanel();
+
+    await wrapper.get('[data-testid="dice-finished-btn"]').trigger('click');
+    await flushPromises();
+
+    expect(mockStartChipAnimation).toHaveBeenCalledOnce();
+    expect(wrapper.emitted('show-current-cell-info')).toBeTruthy();
   });
 
   it('подтверждает завершение игры и переводит на выходную медитацию', async () => {
