@@ -6,13 +6,7 @@
       <!-- Раздел запроса -->
       <q-card flat bordered class="q-mb-md">
         <q-card-section>
-          <q-chip
-            :label="$t(`query.category.${game.category}`)"
-            size="sm"
-            color="primary"
-            outline
-            class="q-mb-sm"
-          />
+          <q-chip :label="$t(`query.category.${game.category}`)" size="sm" color="primary" outline class="q-mb-sm" />
           <p class="text-body1">{{ game.query }}</p>
           <div class="text-caption text-secondary">
             {{ formatDate(game.created_at) }}
@@ -31,38 +25,26 @@
       <!-- Временная шкала ходов -->
       <div class="row items-center q-mb-sm">
         <div class="text-subtitle2 text-weight-medium q-mr-sm">История ходов</div>
-        <q-btn
-          flat
-          dense
-          round
-          size="sm"
-          :icon="sortOrder === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-          @click="toggleSort"
-        >
+        <q-btn flat dense round size="sm" :icon="sortOrder === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+          @click="toggleSort">
           <q-tooltip>{{ sortOrder === 'asc' ? 'Сначала старые' : 'Сначала новые' }}</q-tooltip>
         </q-btn>
       </div>
       <q-timeline v-if="moves.length > 0" color="primary">
-        <q-timeline-entry
-          v-for="move in moves"
-          :key="move.id"
-          :icon="getTransitionIcon(move.transition_type)"
-          :color="getTransitionColor(move.transition_type)"
-        >
+        <q-timeline-entry v-for="move in moves" :key="move.id" :icon="getTransitionIcon(move.transition_type)"
+          :color="getTransitionColor(move.transition_type)">
           <template #title>
             <div class="row items-center">
               <span>Ход #{{ move.move_number }}</span>
               <q-badge class="q-ml-sm" color="grey-7">
-                🎲 {{ move.dice_rolls.join(' + ') }}
+                🎲 {{ move.dice_rolls.join(', ') }}
               </q-badge>
             </div>
           </template>
           <template #subtitle>
             Клетка {{ move.start_cell }} → {{ move.final_cell }}
-            <span
-              v-if="move.transition_type && move.transition_type !== 'none'"
-              :class="move.transition_type === 'arrow' ? 'text-positive' : 'text-negative'"
-            >
+            <span v-if="move.transition_type && move.transition_type !== 'none'"
+              :class="move.transition_type === 'arrow' ? 'text-positive' : 'text-negative'">
               ({{ move.transition_type === 'arrow' ? 'Стрела' : 'Змея' }})
             </span>
           </template>
@@ -75,14 +57,8 @@
             {{ move.ai_interpretation }}
           </div>
           <div class="q-mt-sm">
-            <q-btn
-              flat
-              dense
-              size="sm"
-              icon="mdi-pencil"
-              :label="$t('actions.write_insight')"
-              @click="editInsight(move)"
-            />
+            <q-btn flat dense size="sm" icon="mdi-pencil" :label="$t('actions.write_insight')"
+              @click="editInsight(move)" />
           </div>
         </q-timeline-entry>
       </q-timeline>
@@ -91,22 +67,10 @@
 
       <!-- Действия -->
       <div class="diary-detail__actions">
-        <q-btn
-          v-if="isCurrentGameActive"
-          :label="$t('game.continue_game')"
-          color="primary"
-          unelevated
-          class="full-width q-mb-sm"
-          @click="continueGame"
-        />
-        <q-btn
-          v-if="!isCurrentGameActive && !hasAnyActiveGame"
-          :label="$t('game.new_game')"
-          color="primary"
-          outline
-          class="full-width"
-          @click="$router.push('/game/new')"
-        />
+        <q-btn v-if="isCurrentGameActive" :label="$t('game.continue_game')" color="primary" unelevated
+          class="full-width q-mb-sm" @click="continueGame" />
+        <q-btn v-if="!isCurrentGameActive && !hasAnyActiveGame" :label="$t('game.new_game')" color="primary" outline
+          class="full-width" @click="$router.push('/game/new')" />
       </div>
     </template>
   </q-page>
