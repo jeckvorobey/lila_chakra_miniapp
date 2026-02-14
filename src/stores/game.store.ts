@@ -55,6 +55,8 @@ export const useGameStore = defineStore('game', () => {
   const currentDiceRolls = ref<number[]>([]);
   const lastTransition = ref<TransitionType>('none');
   const requiresAnotherRoll = ref(false);
+  const pendingAutoRolls = ref<number[]>([]);
+  const pendingManualRolls = ref<number[]>([]);
 
   // Анимация фишки на доске
   interface PendingAnimation {
@@ -196,6 +198,8 @@ export const useGameStore = defineStore('game', () => {
       currentDiceRolls.value = [];
       lastTransition.value = 'none';
       requiresAnotherRoll.value = false;
+      pendingAutoRolls.value = [];
+      pendingManualRolls.value = [];
       return true;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Не удалось создать игру';
@@ -220,6 +224,8 @@ export const useGameStore = defineStore('game', () => {
 
       currentGame.value = game;
       moves.value = gameMoves;
+      pendingAutoRolls.value = [];
+      pendingManualRolls.value = [];
 
       return true;
     } catch (err) {
@@ -249,17 +255,100 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  /**
-   * Бросить кубик (автоматический или ручной)
-   */
-  async function rollDice(manualValue?: number): Promise<MoveResponse | null> {
+  function validateRollPreconditions(): boolean {
     if (!currentGame.value || !isGameActive.value) {
       error.value = 'Нет активной игры';
-      return null;
+      return false;
     }
 
     if (needsEntryMeditation.value) {
       error.value = 'Сначала необходимо выполнить входную медитацию';
+      return false;
+    }
+
+    return true;
+  }
+
+  function applyFinalMoveResponse(response: MoveResponse): boolean {
+    if (!currentGame.value || !response.move || !response.cell_info || !response.game_status) {
+      error.value = 'Некорректный ответ сервера';
+      return false;
+    }
+
+    // Обновить состояние
+    moves.value.push(response.move);
+    currentDiceRolls.value = response.move.dice_rolls;
+    lastTransition.value = response.move.transition_type;
+    currentCellInfo.value = response.cell_info;
+    requiresAnotherRoll.value = response.requires_another_roll;
+
+    // Сохранить данные анимации ДО обновления current_cell
+    isChipAnimating.value = true;
+    pendingAnimation = {
+      startCell: response.move.start_cell,
+      endCell: response.move.end_cell,
+      finalCell: response.move.final_cell,
+      transitionType: response.move.transition_type,
+    };
+
+    // Обновить состояние игры
+    currentGame.value.status = response.game_status;
+    currentGame.value.current_cell = response.move.final_cell;
+    currentGame.value.total_moves = response.move.move_number;
+
+    if (response.move.transition_type === 'arrow') {
+      currentGame.value.arrows_hit += 1;
+    } else if (response.move.transition_type === 'snake') {
+      currentGame.value.snakes_hit += 1;
+    }
+
+    if (response.move.final_cell > currentGame.value.highest_cell) {
+      currentGame.value.highest_cell = response.move.final_cell;
+    }
+
+    return true;
+  }
+
+  /**
+   * Один авто-бросок кубика.
+   */
+  async function rollDiceAuto(): Promise<MoveResponse | null> {
+    if (!validateRollPreconditions() || !currentGame.value) {
+      return null;
+    }
+
+    isRolling.value = true;
+    error.value = null;
+
+    try {
+      const response = await gamesApi.rollDice(currentGame.value.id, { is_manual: false });
+
+      if (response.requires_another_roll && response.intermediate) {
+        pendingAutoRolls.value = [...response.intermediate.accumulated_rolls];
+        currentDiceRolls.value = [...response.intermediate.accumulated_rolls];
+        requiresAnotherRoll.value = true;
+        return response;
+      }
+
+      if (!applyFinalMoveResponse(response)) {
+        return null;
+      }
+
+      pendingAutoRolls.value = [];
+      return response;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Не удалось сделать ход';
+      return null;
+    } finally {
+      isRolling.value = false;
+    }
+  }
+
+  /**
+   * Финальный ручной бросок с передачей накопленных шестёрок.
+   */
+  async function rollDiceManual(finalValue: number): Promise<MoveResponse | null> {
+    if (!validateRollPreconditions() || !currentGame.value) {
       return null;
     }
 
@@ -268,45 +357,17 @@ export const useGameStore = defineStore('game', () => {
 
     try {
       const request: DiceRollRequest = {
-        is_manual: manualValue !== undefined,
+        is_manual: true,
+        manual_value: finalValue,
+        previous_manual_rolls: [...pendingManualRolls.value],
       };
-      if (manualValue !== undefined) {
-        request.manual_value = manualValue;
-      }
-
       const response = await gamesApi.rollDice(currentGame.value.id, request);
 
-      // Обновить состояние
-      moves.value.push(response.move);
-      currentDiceRolls.value = response.move.dice_rolls;
-      lastTransition.value = response.move.transition_type;
-      currentCellInfo.value = response.cell_info;
-      requiresAnotherRoll.value = response.requires_another_roll;
-
-      // Сохранить данные анимации ДО обновления current_cell
-      isChipAnimating.value = true;
-      pendingAnimation = {
-        startCell: response.move.start_cell,
-        endCell: response.move.end_cell,
-        finalCell: response.move.final_cell,
-        transitionType: response.move.transition_type,
-      };
-
-      // Обновить состояние игры
-      currentGame.value.status = response.game_status;
-      currentGame.value.current_cell = response.move.final_cell;
-      currentGame.value.total_moves += 1;
-
-      if (response.move.transition_type === 'arrow') {
-        currentGame.value.arrows_hit += 1;
-      } else if (response.move.transition_type === 'snake') {
-        currentGame.value.snakes_hit += 1;
+      if (!applyFinalMoveResponse(response)) {
+        return null;
       }
 
-      if (response.move.final_cell > currentGame.value.highest_cell) {
-        currentGame.value.highest_cell = response.move.final_cell;
-      }
-
+      pendingManualRolls.value = [];
       return response;
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Не удалось сделать ход';
@@ -314,6 +375,37 @@ export const useGameStore = defineStore('game', () => {
     } finally {
       isRolling.value = false;
     }
+  }
+
+  /**
+   * Добавить выбранную вручную 6 без запроса на backend.
+   */
+  function addManualSix(): number[] {
+    pendingManualRolls.value.push(6);
+    currentDiceRolls.value = [...pendingManualRolls.value];
+    requiresAnotherRoll.value = true;
+    return [...pendingManualRolls.value];
+  }
+
+  /**
+   * Сбросить накопленные ручные броски.
+   */
+  function resetManualRolls(): void {
+    pendingManualRolls.value = [];
+    if (pendingAutoRolls.value.length === 0) {
+      currentDiceRolls.value = [];
+      requiresAnotherRoll.value = false;
+    }
+  }
+
+  /**
+   * @deprecated Используйте rollDiceAuto/rollDiceManual.
+   */
+  async function rollDice(manualValue?: number): Promise<MoveResponse | null> {
+    if (manualValue === undefined) {
+      return await rollDiceAuto();
+    }
+    return await rollDiceManual(manualValue);
   }
 
   /**
@@ -516,6 +608,8 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls.value = [];
     lastTransition.value = 'none';
     requiresAnotherRoll.value = false;
+    pendingAutoRolls.value = [];
+    pendingManualRolls.value = [];
     displayCell.value = 0;
     isChipAnimating.value = false;
     activeTransition.value = null;
@@ -551,6 +645,8 @@ export const useGameStore = defineStore('game', () => {
     currentDiceRolls,
     lastTransition,
     requiresAnotherRoll,
+    pendingAutoRolls,
+    pendingManualRolls,
     displayCell,
     isChipAnimating,
     activeTransition,
@@ -583,6 +679,10 @@ export const useGameStore = defineStore('game', () => {
     loadGame,
     loadLatestActiveGame,
     rollDice,
+    rollDiceAuto,
+    rollDiceManual,
+    addManualSix,
+    resetManualRolls,
     getCellInfo,
     completeEntryMeditation,
     completeExitMeditation,

@@ -135,6 +135,7 @@ export interface MoveOut {
   move_number: number;
   dice_rolls: number[];
   is_triple_six: boolean;
+  is_pending: boolean;
   start_cell: number;
   end_cell: number;
   final_cell: number;
@@ -146,11 +147,21 @@ export interface MoveOut {
   created_at: string;
 }
 
+export interface IntermediateRollResponse {
+  pending_move_id: number;
+  dice_value: number;
+  accumulated_rolls: number[];
+  is_triple_six: boolean;
+  requires_another_roll: true;
+  message_key: string;
+}
+
 export interface MoveResponse {
-  move: MoveOut;
-  cell_info: CellBrief;
-  game_status: GameStatus;
   requires_another_roll: boolean;
+  intermediate?: IntermediateRollResponse;
+  move?: MoveOut;
+  cell_info?: CellBrief;
+  game_status?: GameStatus;
   is_entry_move: boolean;
   is_victory: boolean;
 }
@@ -158,6 +169,7 @@ export interface MoveResponse {
 export interface DiceRollRequest {
   is_manual?: boolean;
   manual_value?: number;
+  previous_manual_rolls?: number[];
 }
 
 export interface InsightCreate {

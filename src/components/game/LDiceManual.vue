@@ -4,6 +4,22 @@
       {{ $t('dice.select_value') }}
     </div>
 
+    <div v-if="props.pendingRolls?.length" class="q-mb-md text-center">
+      <q-chip
+        v-for="(roll, index) in props.pendingRolls"
+        :key="`${roll}-${index}`"
+        color="warning"
+        text-color="black"
+        dense
+      >
+        {{ roll }}
+      </q-chip>
+    </div>
+
+    <div v-if="props.pendingMessage" class="q-mb-md text-warning text-center text-body2">
+      {{ props.pendingMessage }}
+    </div>
+
     <div class="l-dice-manual__grid">
       <q-btn
         v-for="value in 6"
@@ -74,6 +90,8 @@ import { useSettingsStore } from 'src/stores/settings.store';
 
 interface Props {
   modelValue?: number;
+  pendingRolls?: number[];
+  pendingMessage?: string;
 }
 
 const props = defineProps<Props>();
@@ -81,6 +99,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void;
   (e: 'confirm', value: number): void;
+  (e: 'six-selected'): void;
 }>();
 
 const settingsStore = useSettingsStore();
@@ -104,6 +123,10 @@ function selectValue(value: number) {
 
 function confirm() {
   settingsStore.vibrate([30, 20, 50]);
+  if (selected.value === 6) {
+    emit('six-selected');
+    return;
+  }
   emit('confirm', selected.value);
 }
 </script>

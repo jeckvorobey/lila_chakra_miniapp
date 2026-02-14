@@ -5,13 +5,19 @@ import LDiceRollModal from '../LDiceRollModal.vue';
 import type { MoveResponse } from 'src/types/game.interface';
 
 const {
-  mockRollDice,
+  mockRollDiceAuto,
+  mockRollDiceManual,
+  mockAddManualSix,
+  mockResetManualRolls,
   mockNotify,
   mockDialog,
   mockRouterPush,
   mockVibrate,
 } = vi.hoisted(() => ({
-  mockRollDice: vi.fn(),
+  mockRollDiceAuto: vi.fn(),
+  mockRollDiceManual: vi.fn(),
+  mockAddManualSix: vi.fn(),
+  mockResetManualRolls: vi.fn(),
   mockNotify: vi.fn(),
   mockDialog: vi.fn(),
   mockRouterPush: vi.fn(),
@@ -19,7 +25,10 @@ const {
 }));
 
 const mockGameStore = {
-  rollDice: mockRollDice,
+  rollDiceAuto: mockRollDiceAuto,
+  rollDiceManual: mockRollDiceManual,
+  addManualSix: mockAddManualSix,
+  resetManualRolls: mockResetManualRolls,
   currentDiceRolls: [] as number[],
   error: null as string | null,
 };
@@ -62,7 +71,7 @@ vi.mock('quasar', async () => {
   };
 });
 
-function createMoveResponse(partial: Partial<MoveResponse> = {}): MoveResponse {
+function createFinalMoveResponse(partial: Partial<MoveResponse> = {}): MoveResponse {
   return {
     move: {
       id: 1,
@@ -70,6 +79,7 @@ function createMoveResponse(partial: Partial<MoveResponse> = {}): MoveResponse {
       move_number: 1,
       dice_rolls: [4],
       is_triple_six: false,
+      is_pending: false,
       start_cell: 0,
       end_cell: 4,
       final_cell: 4,
@@ -97,6 +107,22 @@ function createMoveResponse(partial: Partial<MoveResponse> = {}): MoveResponse {
   };
 }
 
+function createIntermediateResponse(): MoveResponse {
+  return {
+    requires_another_roll: true,
+    intermediate: {
+      pending_move_id: 12,
+      dice_value: 6,
+      accumulated_rolls: [6],
+      is_triple_six: false,
+      requires_another_roll: true,
+      message_key: 'dice.rolled_six_roll_again',
+    },
+    is_entry_move: false,
+    is_victory: false,
+  };
+}
+
 function mountModal() {
   return shallowMount(LDiceRollModal, {
     props: {
@@ -117,7 +143,9 @@ function mountModal() {
         },
         LDice: true,
         LDiceManual: {
-          template: '<button data-testid="manual-confirm" @click="$emit(\'confirm\', 5)" />',
+          template:
+            '<div><button data-testid="manual-confirm" @click="$emit(\'confirm\', 5)" />' +
+            '<button data-testid="manual-six" @click="$emit(\'six-selected\')" /></div>',
         },
       },
     },
@@ -144,46 +172,40 @@ describe('LDiceRollModal', () => {
     vi.useRealTimers();
   });
 
-  it('авто-режим вызывает rollDice и устанавливает result после минимальной задержки', async () => {
-    mockRollDice.mockResolvedValue(createMoveResponse());
+  it('авто-режим вызывает rollDiceAuto и устанавливает результат после задержки', async () => {
+    mockRollDiceAuto.mockResolvedValue(createFinalMoveResponse());
 
     const wrapper = mountModal();
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
-    expect(mockRollDice).toHaveBeenCalledOnce();
+    expect(mockRollDiceAuto).toHaveBeenCalledOnce();
 
-    // Ждём минимальную задержку 2000ms
     await vi.advanceTimersByTimeAsync(1999);
     await flushPromises();
 
-    // result ещё не установлен (задержка не прошла)
     const dice = wrapper.findComponent({ name: 'LDice' });
     expect(dice.props('result')).toBeNull();
 
     await vi.advanceTimersByTimeAsync(1);
     await flushPromises();
 
-    // Теперь result установлен, isRolling всё ещё true (ждёт roll-complete)
     expect(dice.props('result')).toBe(4);
     expect(dice.props('isRolling')).toBe(true);
   });
 
-  it('закрывает модалку после получения roll-complete и паузы', async () => {
-    mockRollDice.mockResolvedValue(createMoveResponse());
+  it('закрывает модалку после roll-complete для финального ответа', async () => {
+    mockRollDiceAuto.mockResolvedValue(createFinalMoveResponse());
 
     const wrapper = mountModal();
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
-    // Минимальная задержка
     await vi.advanceTimersByTimeAsync(2000);
     await flushPromises();
 
-    // Эмулируем roll-complete от LDice
     const dice = wrapper.findComponent({ name: 'LDice' });
     dice.vm.$emit('roll-complete', 4);
     await nextTick();
 
-    // Модалка ещё не закрыта — ждём RESULT_VIEW_DELAY_MS (450ms)
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
 
     await vi.advanceTimersByTimeAsync(450);
@@ -192,81 +214,56 @@ describe('LDiceRollModal', () => {
     expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
   });
 
-  it('ручной режим вызывает rollDice с выбранным значением', async () => {
-    mockRollDice.mockResolvedValue(createMoveResponse());
-
-    const wrapper = mountModal();
-    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
-    await nextTick();
-
-    await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
-
-    expect(mockRollDice).toHaveBeenCalledWith(5);
-  });
-
-  it('в ручном режиме не запускает анимацию кубика и закрывает модалку сразу после ответа', async () => {
-    const response = createMoveResponse();
-    mockRollDice.mockResolvedValue(response);
-
-    const wrapper = mountModal();
-    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
-    await nextTick();
-
-    expect(wrapper.findComponent({ name: 'LDice' }).exists()).toBe(false);
-
-    await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
-    await flushPromises();
-
-    expect(mockRollDice).toHaveBeenCalledWith(5);
-    expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
-    const emitted = wrapper.emitted('roll-finished') ?? [];
-    expect(emitted).toHaveLength(1);
-    expect(emitted[0]?.[0]).toEqual(response);
-  });
-
-  it('обрабатывает тройную шестерку и эмитит roll-finished', async () => {
-    const response = createMoveResponse({
-      move: {
-        ...createMoveResponse().move,
-        dice_rolls: [6, 6, 6, 4],
-        is_triple_six: true,
-        transition_type: 'arrow',
-        final_cell: 23,
-      },
-      is_victory: true,
-    });
-
-    mockRollDice.mockResolvedValue(response);
+  it('при промежуточном авто-ответе не закрывает модалку', async () => {
+    mockRollDiceAuto.mockResolvedValue(createIntermediateResponse());
 
     const wrapper = mountModal();
     await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
 
-    // Минимальная задержка
     await vi.advanceTimersByTimeAsync(2000);
     await flushPromises();
 
-    // roll-complete
     const dice = wrapper.findComponent({ name: 'LDice' });
-    dice.vm.$emit('roll-complete', 4);
+    expect(dice.props('result')).toBe(6);
+
+    dice.vm.$emit('roll-complete', 6);
     await nextTick();
 
-    // RESULT_VIEW_DELAY_MS
     await vi.advanceTimersByTimeAsync(450);
     await flushPromises();
 
-    // Тройная шестёрка — уведомление показывается в модалке
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'dice.burned' }),
-    );
-
-    // Переход и победа делегированы наверх через emit
-    const emitted = wrapper.emitted('roll-finished') ?? [];
-    expect(emitted).toHaveLength(1);
-    expect(emitted[0]?.[0]).toEqual(response);
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    expect(wrapper.emitted('roll-finished')).toBeUndefined();
   });
 
-  it('показывает ошибку если rollDice вернул null', async () => {
-    mockRollDice.mockResolvedValue(null);
+  it('ручной режим вызывает rollDiceManual с выбранным значением', async () => {
+    mockRollDiceManual.mockResolvedValue(createFinalMoveResponse());
+
+    const wrapper = mountModal();
+    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
+    await nextTick();
+
+    await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
+
+    expect(mockRollDiceManual).toHaveBeenCalledWith(5);
+    expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+  });
+
+  it('в ручном режиме выбор 6 вызывает addManualSix без API запроса', async () => {
+    mockAddManualSix.mockReturnValue([6]);
+
+    const wrapper = mountModal();
+    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
+    await nextTick();
+
+    await wrapper.get('[data-testid="manual-six"]').trigger('click');
+
+    expect(mockAddManualSix).toHaveBeenCalledOnce();
+    expect(mockRollDiceManual).not.toHaveBeenCalled();
+  });
+
+  it('показывает ошибку если rollDiceAuto вернул null', async () => {
+    mockRollDiceAuto.mockResolvedValue(null);
     mockGameStore.error = 'Ошибка сети';
 
     const wrapper = mountModal();

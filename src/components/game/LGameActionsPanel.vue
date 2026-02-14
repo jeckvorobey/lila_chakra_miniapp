@@ -112,6 +112,10 @@ const currentChakraLabel = computed(() =>
  * Обработка завершения броска: анимация → уведомление → победа
  */
 async function onRollFinished(result: MoveResponse): Promise<void> {
+  if (!result.move) {
+    return;
+  }
+
   await gameStore.startChipAnimation();
   notifyTransition(result);
 
@@ -121,6 +125,10 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
 }
 
 function notifyTransition(result: MoveResponse): void {
+  if (!result.move) {
+    return;
+  }
+
   if (result.move.transition_type === 'arrow') {
     $q.notify({
       type: 'positive',

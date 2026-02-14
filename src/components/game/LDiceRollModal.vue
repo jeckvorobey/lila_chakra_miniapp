@@ -8,7 +8,7 @@
         class="q-mb-md"
         rounded
         unelevated
-        :disable="isSubmitting || isRollingVisual"
+        :disable="isSubmitting || isRollingVisual || pendingAutoRolls.length > 0"
       />
 
       <template v-if="showDiceVisual">
@@ -23,7 +23,7 @@
 
         <q-btn
           v-if="diceMode === 'auto'"
-          :label="t('dice.roll')"
+          :label="pendingAutoRolls.length > 0 ? t('dice.roll_again') : t('dice.roll')"
           color="primary"
           size="lg"
           unelevated
@@ -35,13 +35,23 @@
       </template>
 
       <template v-else>
-        <l-dice-manual v-model="manualDiceValue" @confirm="performManualRoll" />
+        <l-dice-manual
+          v-model="manualDiceValue"
+          :pending-rolls="pendingManualRolls"
+          :pending-message="pendingMessage"
+          @confirm="performManualRoll"
+          @six-selected="handleManualSixSelected"
+        />
       </template>
 
-      <div v-if="gameStore.currentDiceRolls.length > 1" class="q-mt-md text-center">
+      <div v-if="diceMode === 'auto' && pendingMessage" class="q-mt-md text-warning text-center text-body2">
+        {{ pendingMessage }}
+      </div>
+
+      <div v-if="displayRolls.length > 1" class="q-mt-md text-center">
         <div class="text-caption text-secondary">
-          {{ gameStore.currentDiceRolls.join(' + ') }} =
-          <strong>{{gameStore.currentDiceRolls.reduce((a: number, b: number) => a + b, 0)}}</strong>
+          {{ displayRolls.join(' + ') }} =
+          <strong>{{ displayRolls.reduce((a: number, b: number) => a + b, 0) }}</strong>
         </div>
       </div>
     </div>
@@ -84,6 +94,9 @@ const lastDiceResult = ref<number | null>(null);
 const isRollingVisual = ref(false);
 const isSubmitting = ref(false);
 const pendingResult = ref<MoveResponse | null>(null);
+const pendingManualRolls = ref<number[]>([]);
+const pendingAutoRolls = ref<number[]>([]);
+const pendingMessage = ref('');
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -101,6 +114,15 @@ const showDiceVisual = computed(
     pendingResult.value !== null ||
     lastDiceResult.value !== null,
 );
+const displayRolls = computed(() => {
+  if (diceMode.value === 'manual' && pendingManualRolls.value.length > 0) {
+    return pendingManualRolls.value;
+  }
+  if (pendingAutoRolls.value.length > 0) {
+    return pendingAutoRolls.value;
+  }
+  return gameStore.currentDiceRolls;
+});
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -122,7 +144,7 @@ async function onRollComplete(): Promise<void> {
 
   settingsStore.vibrate([30, 20, 50]);
 
-  if (result.move.is_triple_six) {
+  if (result.move?.is_triple_six) {
     $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
   }
 
@@ -159,7 +181,25 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
       await sleep(MIN_ROLL_DELAY_MS - elapsed);
     }
 
-    // Устанавливаем результат — LDice переключится с loop на landing
+    if (result.requires_another_roll && result.intermediate) {
+      pendingAutoRolls.value = [...result.intermediate.accumulated_rolls];
+      pendingMessage.value = t(result.intermediate.message_key);
+      pendingResult.value = null;
+      lastDiceResult.value = result.intermediate.dice_value;
+      return;
+    }
+
+    if (!result.move) {
+      isRollingVisual.value = false;
+      $q.notify({
+        type: 'negative',
+        message: gameStore.error || t('error.generic'),
+      });
+      return;
+    }
+
+    pendingMessage.value = '';
+    pendingAutoRolls.value = [];
     pendingResult.value = result;
     lastDiceResult.value = result.move.dice_rolls[result.move.dice_rolls.length - 1] ?? null;
 
@@ -176,7 +216,7 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
 }
 
 function performAutoRoll(): void {
-  void executeRoll(() => gameStore.rollDice());
+  void executeRoll(() => gameStore.rollDiceAuto());
 }
 
 async function executeManualRoll(value: number): Promise<void> {
@@ -190,9 +230,9 @@ async function executeManualRoll(value: number): Promise<void> {
   isRollingVisual.value = false;
 
   try {
-    const result = await gameStore.rollDice(value);
+    const result = await gameStore.rollDiceManual(value);
 
-    if (!result) {
+    if (!result || !result.move) {
       $q.notify({
         type: 'negative',
         message: gameStore.error || t('error.generic'),
@@ -203,6 +243,10 @@ async function executeManualRoll(value: number): Promise<void> {
     if (result.move.is_triple_six) {
       $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
     }
+
+    pendingManualRolls.value = [];
+    pendingMessage.value = '';
+    gameStore.resetManualRolls();
 
     isOpen.value = false;
     emit('roll-finished', result);
@@ -221,6 +265,16 @@ function performManualRoll(value: number): void {
   void executeManualRoll(value);
 }
 
+function handleManualSixSelected(): void {
+  const accumulated = gameStore.addManualSix();
+  pendingManualRolls.value = [...accumulated];
+
+  const count = pendingManualRolls.value.length;
+  pendingMessage.value = count >= 3
+    ? t('dice.triple_six_burn_manual')
+    : t('dice.manual_six_roll_again');
+}
+
 watch(
   () => props.modelValue,
   (isModalOpen) => {
@@ -230,6 +284,10 @@ watch(
     isSubmitting.value = false;
     lastDiceResult.value = null;
     pendingResult.value = null;
+    pendingManualRolls.value = [];
+    pendingAutoRolls.value = [];
+    pendingMessage.value = '';
+    gameStore.resetManualRolls();
   },
 );
 </script>

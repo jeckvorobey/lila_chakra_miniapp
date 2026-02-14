@@ -162,7 +162,7 @@ describe('game.store rollDice', () => {
     vi.clearAllMocks();
   });
 
-  it('при ручном вводе отправляет manual_value в тот же endpoint броска', async () => {
+  it('в ручном режиме отправляет manual_value вместе с previous_manual_rolls', async () => {
     const store = useGameStore();
 
     store.currentGame = {
@@ -185,16 +185,19 @@ describe('game.store rollDice', () => {
       ai_summary: null,
     };
 
+    store.addManualSix();
+
     mockGamesApi.rollDice.mockResolvedValue({
       move: {
         id: 5,
         game_id: 77,
         move_number: 3,
-        dice_rolls: [4],
+        dice_rolls: [6, 4],
         is_triple_six: false,
+        is_pending: false,
         start_cell: 10,
-        end_cell: 14,
-        final_cell: 14,
+        end_cell: 20,
+        final_cell: 20,
         transition_type: 'none',
         transition_from: null,
         transition_to: null,
@@ -203,7 +206,7 @@ describe('game.store rollDice', () => {
         created_at: '2026-02-08T14:33:14.866798Z',
       },
       cell_info: {
-        id: 14,
+        id: 20,
         name_ru: 'Клетка',
         chakra_level: 2,
         chakra_name: 'Свадхистана',
@@ -217,11 +220,56 @@ describe('game.store rollDice', () => {
       is_victory: false,
     });
 
-    await store.rollDice(4);
+    await store.rollDiceManual(4);
 
     expect(mockGamesApi.rollDice).toHaveBeenCalledWith(77, {
       is_manual: true,
       manual_value: 4,
+      previous_manual_rolls: [6],
     });
+  });
+
+  it('в авто-режиме возвращает промежуточный ответ при выпадении 6', async () => {
+    const store = useGameStore();
+
+    store.currentGame = {
+      id: 77,
+      user_id: 15,
+      query: 'Тестовый запрос для авто броска',
+      category: 'career',
+      mode: 'free',
+      status: 'in_progress',
+      current_cell: 10,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 2,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 10,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+    };
+
+    mockGamesApi.rollDice.mockResolvedValue({
+      requires_another_roll: true,
+      intermediate: {
+        pending_move_id: 12,
+        dice_value: 6,
+        accumulated_rolls: [6],
+        is_triple_six: false,
+        requires_another_roll: true,
+        message_key: 'dice.rolled_six_roll_again',
+      },
+      is_entry_move: false,
+      is_victory: false,
+    });
+
+    const response = await store.rollDiceAuto();
+
+    expect(response?.requires_another_roll).toBe(true);
+    expect(store.pendingAutoRolls).toEqual([6]);
+    expect(store.currentDiceRolls).toEqual([6]);
   });
 });
