@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
-    <q-header v-if="showHeader" class="bg-glass q-mb-xs" :class="{ 'bg-transparent': isGamePage }">
+    <q-header v-if="showHeader" class="bg-glass" :class="{ 'bg-transparent': isGamePage }">
       <q-toolbar class="safe-area-top">
         <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
 
@@ -42,7 +42,7 @@
     </q-header>
 
     <!-- Main content -->
-    <q-page-container>
+    <q-page-container class="q-my-sm">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -107,7 +107,6 @@ function openFeedback() {
 
 <style lang="scss" scoped>
 .q-header {
-  margin: var(--lila-layout-gap) var(--lila-layout-gap) 0;
   border: 1px solid var(--lila-border);
   border-top: none;
   border-bottom-left-radius: 16px;
@@ -122,16 +121,5 @@ function openFeedback() {
 
 .q-toolbar {
   min-height: 56px;
-  padding: 0 8px;
-}
-
-:deep(.q-page.q-layout-padding) {
-  padding-left: var(--lila-layout-gap) !important;
-  padding-right: var(--lila-layout-gap) !important;
-}
-
-:deep(.q-page:not(.q-layout-padding)) {
-  padding-left: var(--lila-layout-gap);
-  padding-right: var(--lila-layout-gap);
 }
 </style>

@@ -1,26 +1,24 @@
 <template>
-  <div class="l-game-active-state column no-wrap full-width full-height col">
+  <div class="column no-wrap">
     <q-card flat bordered class="bg-surface">
-      <q-card-section class="q-pa-md">
+      <q-card-section>
         <div class="text-subtitle1 text-weight-medium q-mb-sm">
           {{ gameStore.currentGame?.query }}
         </div>
 
-        <l-progress-bar
-          :current-cell="gameStore.currentCell"
-        />
+        <l-progress-bar :current-cell="gameStore.currentCell" />
       </q-card-section>
     </q-card>
 
-    <l-game-board-section ref="boardSectionRef" class="col" :current-cell="gameStore.displayCell" />
+    <div>
+      <l-game-board-section ref="boardSectionRef" :current-cell="gameStore.displayCell" />
+    </div>
 
-    <l-game-actions-panel
-      :current-cell="gameStore.currentCell"
-      :current-cell-info="gameStore.currentCellInfo"
-      :current-chakra="currentChakra"
-      :is-waiting-for-six="gameStore.isWaitingFor6"
-      @show-current-cell-info="showCurrentCellInfo"
-    />
+    <div>
+      <l-game-actions-panel :current-cell="gameStore.currentCell" :current-cell-info="gameStore.currentCellInfo"
+        :current-chakra="currentChakra" :is-waiting-for-six="gameStore.isWaitingFor6"
+        @show-current-cell-info="showCurrentCellInfo" />
+    </div>
   </div>
 </template>
 
@@ -48,11 +46,4 @@ function showCurrentCellInfo(): void {
 }
 </script>
 
-<style lang="scss" scoped>
-.l-game-active-state {
-  min-height: 0;
-  gap: var(--lila-layout-gap);
-  padding-top: var(--lila-layout-gap);
-  padding-bottom: var(--lila-layout-gap);
-}
-</style>
+<style lang="scss" scoped></style>
