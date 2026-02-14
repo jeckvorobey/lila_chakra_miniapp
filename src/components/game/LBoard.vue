@@ -123,12 +123,12 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     padding: 16px;
-    border: 1px solid var(--lila-border);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 16px;
     background: linear-gradient(180deg, #0f0d1a 0%, #1a1625 100%);
 
     .body--light & {
-      border: 1px solid var(--lila-border);
+      border-color: rgba(0, 0, 0, 0.12);
       background: linear-gradient(180deg, #ffffff 0%, #f5f5f4 100%);
       box-shadow: var(--lila-shadow);
     }

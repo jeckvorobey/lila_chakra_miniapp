@@ -1,6 +1,6 @@
 <template>
   <div class="game-actions full-width">
-    <q-card flat bordered class="bg-surface q-ma-sm">
+    <q-card flat bordered class="bg-surface">
       <q-card-section class="q-pa-md">
         <div class="row items-center q-mb-md">
           <q-avatar
@@ -193,7 +193,7 @@ function confirmEndGame(): void {
 .game-actions {
   margin-top: auto;
   position: sticky;
-  bottom: 0;
+  bottom: var(--lila-layout-gap);
   z-index: 10;
   width: 100%;
 }

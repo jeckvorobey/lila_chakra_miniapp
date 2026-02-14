@@ -83,7 +83,7 @@ describe('useTransitionAnimation', () => {
     expect((fadeOptions as KeyframeAnimationOptions).duration).toBe(400);
   });
 
-  it('для змеи двигает фишку по пути в обратном направлении', async () => {
+  it('для змеи двигает фишку по пути от стартовой клетки к целевой', async () => {
     const { animate } = useTransitionAnimation();
     const els = setupElements(true);
 
@@ -101,8 +101,8 @@ describe('useTransitionAnimation', () => {
     const frames = chipKeyframes as Keyframe[];
 
     expect((chipOptions as KeyframeAnimationOptions).duration).toBe(1000);
-    expect((frames[0]?.transform as string).includes('100px')).toBe(true);
-    expect((frames[frames.length - 1]?.transform as string).includes('0px')).toBe(true);
+    expect((frames[0]?.transform as string).includes('0px')).toBe(true);
+    expect((frames[frames.length - 1]?.transform as string).includes('100px')).toBe(true);
   });
 
   it('stop отменяет активные анимации', async () => {

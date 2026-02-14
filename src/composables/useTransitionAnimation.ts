@@ -87,8 +87,8 @@ export function useTransitionAnimation() {
 
       const chipKeyframes = createChipKeyframes(
         pathEl,
-        config.type === 'arrow' ? 0 : 1,
-        config.type === 'arrow' ? 1 : 0,
+        0,
+        1,
       );
 
       await playAnimation(

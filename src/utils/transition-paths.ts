@@ -25,34 +25,34 @@ export function createArrowHead(
 }
 
 /**
- * Синусоидальная кривая змеи от хвоста к голове.
+ * Синусоидальная кривая змеи в направлении движения фишки.
  */
 export function createSnakePath(
-  tailPos: CellPosition,
-  headPos: CellPosition,
+  startPos: CellPosition,
+  endPos: CellPosition,
   segments = 0,
 ): string {
-  const dx = headPos.x - tailPos.x;
-  const dy = headPos.y - tailPos.y;
+  const dx = endPos.x - startPos.x;
+  const dy = endPos.y - startPos.y;
   const distance = Math.hypot(dx, dy);
 
   if (distance === 0) {
-    return `M ${tailPos.x} ${tailPos.y}`;
+    return `M ${startPos.x} ${startPos.y}`;
   }
 
   const segmentCount = segments === 0 ? Math.max(3, Math.round(distance / 40)) : segments;
   const amplitude = Math.min(distance * 0.15, 30);
 
-  let path = `M ${tailPos.x} ${tailPos.y}`;
+  let path = `M ${startPos.x} ${startPos.y}`;
 
   for (let i = 1; i <= segmentCount; i += 1) {
     const t = i / segmentCount;
     const tPrev = (i - 0.5) / segmentCount;
 
-    const midX = tailPos.x + dx * tPrev;
-    const midY = tailPos.y + dy * tPrev;
-    const endX = tailPos.x + dx * t;
-    const endY = tailPos.y + dy * t;
+    const midX = startPos.x + dx * tPrev;
+    const midY = startPos.y + dy * tPrev;
+    const endX = startPos.x + dx * t;
+    const endY = startPos.y + dy * t;
 
     const perpX = -dy / distance;
     const perpY = dx / distance;

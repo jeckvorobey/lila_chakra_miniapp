@@ -7,7 +7,14 @@
       preserveAspectRatio="none"
     >
       <defs>
-        <linearGradient :id="gradientId" x1="0%" y1="100%" x2="0%" y2="0%">
+        <linearGradient
+          :id="gradientId"
+          gradientUnits="userSpaceOnUse"
+          :x1="gradientStart.x"
+          :y1="gradientStart.y"
+          :x2="gradientEnd.x"
+          :y2="gradientEnd.y"
+        >
           <stop offset="0%" :stop-color="startColor" />
           <stop offset="100%" :stop-color="endColor" />
         </linearGradient>
@@ -127,8 +134,11 @@ const pathData = computed(() => {
     return createArrowPath(startPos.value, endPos.value);
   }
 
-  return createSnakePath(endPos.value, startPos.value);
+  return createSnakePath(startPos.value, endPos.value);
 });
+
+const gradientStart = computed<CellPosition>(() => startPos.value ?? { x: 0, y: 0 });
+const gradientEnd = computed<CellPosition>(() => endPos.value ?? { x: 0, y: 0 });
 
 const arrowHeadPath = computed(() => {
   if (props.type !== 'arrow' || !startPos.value || !endPos.value) return '';

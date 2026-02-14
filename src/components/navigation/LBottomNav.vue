@@ -67,7 +67,12 @@ function onTabClick(tab: string) {
 
 <style lang="scss" scoped>
 .l-bottom-nav {
-  border-top: 1px solid var(--lila-border);
+  margin: var(--lila-layout-gap);
+  border: 1px solid var(--lila-border);
+  border-bottom: none;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden;
   padding-bottom: env(safe-area-inset-bottom);
 
   .body--light & {

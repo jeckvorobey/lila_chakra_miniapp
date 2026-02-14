@@ -1,6 +1,6 @@
 <template>
   <div class="l-game-active-state column no-wrap full-width full-height col">
-    <q-card flat bordered class="q-ma-sm bg-surface">
+    <q-card flat bordered class="bg-surface">
       <q-card-section class="q-pa-md">
         <div class="text-subtitle1 text-weight-medium q-mb-sm">
           {{ gameStore.currentGame?.query }}
@@ -51,5 +51,8 @@ function showCurrentCellInfo(): void {
 <style lang="scss" scoped>
 .l-game-active-state {
   min-height: 0;
+  gap: var(--lila-layout-gap);
+  padding-top: var(--lila-layout-gap);
+  padding-bottom: var(--lila-layout-gap);
 }
 </style>

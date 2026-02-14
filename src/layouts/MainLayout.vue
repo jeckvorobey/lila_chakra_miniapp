@@ -1,11 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
-    <q-header
-      v-if="showHeader"
-      class="bg-glass"
-      :class="{ 'bg-transparent no-border': isGamePage }"
-    >
+    <q-header v-if="showHeader" class="bg-glass q-mb-xs" :class="{ 'bg-transparent': isGamePage }">
       <q-toolbar class="safe-area-top">
         <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
 
@@ -111,10 +107,14 @@ function openFeedback() {
 
 <style lang="scss" scoped>
 .q-header {
-  border-bottom: 1px solid var(--lila-border);
+  margin: var(--lila-layout-gap) var(--lila-layout-gap) 0;
+  border: 1px solid var(--lila-border);
+  border-top: none;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  overflow: hidden;
 
-  &.no-border {
-    border-bottom: none;
+  &.bg-transparent {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -123,5 +123,15 @@ function openFeedback() {
 .q-toolbar {
   min-height: 56px;
   padding: 0 8px;
+}
+
+:deep(.q-page.q-layout-padding) {
+  padding-left: var(--lila-layout-gap) !important;
+  padding-right: var(--lila-layout-gap) !important;
+}
+
+:deep(.q-page:not(.q-layout-padding)) {
+  padding-left: var(--lila-layout-gap);
+  padding-right: var(--lila-layout-gap);
 }
 </style>

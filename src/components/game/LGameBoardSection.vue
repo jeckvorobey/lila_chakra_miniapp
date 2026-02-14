@@ -1,5 +1,5 @@
 <template>
-  <div class="l-game-board-section col column no-wrap full-width q-pa-sm overflow-hidden">
+  <div class="l-game-board-section col column no-wrap full-width overflow-hidden">
     <l-board
       class="col fit"
       :current-cell="currentCell"
