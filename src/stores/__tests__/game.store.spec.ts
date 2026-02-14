@@ -191,7 +191,6 @@ describe('game.store rollDice', () => {
         game_id: 77,
         move_number: 3,
         dice_rolls: [4],
-        total_roll: 4,
         is_triple_six: false,
         start_cell: 10,
         end_cell: 14,

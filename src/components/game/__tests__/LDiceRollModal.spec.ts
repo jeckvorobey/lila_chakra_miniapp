@@ -69,7 +69,6 @@ function createMoveResponse(partial: Partial<MoveResponse> = {}): MoveResponse {
       game_id: 1,
       move_number: 1,
       dice_rolls: [4],
-      total_roll: 4,
       is_triple_six: false,
       start_cell: 0,
       end_cell: 4,

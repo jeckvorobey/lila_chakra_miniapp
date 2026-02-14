@@ -53,7 +53,7 @@
             <div class="row items-center">
               <span>Ход #{{ move.move_number }}</span>
               <q-badge class="q-ml-sm" color="grey-7">
-                🎲 {{ move.dice_rolls.join(' + ') }} = {{ move.total_roll }}
+                🎲 {{ move.dice_rolls.join(' + ') }}
               </q-badge>
             </div>
           </template>

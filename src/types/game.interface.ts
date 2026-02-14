@@ -134,7 +134,6 @@ export interface MoveOut {
   game_id: number;
   move_number: number;
   dice_rolls: number[];
-  total_roll: number;
   is_triple_six: boolean;
   start_cell: number;
   end_cell: number;
