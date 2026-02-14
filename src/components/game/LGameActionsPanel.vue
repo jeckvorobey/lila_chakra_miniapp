@@ -118,6 +118,7 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
 
   await gameStore.startChipAnimation();
   notifyTransition(result);
+  emit('show-current-cell-info');
 
   if (result.is_victory) {
     showVictoryDialog();

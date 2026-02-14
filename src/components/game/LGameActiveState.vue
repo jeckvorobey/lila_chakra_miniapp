@@ -10,15 +10,13 @@
       </q-card-section>
     </q-card>
 
-    <div>
-      <l-game-board-section ref="boardSectionRef" :current-cell="gameStore.displayCell" />
-    </div>
+    <l-game-board-section ref="boardSectionRef" :current-cell="gameStore.displayCell" />
 
-    <div>
-      <l-game-actions-panel :current-cell="gameStore.currentCell" :current-cell-info="gameStore.currentCellInfo"
-        :current-chakra="currentChakra" :is-waiting-for-six="gameStore.isWaitingFor6"
-        @show-current-cell-info="showCurrentCellInfo" />
-    </div>
+
+    <l-game-actions-panel :current-cell="gameStore.currentCell" :current-cell-info="gameStore.currentCellInfo"
+      :current-chakra="currentChakra" :is-waiting-for-six="gameStore.isWaitingFor6"
+      @show-current-cell-info="showCurrentCellInfo" />
+
   </div>
 </template>
 
