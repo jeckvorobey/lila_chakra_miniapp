@@ -4,13 +4,21 @@
       <!-- Выбор режима -->
       <div class="q-mb-md">
         <div class="text-overline text-secondary q-mb-sm">Режим игры</div>
-        <q-option-group
-          v-model="gameMode"
-          :options="gameModeOptions"
-          type="radio"
-          color="primary"
-          inline
-        />
+        <q-card flat bordered class="q-pa-sm query-page__mode-card">
+          <div class="row q-col-gutter-sm">
+            <div v-for="option in gameModeOptions" :key="option.value" class="col-12 col-sm-4">
+              <q-btn
+                :label="option.label"
+                no-caps
+                class="full-width query-page__mode-btn"
+                :outline="gameMode !== option.value"
+                :color="gameMode === option.value ? 'accent' : inactiveModeColor"
+                :text-color="gameMode === option.value ? 'white' : inactiveModeTextColor"
+                @click="gameMode = option.value"
+              />
+            </div>
+          </div>
+        </q-card>
       </div>
 
       <!-- Выбор категории -->
@@ -97,11 +105,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useGameStore, type QueryCategory, type GameMode } from 'src/stores/game.store';
 
-const { t } = useI18n();
+const $q = useQuasar();
+const i18n = useI18n();
 const router = useRouter();
 const gameStore = useGameStore();
 
@@ -115,76 +125,69 @@ const isLoading = ref(false);
 const categories = computed(() => [
   {
     value: 'relationships' as QueryCategory,
-    label: t('query.category.relationships'),
+    label: i18n.t('query.category.relationships'),
     icon: 'mdi-heart',
   },
-  { value: 'career' as QueryCategory, label: t('query.category.career'), icon: 'mdi-briefcase' },
-  { value: 'health' as QueryCategory, label: t('query.category.health'), icon: 'mdi-heart-pulse' },
+  {
+    value: 'career' as QueryCategory,
+    label: i18n.t('query.category.career'),
+    icon: 'mdi-briefcase',
+  },
+  {
+    value: 'health' as QueryCategory,
+    label: i18n.t('query.category.health'),
+    icon: 'mdi-heart-pulse',
+  },
   {
     value: 'finance' as QueryCategory,
-    label: t('query.category.finance'),
+    label: i18n.t('query.category.finance'),
     icon: 'mdi-currency-usd',
   },
   {
     value: 'freedom' as QueryCategory,
-    label: t('query.category.freedom'),
+    label: i18n.t('query.category.freedom'),
     icon: 'mdi-map',
   },
   {
     value: 'personality' as QueryCategory,
-    label: t('query.category.personality'),
+    label: i18n.t('query.category.personality'),
     icon: 'mdi-account-circle',
   },
 ]);
 
 // Опции режима игры
-const gameModeOptions = [
+const gameModeOptions: ReadonlyArray<{ value: GameMode; label: string }> = [
   { value: 'free', label: 'Бесплатный' },
   { value: 'ai_guide', label: 'ИИ Наставник (15 ТКН)' },
   { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 ТКН)' },
 ];
 
-// Примеры запросов
-const examples = computed(() => {
-  switch (category.value) {
-    case 'relationships':
-      return [
-        'Как улучшить отношения с партнёром?',
-        'Почему мне сложно доверять людям?',
-        'Как найти гармонию в семье?',
-      ];
-    case 'career':
-      return [
-        'Как найти своё призвание?',
-        'Стоит ли мне менять работу?',
-        'Как развить лидерские качества?',
-      ];
-    case 'health':
-      return [
-        'Как восстановить энергию?',
-        'Что мешает мне быть здоровым?',
-        'Как найти баланс тела и духа?',
-      ];
-    case 'finance':
-      return [
-        'Как привлечь изобилие в жизнь?',
-        'Что блокирует мой финансовый рост?',
-        'Как изменить отношение к деньгам?',
-      ];
-    case 'freedom':
-      return [
-        'Куда мне стоит поехать?',
-        'Как обрести внутреннюю свободу?',
-        'Что мешает мне путешествовать?',
-      ];
-    default:
-      return [
-        'Над чем мне стоит поработать сейчас?',
-        'Что мешает мне двигаться вперёд?',
-        'Какое качество мне развить?',
-      ];
+const inactiveModeColor = computed(() => ($q.dark.isActive ? 'grey-9' : 'grey-2'));
+const inactiveModeTextColor = computed(() => ($q.dark.isActive ? 'grey-3' : 'dark'));
+
+type QueryExamplesByCategory = Partial<Record<QueryCategory, string[]>>;
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+function isQueryExamplesByCategory(value: unknown): value is QueryExamplesByCategory {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
   }
+
+  return Object.values(value).every(isStringArray);
+}
+
+const examplesByCategory = computed<QueryExamplesByCategory>(() => {
+  const localizedExamples = i18n.tm('query.examples_by_category');
+  return isQueryExamplesByCategory(localizedExamples) ? localizedExamples : {};
 });
+
+// Примеры запросов
+const examples = computed(
+  () => examplesByCategory.value[category.value] ?? examplesByCategory.value.personality ?? [],
+);
 
 const canStart = computed(() => query.value.trim().length >= 10);
 
@@ -228,6 +231,14 @@ async function startGame() {
     :deep(textarea) {
       min-height: 100px;
     }
+  }
+
+  &__mode-card {
+    border-radius: 10px;
+  }
+
+  &__mode-btn {
+    border-radius: 8px;
   }
 
   &__footer {
