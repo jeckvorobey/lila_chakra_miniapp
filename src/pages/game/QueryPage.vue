@@ -139,9 +139,9 @@ const categories = computed(() => [
 
 // Опции режима игры
 const gameModeOptions = [
-  { value: 'free', label: 'Бесплатный (5 ходов/день)' },
-  { value: 'ai_guide', label: 'ИИ Наставник (15 BE)' },
-  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 BE)' },
+  { value: 'free', label: 'Бесплатный' },
+  { value: 'ai_guide', label: 'ИИ Наставник (15 ТКН)' },
+  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 ТКН)' },
 ];
 
 // Примеры запросов

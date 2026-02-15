@@ -27,9 +27,6 @@ export interface UserOut {
   blocked_at?: string | null;
   bot_blocked_at?: string | null;
   
-  // Лимиты
-  daily_moves_used?: number;
-  daily_moves_limit?: number;
 }
 
 export interface UserStats {

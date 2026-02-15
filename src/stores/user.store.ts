@@ -25,18 +25,6 @@ export const useUserStore = defineStore('user', () => {
     return username || '';
   });
   const isAdmin = computed(() => profile.value?.is_admin ?? false);
-  const canMakeMove = computed(() => {
-    if (!profile.value) return false;
-    const used = profile.value.daily_moves_used ?? 0;
-    const limit = profile.value.daily_moves_limit ?? 0;
-    return used < limit;
-  });
-  const movesRemaining = computed(() => {
-    if (!profile.value) return 0;
-    const used = profile.value.daily_moves_used ?? 0;
-    const limit = profile.value.daily_moves_limit ?? 0;
-    return Math.max(0, limit - used);
-  });
 
   // Действия
 
@@ -121,15 +109,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * Увеличить счётчик использованных дневных ходов
-   */
-  function incrementMovesUsed(): void {
-    if (profile.value) {
-      profile.value.daily_moves_used = (profile.value.daily_moves_used ?? 0) + 1;
-    }
-  }
-
-  /**
    * Очистить хранилище при выходе
    */
   function reset(): void {
@@ -150,8 +129,6 @@ export const useUserStore = defineStore('user', () => {
     balance,
     displayName,
     isAdmin,
-    canMakeMove,
-    movesRemaining,
 
     // Действия
     fetchProfile,
@@ -160,7 +137,6 @@ export const useUserStore = defineStore('user', () => {
     updateProfile,
     completeOnboarding,
     updateBalance,
-    incrementMovesUsed,
     reset,
   };
 });
