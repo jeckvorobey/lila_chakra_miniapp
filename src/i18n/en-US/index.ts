@@ -78,7 +78,7 @@ export default {
     title: 'Your Question',
     category_title: 'Category',
     your_question: 'What would you like to explore?',
-    placeholder: 'Describe your situation or question...',
+    placeholder: 'Write your request...',
     examples: 'Examples',
     examples_by_category: {
       relationships: [
@@ -125,6 +125,16 @@ export default {
       ],
     },
     start_game: 'Start Game',
+    assistant: {
+      title: 'Not sure how to phrase your request?',
+      subtitle: 'Describe your situation and AI will suggest 10 prompt options.',
+      generate: 'Suggest 10 options',
+      loading: 'Generating prompt ideas...',
+      retry: 'Try again',
+      error: 'Unable to generate options right now. Please try again.',
+      used_notify: 'Prompt inserted. You can start the game now.',
+      min_chars_hint: 'Enter at least 5 characters to generate options.',
+    },
     category: {
       relationships: 'Relationships',
       career: 'Career',
