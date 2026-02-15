@@ -6,7 +6,7 @@
           {{ gameStore.currentGame?.query }}
         </div>
 
-        <l-progress-bar :current-cell="gameStore.currentCell" />
+        <l-progress-bar :current-cell="gameStore.progressCell" />
       </q-card-section>
     </q-card>
 

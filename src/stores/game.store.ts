@@ -71,6 +71,7 @@ export const useGameStore = defineStore('game', () => {
     endCellId: number;
   }
   const displayCell = ref(0);
+  const progressCell = ref(0);
   const isChipAnimating = ref(false);
   const activeTransition = ref<ActiveTransition | null>(null);
   const transitionAnimationResolver = ref<(() => void) | null>(null);
@@ -118,6 +119,13 @@ export const useGameStore = defineStore('game', () => {
   watch(currentCell, (val) => {
     if (!isChipAnimating.value) {
       displayCell.value = val;
+    }
+  }, { immediate: true });
+
+  // Прогресс обновляется только после завершения движения фишки.
+  watch([currentCell, isChipAnimating], ([cell, animating]) => {
+    if (!animating) {
+      progressCell.value = cell;
     }
   }, { immediate: true });
 
@@ -648,6 +656,7 @@ export const useGameStore = defineStore('game', () => {
     pendingAutoRolls,
     pendingManualRolls,
     displayCell,
+    progressCell,
     isChipAnimating,
     activeTransition,
 

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
+import { nextTick } from 'vue';
 
 import { useGameStore } from 'src/stores/game.store';
 import type { AudioByTypeResponse } from 'src/types/audio.interface';
@@ -160,6 +161,44 @@ describe('game.store rollDice', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
+  });
+
+  it('обновляет progressCell только после завершения анимации фишки', async () => {
+    const store = useGameStore();
+
+    store.currentGame = {
+      id: 77,
+      user_id: 15,
+      query: 'Тест',
+      category: 'career',
+      mode: 'free',
+      status: 'in_progress',
+      current_cell: 10,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 2,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 10,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+    };
+
+    await nextTick();
+    expect(store.progressCell).toBe(10);
+
+    store.isChipAnimating = true;
+    store.currentGame.current_cell = 20;
+
+    await nextTick();
+    expect(store.progressCell).toBe(10);
+
+    store.isChipAnimating = false;
+
+    await nextTick();
+    expect(store.progressCell).toBe(20);
   });
 
   it('в ручном режиме отправляет manual_value вместе с previous_manual_rolls', async () => {
