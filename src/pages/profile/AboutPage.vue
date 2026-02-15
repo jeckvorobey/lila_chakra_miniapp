@@ -1,5 +1,5 @@
 <template>
-  <q-page padding style="padding-bottom: 80px">
+  <q-page class="lila-page-nav-offset" style="padding: var(--lila-layout-gap)">
     <!-- Описание приложения -->
     <q-card flat bordered class="q-mb-md bg-surface">
       <q-card-section>

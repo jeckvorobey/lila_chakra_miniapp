@@ -42,7 +42,7 @@
     </q-header>
 
     <!-- Main content -->
-    <q-page-container class="q-my-sm">
+    <q-page-container>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -107,6 +107,7 @@ function openFeedback() {
 
 <style lang="scss" scoped>
 .q-header {
+  margin: 0 var(--lila-layout-gap);
   border: 1px solid var(--lila-border);
   border-top: none;
   border-bottom-left-radius: 16px;

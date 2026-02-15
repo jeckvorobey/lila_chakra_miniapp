@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="rules-page">
+  <q-page class="rules-page lila-page-nav-offset">
     <div class="column q-gutter-y-md">
       <!-- Заголовок -->
       <div class="text-center q-px-md q-pt-md">
@@ -128,6 +128,6 @@ const generalRules = computed(() => [
 
 <style lang="scss" scoped>
 .rules-page {
-  padding-bottom: 80px;
+  padding: var(--lila-layout-gap);
 }
 </style>

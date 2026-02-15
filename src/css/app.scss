@@ -189,3 +189,10 @@ body {
 .bg-info-light {
   background: rgba(59, 130, 246, 0.1) !important;
 }
+
+// ================================
+// Утилита отступа под нижнюю навигацию
+// ================================
+.lila-page-nav-offset {
+  padding-bottom: calc(64px + var(--lila-layout-gap) * 3);
+}

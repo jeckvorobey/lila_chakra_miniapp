@@ -106,20 +106,18 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .l-board {
-  position: relative;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   min-height: 0;
-  flex: 1 1 auto;
 
   &__shell {
     position: relative;
+    aspect-ratio: 9 / 8;
     width: 100%;
-    height: 100%;
-    min-height: 0;
-    flex: 1 1 auto;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     padding: 16px;
@@ -139,9 +137,8 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
-    min-height: 0;
     flex: 1 1 auto;
+    min-height: 0;
   }
 
   &__grid {

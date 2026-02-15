@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="my-requests-page">
+  <q-page class="my-requests-page lila-page-nav-offset">
     <div v-if="isLoading" class="q-gutter-y-sm">
       <q-skeleton type="rect" height="88px" />
       <q-skeleton type="rect" height="88px" />
@@ -113,7 +113,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .my-requests-page {
-  padding-bottom: 80px;
+  padding: var(--lila-layout-gap);
 }
 
 .request-text {

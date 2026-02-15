@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="feedback-page">
+  <q-page class="feedback-page lila-page-nav-offset">
     <q-card flat bordered class="bg-surface">
       <q-card-section>
         <div class="text-h6 text-weight-medium q-mb-sm">{{ $t('feedback.title') }}</div>
@@ -94,6 +94,6 @@ async function submitFeedback() {
 
 <style scoped lang="scss">
 .feedback-page {
-  padding-bottom: 80px;
+  padding: var(--lila-layout-gap);
 }
 </style>

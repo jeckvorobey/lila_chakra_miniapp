@@ -1,7 +1,6 @@
 <template>
-  <div class="l-game-board-section col column no-wrap full-width overflow-hidden">
+  <div class="l-game-board-section">
     <l-board
-      class="col fit"
       :current-cell="currentCell"
       :transition="gameStore.activeTransition"
       :show-transitions="true"
@@ -119,6 +118,8 @@ defineExpose({
 
 <style lang="scss" scoped>
 .l-game-board-section {
-  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

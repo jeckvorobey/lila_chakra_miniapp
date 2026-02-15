@@ -1,6 +1,6 @@
 <template>
-  <q-page padding class="referral-page">
-    <div class="column q-gutter-y-lg">
+  <q-page class="referral-page lila-page-nav-offset">
+    <div class="column q-gutter-y-md">
       <!-- Info header -->
       <div class="text-center q-px-md q-pt-md">
         <q-icon name="mdi-account-plus-outline" size="80px" color="primary" class="q-mb-md" />
@@ -135,7 +135,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .referral-page {
-  padding-bottom: 80px;
+  padding: var(--lila-layout-gap);
 }
 
 .border-subtle {

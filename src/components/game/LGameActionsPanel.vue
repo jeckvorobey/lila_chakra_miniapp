@@ -192,10 +192,6 @@ function confirmEndGame(): void {
 
 <style lang="scss" scoped>
 .game-actions {
-  margin-top: auto;
-  position: sticky;
-  bottom: var(--lila-layout-gap);
-  z-index: 10;
   width: 100%;
 }
 </style>

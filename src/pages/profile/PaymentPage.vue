@@ -1,12 +1,12 @@
 <template>
-  <q-page class="payment-page" padding>
+  <q-page class="payment-page lila-page-nav-offset">
     <!-- Сетка пакетов -->
     <div class="text-subtitle2 text-weight-medium q-mb-md">Выберите пакет</div>
-    <div v-if="isLoading" class="q-mb-lg">
+    <div v-if="isLoading" class="q-mb-md">
       <q-skeleton type="rect" height="120px" class="q-mb-sm" />
       <q-skeleton type="rect" height="120px" />
     </div>
-    <div v-else class="row q-gutter-sm q-mb-lg">
+    <div v-else class="row q-gutter-sm q-mb-md">
       <q-card
         v-for="pkg in packages"
         :key="pkg.amount_rub"
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Итоговая информация -->
-    <q-card flat bordered class="q-mb-lg">
+    <q-card flat bordered class="q-mb-md">
       <q-card-section>
         <div class="row justify-between q-mb-sm">
           <span>Пакет</span>
@@ -134,6 +134,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .payment-page {
   min-height: 100%;
+  padding: var(--lila-layout-gap);
 
   &__package {
     background: var(--lila-surface);

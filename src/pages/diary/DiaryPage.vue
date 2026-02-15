@@ -1,5 +1,5 @@
 <template>
-  <q-page class="diary-page" padding>
+  <q-page class="diary-page lila-page-nav-offset">
     <!-- Список игр -->
     <q-list v-if="orderedGames.length > 0" class="q-gutter-sm">
       <q-card
@@ -179,7 +179,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .diary-page {
   min-height: 100%;
-  padding-bottom: 80px; // Нижняя навигация
+  padding: var(--lila-layout-gap);
 
   &__card {
     background: var(--lila-surface);

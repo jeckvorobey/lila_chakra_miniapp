@@ -1,8 +1,8 @@
 <template>
-  <q-page class="query-page" padding>
+  <q-page class="query-page">
     <div class="query-page__content">
       <!-- Выбор режима -->
-      <div class="q-mb-lg">
+      <div class="q-mb-md">
         <div class="text-overline text-secondary q-mb-sm">Режим игры</div>
         <q-option-group
           v-model="gameMode"
@@ -14,7 +14,7 @@
       </div>
 
       <!-- Выбор категории -->
-      <div class="q-mb-lg">
+      <div class="q-mb-md">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.category_title') }}
         </div>
@@ -36,7 +36,7 @@
       </div>
 
       <!-- Ввод запроса -->
-      <div class="q-mb-lg">
+      <div class="q-mb-md">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.your_question') }}
         </div>
@@ -57,7 +57,7 @@
       </div>
 
       <!-- Примеры запросов -->
-      <div class="q-mb-lg">
+      <div class="q-mb-md">
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.examples') }}
         </div>
@@ -213,6 +213,7 @@ async function startGame() {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  padding: var(--lila-layout-gap);
 
   &__content {
     flex: 1;
@@ -232,8 +233,8 @@ async function startGame() {
   &__footer {
     position: sticky;
     bottom: 0;
-    padding: var(--space-md) 0;
-    padding-bottom: calc(var(--space-md) + 64px); // Над нижней навигацией
+    padding: var(--lila-layout-gap) 0;
+    padding-bottom: calc(64px + var(--lila-layout-gap) * 3);
     background: var(--lila-bg);
   }
 }

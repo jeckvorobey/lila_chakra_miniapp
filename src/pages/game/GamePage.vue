@@ -1,5 +1,5 @@
 <template>
-  <q-page class="column no-wrap full-height">
+  <q-page class="game-page column no-wrap full-height">
     <!-- Нет активной игры -->
     <l-game-empty-state v-if="showEmptyState" />
 
@@ -29,3 +29,10 @@ onMounted(async () => {
   isRestoringGame.value = false;
 });
 </script>
+
+<style lang="scss" scoped>
+.game-page {
+  overflow: hidden;
+  padding: 0 var(--lila-layout-gap);
+}
+</style>

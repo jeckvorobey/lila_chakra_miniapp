@@ -1,5 +1,5 @@
 <template>
-  <q-page class="diary-detail" padding>
+  <q-page class="diary-detail lila-page-nav-offset">
     <q-skeleton v-if="isLoading" type="rect" height="200px" />
 
     <template v-else-if="game">
@@ -183,14 +183,14 @@ onMounted(() => {
 <style lang="scss" scoped>
 .diary-detail {
   min-height: 100%;
-  padding-bottom: 120px;
+  padding: var(--lila-layout-gap);
 
   &__actions {
     position: fixed;
-    bottom: 64px; // Над нижней навигацией
-    left: 0;
-    right: 0;
-    padding: var(--space-md);
+    bottom: calc(64px + var(--lila-layout-gap) * 2);
+    left: var(--lila-layout-gap);
+    right: var(--lila-layout-gap);
+    padding: var(--lila-layout-gap) 0;
     background: var(--lila-bg);
     border-top: 1px solid var(--lila-border);
   }

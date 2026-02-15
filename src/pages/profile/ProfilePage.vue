@@ -1,7 +1,7 @@
 <template>
-  <q-page padding style="padding-bottom: 80px">
+  <q-page class="lila-page-nav-offset" style="padding: var(--lila-layout-gap)">
     <!-- User info -->
-    <div class="row items-center q-mb-lg">
+    <div class="row items-center q-mb-md">
       <q-avatar size="64px" color="primary" text-color="white" class="q-mr-md">
         <img v-if="user?.photo_url" :src="user.photo_url" />
         <span v-else class="text-h5">{{ userInitials }}</span>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Balance card -->
-    <q-card flat bordered class="q-mb-lg bg-surface">
+    <q-card flat bordered class="q-mb-md bg-surface">
       <q-card-section class="row items-center">
         <div class="col">
           <div class="text-overline text-secondary">{{ $t('profile.balance') }}</div>
@@ -31,7 +31,7 @@
     </q-card>
 
     <!-- Stats -->
-    <div class="row q-gutter-sm q-mb-lg">
+    <div class="row q-gutter-sm q-mb-md">
       <q-card flat bordered class="col bg-surface">
         <q-card-section class="text-center">
           <template v-if="userStore.stats?.has_active_game">
@@ -65,7 +65,7 @@
 
     <!-- Settings -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.settings') }}</div>
-    <q-list bordered separator class="rounded-borders q-mb-lg bg-surface">
+    <q-list bordered separator class="rounded-borders q-mb-md bg-surface">
       <!-- Theme -->
       <q-item>
         <q-item-section avatar>

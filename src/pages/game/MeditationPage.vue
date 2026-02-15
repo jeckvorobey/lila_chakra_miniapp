@@ -1,6 +1,6 @@
 <template>
   <q-page class="column" style="background: var(--lila-bg)">
-    <div class="col column flex-center q-pa-xl">
+    <div class="col column flex-center" style="padding: var(--lila-layout-gap)">
       <!-- Название -->
       <h1 class="text-h4 text-weight-medium text-center q-mb-sm">
         {{ isEntry ? $t('meditation.entry_title') : $t('meditation.exit_title') }}

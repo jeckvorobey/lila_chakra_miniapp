@@ -1,6 +1,6 @@
 <template>
-  <div class="column no-wrap">
-    <q-card flat bordered class="bg-surface">
+  <div class="column no-wrap fit justify-evenly overflow-hidden">
+    <q-card flat bordered class="bg-surface col-auto">
       <q-card-section>
         <div class="text-subtitle1 text-weight-medium q-mb-sm">
           {{ gameStore.currentGame?.query }}
@@ -10,13 +10,20 @@
       </q-card-section>
     </q-card>
 
-    <l-game-board-section ref="boardSectionRef" :current-cell="gameStore.displayCell" />
+    <l-game-board-section
+      ref="boardSectionRef"
+      class="l-game-active__board"
+      :current-cell="gameStore.displayCell"
+    />
 
-
-    <l-game-actions-panel :current-cell="gameStore.currentCell" :current-cell-info="gameStore.currentCellInfo"
-      :current-chakra="currentChakra" :is-waiting-for-six="gameStore.isWaitingFor6"
-      @show-current-cell-info="showCurrentCellInfo" />
-
+    <l-game-actions-panel
+      class="col-auto"
+      :current-cell="gameStore.currentCell"
+      :current-cell-info="gameStore.currentCellInfo"
+      :current-chakra="currentChakra"
+      :is-waiting-for-six="gameStore.isWaitingFor6"
+      @show-current-cell-info="showCurrentCellInfo"
+    />
   </div>
 </template>
 
@@ -44,4 +51,9 @@ function showCurrentCellInfo(): void {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.l-game-active__board {
+  min-height: 0;
+  overflow: hidden;
+}
+</style>
