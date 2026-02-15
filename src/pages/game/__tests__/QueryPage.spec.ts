@@ -69,10 +69,14 @@ const QInputStub = defineComponent({
       type: String,
       default: '',
     },
+    placeholder: {
+      type: String,
+      default: '',
+    },
   },
   emits: ['update:modelValue'],
   template:
-    '<div><textarea data-testid="query-input" :value="modelValue" ' +
+    '<div><textarea :data-testid="placeholder || \'query-input\'" :value="modelValue" ' +
     '@input="$emit(\'update:modelValue\', $event.target.value)" />' +
     '<slot name="append" /></div>',
 });
@@ -157,50 +161,64 @@ describe('QueryPage', () => {
     mockCreateGame.mockResolvedValue(true);
   });
 
-  it('не дает запустить генерацию при вводе менее 5 символов', async () => {
+  it('не дает отправить ситуацию при вводе менее 5 символов', async () => {
     const wrapper = mountPage();
-    const input = wrapper.get('[data-testid="query-input"]');
 
-    await input.setValue('abcd');
+    const describeButton = findButtonByLabel(wrapper, 'query.assistant.describe');
+    expect(describeButton).toBeDefined();
+    await describeButton?.trigger('click');
+
+    const situationInput = wrapper.get('[data-testid="query.assistant.situation_placeholder"]');
+    await situationInput.setValue('abcd');
     await flushPromises();
 
-    const generateButton = findButtonByLabel(wrapper, 'query.assistant.generate');
-    expect(generateButton).toBeDefined();
-    expect(generateButton?.attributes('disabled')).toBeDefined();
+    const sendButton = findButtonByLabel(wrapper, 'query.assistant.send');
+    expect(sendButton).toBeDefined();
+    expect(sendButton?.attributes('disabled')).toBeDefined();
   });
 
-  it('по кнопке запрашивает 10 вариантов и отображает их списком', async () => {
+  it('по кнопке отправляет ситуацию и отображает 10 вариантов', async () => {
     mockGenerateSuggestions.mockResolvedValue(
       Array.from({ length: 10 }, (_, index) => `Вариант ${index + 1}`),
     );
     const wrapper = mountPage();
 
-    await wrapper.get('[data-testid="query-input"]').setValue('Мне сложно сформулировать запрос');
+    const describeButton = findButtonByLabel(wrapper, 'query.assistant.describe');
+    await describeButton?.trigger('click');
 
-    const generateButton = findButtonByLabel(wrapper, 'query.assistant.generate');
-    expect(generateButton).toBeDefined();
-    await generateButton?.trigger('click');
+    await wrapper
+      .get('[data-testid="query.assistant.situation_placeholder"]')
+      .setValue('Мне сложно сформулировать запрос');
+
+    const sendButton = findButtonByLabel(wrapper, 'query.assistant.send');
+    expect(sendButton).toBeDefined();
+    await sendButton?.trigger('click');
     await flushPromises();
 
     expect(mockGenerateSuggestions).toHaveBeenCalledWith({
       draft: 'Мне сложно сформулировать запрос',
       category: 'personality',
       count: 10,
-      locale: 'ru-RU',
     });
     expect(wrapper.text()).toContain('Вариант 1');
     expect(wrapper.text()).toContain('Вариант 10');
   });
 
-  it('подставляет выбранный вариант в поле запроса и активирует старт игры', async () => {
+  it('подставляет выбранный вариант в основное поле запроса и активирует старт игры', async () => {
     mockGenerateSuggestions.mockResolvedValue(
       Array.from({ length: 10 }, (_, index) => `Готовый запрос номер ${index + 1}`),
     );
     const wrapper = mountPage();
 
-    await wrapper.get('[data-testid="query-input"]').setValue('Начальный текст');
-    const generateButton = findButtonByLabel(wrapper, 'query.assistant.generate');
-    await generateButton?.trigger('click');
+    const describeButton = findButtonByLabel(wrapper, 'query.assistant.describe');
+    await describeButton?.trigger('click');
+
+    await wrapper
+      .get('[data-testid="query.assistant.situation_placeholder"]')
+      .setValue('Начальный текст для описания');
+
+    const sendButton = findButtonByLabel(wrapper, 'query.assistant.send');
+    await sendButton?.trigger('click');
     await flushPromises();
 
     const suggestionButton = wrapper
@@ -210,13 +228,12 @@ describe('QueryPage', () => {
     await suggestionButton?.trigger('click');
     await flushPromises();
 
-    const input = wrapper.get('[data-testid="query-input"]').element as HTMLTextAreaElement;
-    expect(input.value).toBe('Готовый запрос номер 2');
+    const mainInput = wrapper.get('[data-testid="query.placeholder"]').element as HTMLTextAreaElement;
+    expect(mainInput.value).toBe('Готовый запрос номер 2');
 
     const startButton = findButtonByLabel(wrapper, 'query.start_game');
     expect(startButton).toBeDefined();
     expect(startButton?.attributes('disabled')).toBeUndefined();
-    expect(mockNotify).toHaveBeenCalled();
     expect(mockNotify).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'query.assistant.used_notify' }),
     );

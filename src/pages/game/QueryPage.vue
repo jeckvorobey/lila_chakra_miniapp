@@ -75,15 +75,37 @@
           </div>
 
           <q-btn
-            :label="$t('query.assistant.generate')"
+            v-if="!isAssistantComposerOpen"
+            :label="$t('query.assistant.describe')"
             color="accent"
             outline
             no-caps
-            class="full-width q-mb-sm query-page__assistant-generate-btn"
-            :loading="isSuggestionsLoading"
-            :disable="!canSuggest"
-            @click="requestSuggestions"
+            class="full-width q-mb-sm query-page__assistant-action-btn"
+            @click="openAssistantComposer"
           />
+
+          <div v-else class="q-mb-sm">
+            <q-input
+              v-model="assistantDraft"
+              type="textarea"
+              :placeholder="$t('query.assistant.situation_placeholder')"
+              outlined
+              autogrow
+              :maxlength="500"
+              counter
+              class="query-page__assistant-input q-mb-sm"
+            />
+            <q-btn
+              :label="$t('query.assistant.send')"
+              color="accent"
+              outline
+              no-caps
+              class="full-width query-page__assistant-action-btn"
+              :loading="isSuggestionsLoading"
+              :disable="!canSuggest"
+              @click="requestSuggestions"
+            />
+          </div>
 
           <div v-if="showMinCharsHint" class="text-caption text-secondary q-mb-sm">
             {{ $t('query.assistant.min_chars_hint') }}
@@ -176,7 +198,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -198,9 +220,11 @@ interface QuerySuggestion {
 
 // Состояние формы
 const query = ref('');
+const assistantDraft = ref('');
 const category = ref<QueryCategory>('personality');
 const gameMode = ref<GameMode>('free');
 const isLoading = ref(false);
+const isAssistantComposerOpen = ref(false);
 const suggestionState = ref<SuggestionState>('idle');
 const suggestions = ref<QuerySuggestion[]>([]);
 const selectedSuggestionId = ref<string | null>(null);
@@ -274,8 +298,10 @@ const examples = computed(
   () => examplesByCategory.value[category.value] ?? examplesByCategory.value.personality ?? [],
 );
 
-const canSuggest = computed(() => query.value.trim().length >= 5);
-const showMinCharsHint = computed(() => query.value.trim().length > 0 && !canSuggest.value);
+const canSuggest = computed(() => assistantDraft.value.trim().length >= 5);
+const showMinCharsHint = computed(
+  () => isAssistantComposerOpen.value && assistantDraft.value.trim().length > 0 && !canSuggest.value,
+);
 const isSuggestionsLoading = computed(() => suggestionState.value === 'loading');
 const canStart = computed(() => query.value.trim().length >= 10);
 
@@ -289,6 +315,13 @@ function resetSuggestions() {
   suggestions.value = [];
   selectedSuggestionId.value = null;
   suggestionError.value = '';
+}
+
+function openAssistantComposer() {
+  isAssistantComposerOpen.value = true;
+  if (!assistantDraft.value.trim() && query.value.trim()) {
+    assistantDraft.value = query.value.trim();
+  }
 }
 
 function applySuggestion(item: QuerySuggestion) {
@@ -310,10 +343,9 @@ async function requestSuggestions() {
 
   try {
     const result = await generateSuggestions({
-      draft: query.value.trim(),
+      draft: assistantDraft.value.trim(),
       category: category.value,
       count: 10,
-      locale: String(i18n.locale.value),
     });
 
     suggestions.value = result.map((text, index) => ({
@@ -327,8 +359,11 @@ async function requestSuggestions() {
     }
   } catch (error) {
     suggestionState.value = 'error';
-    suggestionError.value =
-      error instanceof Error ? error.message : i18n.t('query.assistant.error');
+    if (error instanceof Error && error.message.startsWith('errors.')) {
+      suggestionError.value = i18n.t(error.message);
+      return;
+    }
+    suggestionError.value = error instanceof Error ? error.message : i18n.t('query.assistant.error');
   }
 }
 
@@ -406,7 +441,13 @@ async function startGame() {
     padding: 8px 0;
   }
 
-  &__assistant-generate-btn {
+  &__assistant-input {
+    :deep(.q-field__control) {
+      border-radius: 10px;
+    }
+  }
+
+  &__assistant-action-btn {
     border-radius: 10px;
   }
 

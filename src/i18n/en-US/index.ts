@@ -128,6 +128,9 @@ export default {
     assistant: {
       title: 'Not sure how to phrase your request?',
       subtitle: 'Describe your situation and AI will suggest 10 prompt options.',
+      describe: 'Describe situation',
+      send: 'Send',
+      situation_placeholder: 'Describe your situation or request...',
       generate: 'Suggest 10 options',
       loading: 'Generating prompt ideas...',
       retry: 'Try again',

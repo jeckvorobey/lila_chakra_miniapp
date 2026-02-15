@@ -1,4 +1,5 @@
 export { authApi } from './auth.api';
+export { aiApi } from './ai.api';
 export { usersApi } from './users.api';
 export { gamesApi } from './games.api';
 export { movesApi } from './moves.api';
