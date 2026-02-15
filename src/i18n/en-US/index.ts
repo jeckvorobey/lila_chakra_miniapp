@@ -135,7 +135,6 @@ export default {
       loading: 'Generating prompt ideas...',
       retry: 'Try again',
       error: 'Unable to generate options right now. Please try again.',
-      used_notify: 'Prompt inserted. You can start the game now.',
       min_chars_hint: 'Enter at least 5 characters to generate options.',
     },
     category: {

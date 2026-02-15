@@ -7,15 +7,10 @@
         <q-card flat bordered class="q-pa-sm query-page__mode-card">
           <div class="row q-col-gutter-sm">
             <div v-for="option in gameModeOptions" :key="option.value" class="col-12 col-sm-4">
-              <q-btn
-                :label="option.label"
-                no-caps
-                class="full-width query-page__mode-btn"
-                :outline="gameMode !== option.value"
-                :color="gameMode === option.value ? 'accent' : inactiveModeColor"
+              <q-btn :label="option.label" no-caps class="full-width query-page__mode-btn"
+                :outline="gameMode !== option.value" :color="gameMode === option.value ? 'accent' : inactiveModeColor"
                 :text-color="gameMode === option.value ? 'white' : inactiveModeTextColor"
-                @click="gameMode = option.value"
-              />
+                @click="gameMode = option.value" />
             </div>
           </div>
         </q-card>
@@ -27,16 +22,10 @@
           {{ $t('query.category_title') }}
         </div>
         <div class="row q-gutter-sm">
-          <q-chip
-            v-for="cat in categories"
-            :key="cat.value"
-            :selected="category === cat.value"
+          <q-chip v-for="cat in categories" :key="cat.value" :selected="category === cat.value"
             :color="category === cat.value ? 'primary' : undefined"
-            :text-color="category === cat.value ? 'white' : undefined"
-            :outline="category !== cat.value"
-            clickable
-            @click="category = cat.value"
-          >
+            :text-color="category === cat.value ? 'white' : undefined" :outline="category !== cat.value" clickable
+            @click="category = cat.value">
             <q-icon :name="cat.icon" class="q-mr-xs" />
             {{ cat.label }}
           </q-chip>
@@ -48,16 +37,8 @@
         <div class="text-overline text-secondary q-mb-sm">
           {{ $t('query.your_question') }}
         </div>
-        <q-input
-          v-model="query"
-          type="textarea"
-          :placeholder="$t('query.placeholder')"
-          outlined
-          autogrow
-          :maxlength="500"
-          counter
-          class="query-page__input"
-        >
+        <q-input v-model="query" type="textarea" :placeholder="$t('query.placeholder')" outlined autogrow
+          :maxlength="500" counter class="query-page__input">
           <template #append>
             <q-icon v-if="query" name="close" class="cursor-pointer" @click="clearQuery" />
           </template>
@@ -74,37 +55,15 @@
             {{ $t('query.assistant.subtitle') }}
           </div>
 
-          <q-btn
-            v-if="!isAssistantComposerOpen"
-            :label="$t('query.assistant.describe')"
-            color="accent"
-            outline
-            no-caps
-            class="full-width q-mb-sm query-page__assistant-action-btn"
-            @click="openAssistantComposer"
-          />
+          <q-btn v-if="!isAssistantComposerOpen" :label="$t('query.assistant.describe')" color="accent" outline no-caps
+            class="full-width q-mb-sm query-page__assistant-action-btn" @click="openAssistantComposer" />
 
           <div v-else class="q-mb-sm">
-            <q-input
-              v-model="assistantDraft"
-              type="textarea"
-              :placeholder="$t('query.assistant.situation_placeholder')"
-              outlined
-              autogrow
-              :maxlength="500"
-              counter
-              class="query-page__assistant-input q-mb-sm"
-            />
-            <q-btn
-              :label="$t('query.assistant.send')"
-              color="accent"
-              outline
-              no-caps
-              class="full-width query-page__assistant-action-btn"
-              :loading="isSuggestionsLoading"
-              :disable="!canSuggest"
-              @click="requestSuggestions"
-            />
+            <q-input v-model="assistantDraft" type="textarea" :placeholder="$t('query.assistant.situation_placeholder')"
+              outlined autogrow :maxlength="500" counter class="query-page__assistant-input q-mb-sm" />
+            <q-btn :label="$t('query.assistant.send')" color="accent" outline no-caps
+              class="full-width query-page__assistant-action-btn" :loading="isSuggestionsLoading" :disable="!canSuggest"
+              @click="requestSuggestions" />
           </div>
 
           <div v-if="showMinCharsHint" class="text-caption text-secondary q-mb-sm">
@@ -116,42 +75,23 @@
             <span class="text-caption">{{ $t('query.assistant.loading') }}</span>
           </div>
 
-          <q-banner
-            v-else-if="suggestionState === 'error'"
-            dense
-            rounded
-            class="bg-negative text-white q-mt-sm"
-          >
+          <q-banner v-else-if="suggestionState === 'error'" dense rounded class="bg-negative text-white q-mt-sm">
             {{ suggestionError || $t('query.assistant.error') }}
             <template #action>
-              <q-btn
-                flat
-                dense
-                no-caps
-                text-color="white"
-                :label="$t('query.assistant.retry')"
-                @click="requestSuggestions"
-              />
+              <q-btn flat dense no-caps text-color="white" :label="$t('query.assistant.retry')"
+                @click="requestSuggestions" />
             </template>
           </q-banner>
 
           <q-list v-else-if="suggestionState === 'success'" bordered separator class="rounded-borders">
-            <q-item
-              v-for="item in suggestions"
-              :key="item.id"
-              clickable
-              :active="selectedSuggestionId === item.id"
-              active-class="query-page__assistant-item--selected"
-              @click="applySuggestion(item)"
-            >
+            <q-item v-for="item in suggestions" :key="item.id" clickable :active="selectedSuggestionId === item.id"
+              active-class="query-page__assistant-item--selected" @click="applySuggestion(item)">
               <q-item-section>
                 <q-item-label class="text-body2">{{ item.text }}</q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-icon
-                  :name="selectedSuggestionId === item.id ? 'mdi-check-circle' : 'mdi-chevron-right'"
-                  :color="selectedSuggestionId === item.id ? 'accent' : 'grey'"
-                />
+                <q-icon :name="selectedSuggestionId === item.id ? 'mdi-check-circle' : 'mdi-chevron-right'"
+                  :color="selectedSuggestionId === item.id ? 'accent' : 'grey'" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -164,12 +104,7 @@
           {{ $t('query.examples') }}
         </div>
         <q-list class="rounded-borders" bordered separator>
-          <q-item
-            v-for="(example, index) in examples"
-            :key="index"
-            clickable
-            @click="query = example"
-          >
+          <q-item v-for="(example, index) in examples" :key="index" clickable @click="query = example">
             <q-item-section>
               <q-item-label class="text-body2">{{ example }}</q-item-label>
             </q-item-section>
@@ -183,16 +118,8 @@
 
     <!-- Кнопка начать -->
     <div class="query-page__footer">
-      <q-btn
-        :label="$t('query.start_game')"
-        color="primary"
-        size="lg"
-        unelevated
-        class="full-width"
-        :loading="isLoading"
-        :disable="!canStart"
-        @click="startGame"
-      />
+      <q-btn :label="$t('query.start_game')" color="primary" size="lg" unelevated class="full-width"
+        :loading="isLoading" :disable="!canStart" @click="startGame" />
     </div>
   </q-page>
 </template>
@@ -327,10 +254,6 @@ function openAssistantComposer() {
 function applySuggestion(item: QuerySuggestion) {
   query.value = item.text;
   selectedSuggestionId.value = item.id;
-  $q.notify({
-    type: 'positive',
-    message: i18n.t('query.assistant.used_notify'),
-  });
 }
 
 async function requestSuggestions() {

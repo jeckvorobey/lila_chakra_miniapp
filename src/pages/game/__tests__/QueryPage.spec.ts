@@ -234,8 +234,5 @@ describe('QueryPage', () => {
     const startButton = findButtonByLabel(wrapper, 'query.start_game');
     expect(startButton).toBeDefined();
     expect(startButton?.attributes('disabled')).toBeUndefined();
-    expect(mockNotify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'query.assistant.used_notify' }),
-    );
   });
 });
