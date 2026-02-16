@@ -18,7 +18,9 @@
       <!-- Header -->
       <q-card-section
         v-if="title || showClose || $slots.header"
-        class="row items-center justify-between q-pb-sm"
+        :class="$slots.header
+          ? 'no-padding'
+          : 'row items-center justify-between q-pb-sm'"
       >
         <slot name="header">
           <div class="text-h6 text-weight-bold">{{ title }}</div>
@@ -32,7 +34,7 @@
       </q-card-section>
 
       <!-- Actions -->
-      <q-card-actions v-if="$slots.actions" align="stretch" class="q-pa-md safe-area-bottom">
+      <q-card-actions v-if="$slots.actions" align="stretch" class="q-px-md q-pt-md q-pb-lg safe-area-bottom">
         <slot name="actions" />
       </q-card-actions>
     </q-card>
@@ -98,6 +100,8 @@ function onHide() {
   background-color: var(--lila-surface-elevated);
   border-radius: 24px 24px 0 0;
   max-height: 90vh;
+  padding-top: 16px;
+  padding-bottom: 16px;
 
   &--bottom {
     width: 100%;

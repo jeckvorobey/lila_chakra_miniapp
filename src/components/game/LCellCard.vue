@@ -1,51 +1,52 @@
 <template>
-  <l-modal v-model="isOpen" :title="cell.name" position="bottom" max-width="100%">
+  <l-modal v-model="isOpen" :title="cell.name" position="bottom" max-width="100%" :show-handle="false">
     <template #header>
-      <div class="l-cell-card row items-center q-gutter-md q-pa-md">
-        <q-avatar
-          :class="`bg-chakra-${rowChakraLevel}`"
-          size="48px"
-          :text-color="avatarTextColor"
-          class="text-weight-bold"
-        >
-          {{ cell.id }}
-        </q-avatar>
+      <div class="l-cell-card__header" :style="headerGradientStyle">
+        <div class="row items-center q-gutter-md q-px-md q-py-sm">
+          <q-avatar
+            :class="`bg-chakra-${rowChakraLevel}`"
+            size="48px"
+            :text-color="avatarTextColor"
+            class="text-weight-bold"
+          >
+            {{ cell.id }}
+          </q-avatar>
 
-        <div class="col">
-          <div class="text-h6 text-weight-bold">{{ cell.name }}</div>
-          <div class="text-caption text-secondary">
-            <q-icon name="mdi-yoga" size="14px" class="q-mr-xs" />
-            {{ t(`chakra.${rowChakraLevel}`) }}
+          <div class="col">
+            <div class="text-h4 text-weight-bold">{{ cell.name }}</div>
+            <div v-if="cell.name_sanskrit" class="text-caption text-secondary">
+              {{ cell.name_sanskrit }}
+            </div>
           </div>
-        </div>
 
-        <q-btn flat round dense icon="close" @click="close" />
+          <q-btn flat round dense icon="close" @click="close" />
+        </div>
       </div>
     </template>
 
     <q-scroll-area style="height: 60vh">
-      <div class="l-cell-card q-pa-md">
-        <div v-if="cell.name_sanskrit" class="q-mb-md">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.sanskrit_name') }}
-          </div>
-          <p class="text-body1">{{ cell.name_sanskrit }}</p>
-        </div>
+      <div class="l-cell-card q-pa-sm">
+        <q-banner
+          v-if="isArrow || isSnake"
+          :class="isArrow ? 'bg-positive-light' : 'bg-negative-light'"
+          class="rounded-borders q-mb-md"
+        >
+          <template #avatar>
+            <q-icon
+              :name="isArrow ? 'mdi-arrow-up-bold' : 'mdi-snake'"
+              :color="isArrow ? 'positive' : 'negative'"
+              size="32px"
+            />
+          </template>
 
-        <div class="q-mb-md">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.description') }}
+          <div class="text-weight-medium">
+            {{ isArrow ? t('transition.arrow') : t('transition.snake') }}
           </div>
-          <p class="text-body1">{{ cell.description }}</p>
-        </div>
-
-
-        <div v-if="cell.question" class="q-mb-md">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.question') }}
+          <div class="text-caption">
+            {{ isArrow ? t('transition.arrow_to') : t('transition.snake_to') }}
+            <strong>{{ transitionTarget }}</strong>
           </div>
-          <p class="text-body1">{{ cell.question }}</p>
-        </div>
+        </q-banner>
 
         <div v-if="cell.keywords?.length" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
@@ -64,27 +65,19 @@
           </div>
         </div>
 
-        <q-banner
-          v-if="isArrow || isSnake"
-          :class="isArrow ? 'bg-positive-light' : 'bg-negative-light'"
-          class="rounded-borders q-my-md"
-        >
-          <template #avatar>
-            <q-icon
-              :name="isArrow ? 'mdi-arrow-up-bold' : 'mdi-snake'"
-              :color="isArrow ? 'positive' : 'negative'"
-              size="32px"
-            />
-          </template>
+        <div class="q-mb-md">
+          <div class="text-overline text-secondary q-mb-xs">
+            {{ t('cell.description') }}
+          </div>
+          <p class="text-body1">{{ cell.description }}</p>
+        </div>
 
-          <div class="text-weight-medium">
-            {{ isArrow ? t('transition.arrow') : t('transition.snake') }}
+        <div v-if="cell.question" class="q-mb-md">
+          <div class="text-overline text-secondary q-mb-xs">
+            {{ t('cell.question') }}
           </div>
-          <div class="text-caption">
-            {{ isArrow ? t('transition.arrow_to') : t('transition.snake_to') }}
-            <strong>{{ transitionTarget }}</strong>
-          </div>
-        </q-banner>
+          <p class="text-body1">{{ cell.question }}</p>
+        </div>
       </div>
     </q-scroll-area>
 
@@ -106,7 +99,7 @@ import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import type { Cell } from 'src/types/game.interface';
-import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
+import { getChakraColor, getChakraAvatarTextColor } from 'src/data/chakra-colors';
 import LModal from '../base/LModal.vue';
 
 interface Props {
@@ -134,6 +127,13 @@ const rowChakraLevel = computed(() => Math.ceil(props.cell.id / 9));
 const avatarTextColor = computed(() =>
   getChakraAvatarTextColor(rowChakraLevel.value, isDarkMode.value),
 );
+
+const headerGradientStyle = computed(() => {
+  const chakraColor = getChakraColor(rowChakraLevel.value, isDarkMode.value);
+  return {
+    background: `linear-gradient(180deg, ${chakraColor}33 0%, transparent 100%)`,
+  };
+});
 
 const isArrow = computed(() => props.cell.is_arrow_start ?? false);
 
@@ -163,5 +163,10 @@ function openInsightModal(): void {
 <style lang="scss" scoped>
 .l-cell-card {
   color: var(--lila-text-primary);
+}
+
+.l-cell-card__header {
+  border-radius: 24px 24px 0 0;
+  margin-top: -1px;
 }
 </style>
