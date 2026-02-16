@@ -50,7 +50,6 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
   }
 
   await gameStore.startChipAnimation();
-  notifyTransition(result);
   emit('show-current-cell-info');
 
   if (result.is_victory) {
@@ -58,25 +57,7 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
   }
 }
 
-function notifyTransition(result: MoveResponse): void {
-  if (!result.move) {
-    return;
-  }
 
-  if (result.move.transition_type === 'arrow') {
-    $q.notify({
-      type: 'positive',
-      message: t('game.arrow_notify', { cell: result.move.final_cell }),
-      icon: 'mdi-arrow-up-bold',
-    });
-  } else if (result.move.transition_type === 'snake') {
-    $q.notify({
-      type: 'negative',
-      message: t('game.snake_notify', { cell: result.move.final_cell }),
-      icon: 'mdi-snake',
-    });
-  }
-}
 
 function showVictoryDialog(): void {
   $q.dialog({
