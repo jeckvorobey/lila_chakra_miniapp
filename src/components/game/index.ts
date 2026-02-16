@@ -12,4 +12,5 @@ export { default as LDiceRollModal } from './LDiceRollModal.vue';
 export { default as LGameEmptyState } from './LGameEmptyState.vue';
 export { default as LGameBoardSection } from './LGameBoardSection.vue';
 export { default as LGameActionsPanel } from './LGameActionsPanel.vue';
+export { default as LCellInfo } from './LCellInfo.vue';
 export { default as LGameActiveState } from './LGameActiveState.vue';

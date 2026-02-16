@@ -14,6 +14,7 @@ const { mockEndGame, mockRouterPush, mockDialog, mockNotify, mockStartChipAnimat
 const mockGameStore = {
   endGame: mockEndGame,
   startChipAnimation: mockStartChipAnimation,
+  isChipAnimating: false,
   error: null as string | null,
 };
 

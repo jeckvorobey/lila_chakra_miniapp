@@ -1,79 +1,25 @@
 <template>
-  <div class="game-actions full-width">
-    <q-card flat bordered class="bg-surface">
-      <q-card-section class="q-pa-md">
-        <div class="row items-center q-mb-md">
-          <q-avatar
-            :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]"
-            size="40px"
-            :text-color="currentCellAvatarTextColor"
-          >
-            {{ currentCell }}
-          </q-avatar>
-          <div class="col">
-            <div class="text-subtitle2 text-weight-medium ellipsis">
-              {{ currentCellTitle }}
-            </div>
-            <div class="text-caption text-secondary">
-              {{ currentChakraLabel }}
-            </div>
-          </div>
-          <q-btn
-            flat
-            round
-            dense
-            icon="mdi-information-outline"
-            data-testid="current-cell-info-btn"
-            @click="emit('show-current-cell-info')"
-          />
-        </div>
-
-        <div v-if="isWaitingForSix" class="text-center q-mb-md">
-          <q-icon name="mdi-dice-6" size="24px" color="warning" class="q-mr-sm" />
-          <span class="text-body2 text-secondary">{{ t('dice.waiting_for_6') }}</span>
-        </div>
-
-        <div class="row justify-center q-gutter-sm">
-          <q-btn
-            :label="t('dice.roll')"
-            color="primary"
-            size="lg"
-            unelevated
-            icon="mdi-dice-multiple"
-            class="q-px-xl"
-            :disable="gameStore.isChipAnimating"
-            data-testid="open-dice-modal-btn"
-            @click="showDiceModal = true"
-          />
-        </div>
-
-        <div class="row justify-center q-mt-md">
-          <q-btn
-            :label="t('game.end_game')"
-            color="negative"
-            flat
-            size="sm"
-            :loading="isEndingGame"
-            data-testid="end-game-btn"
-            @click="confirmEndGame"
-          />
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <l-dice-roll-modal v-model="showDiceModal" @roll-finished="onRollFinished" />
-  </div>
+  <l-cell-info
+    :current-cell="currentCell"
+    :current-cell-info="currentCellInfo"
+    :current-chakra="currentChakra"
+    :is-waiting-for-six="isWaitingForSix"
+    :is-chip-animating="gameStore.isChipAnimating"
+    :is-ending-game="isEndingGame"
+    @show-current-cell-info="emit('show-current-cell-info')"
+    @roll-finished="onRollFinished"
+    @confirm-end-game="confirmEndGame"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
 import type { CellBrief, MoveResponse } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
-import LDiceRollModal from './LDiceRollModal.vue';
+import LCellInfo from './LCellInfo.vue';
 
 interface Props {
   currentCell: number;
@@ -82,7 +28,7 @@ interface Props {
   isWaitingForSix: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'show-current-cell-info'): void;
@@ -93,20 +39,7 @@ const router = useRouter();
 const $q = useQuasar();
 const gameStore = useGameStore();
 
-const showDiceModal = ref(false);
 const isEndingGame = ref(false);
-const isDarkMode = computed(() => $q.dark?.isActive ?? true);
-
-const currentCellAvatarBgClass = computed(() =>
-  props.currentChakra > 0 ? `bg-chakra-${props.currentChakra}` : 'bg-grey-6',
-);
-const currentCellAvatarTextColor = computed(() =>
-  getChakraAvatarTextColor(props.currentChakra, isDarkMode.value),
-);
-const currentCellTitle = computed(() => props.currentCellInfo?.name_ru || t('game.outside_board'));
-const currentChakraLabel = computed(() =>
-  props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
-);
 
 /**
  * Обработка завершения броска: анимация → уведомление → победа
@@ -189,9 +122,3 @@ function confirmEndGame(): void {
   });
 }
 </script>
-
-<style lang="scss" scoped>
-.game-actions {
-  width: 100%;
-}
-</style>
