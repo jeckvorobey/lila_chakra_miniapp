@@ -102,7 +102,10 @@ const currentCellAvatarBgClass = computed(() =>
 const currentCellAvatarTextColor = computed(() =>
   getChakraAvatarTextColor(props.currentChakra, isDarkMode.value),
 );
-const currentCellTitle = computed(() => props.currentCellInfo?.name_ru || t('game.outside_board'));
+const currentCellTitle = computed(() => {
+  if (props.currentCell === 0) return t('game.outside_board');
+  return props.currentCellInfo?.name_ru ?? '';
+});
 const currentChakraLabel = computed(() =>
   props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
 );
