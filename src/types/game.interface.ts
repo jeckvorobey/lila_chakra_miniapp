@@ -28,7 +28,6 @@ export interface CellBrief {
   name_ru: string;
   chakra_level: number;
   chakra_name: string;
-  affirmation_ru: string;
   transition_type: TransitionType;
   transition_to: number | null;
 }
@@ -41,7 +40,6 @@ export interface CellOut {
   chakra_level: number;
   chakra_name: string;
   description_ru: string;
-  affirmation_ru: string;
   question_ru: string | null;
   keywords: string[] | null;
   audio_url: string | null;
@@ -58,7 +56,6 @@ export interface Cell {
   name_sanskrit?: string | null;
   chakra_level: number;
   description: string;
-  affirmation: string;
   question?: string | null;
   keywords?: string[] | null;
   audio_url?: string | null;

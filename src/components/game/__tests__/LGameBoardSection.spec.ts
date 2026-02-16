@@ -42,7 +42,6 @@ const cell: Cell = {
   name: 'Клетка 12',
   chakra_level: 2,
   description: 'Описание',
-  affirmation: 'Аффирмация',
   question: null,
 };
 

@@ -249,7 +249,6 @@ describe('game.store rollDice', () => {
         name_ru: 'Клетка',
         chakra_level: 2,
         chakra_name: 'Свадхистана',
-        affirmation_ru: 'Аффирмация',
         transition_type: 'none',
         transition_to: null,
       },

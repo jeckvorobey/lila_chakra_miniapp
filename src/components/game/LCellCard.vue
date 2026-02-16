@@ -39,14 +39,6 @@
           <p class="text-body1">{{ cell.description }}</p>
         </div>
 
-        <q-card flat bordered class="q-my-md bg-surface">
-          <q-card-section>
-            <div class="text-overline text-secondary q-mb-xs">
-              {{ t('cell.affirmation') }}
-            </div>
-            <p class="text-body1 text-italic text-primary">"{{ cell.affirmation }}"</p>
-          </q-card-section>
-        </q-card>
 
         <div v-if="cell.question" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">

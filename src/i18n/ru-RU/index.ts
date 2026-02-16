@@ -167,7 +167,6 @@ export default {
   // Информация о клетке
   cell: {
     description: 'Описание',
-    affirmation: 'Аффирмация',
     question: 'Вопрос для размышления',
     sanskrit_name: 'Санскритское название',
     keywords: 'Ключевые слова',

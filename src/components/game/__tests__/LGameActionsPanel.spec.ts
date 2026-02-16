@@ -47,7 +47,6 @@ const currentCellInfo: CellBrief = {
   name_ru: 'Клетка 5',
   chakra_level: 1,
   chakra_name: 'Муладхара',
-  affirmation_ru: 'Аффирмация',
   transition_type: 'none',
   transition_to: null,
 };
