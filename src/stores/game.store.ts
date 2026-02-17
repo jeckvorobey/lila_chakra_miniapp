@@ -115,6 +115,12 @@ export const useGameStore = defineStore('game', () => {
 
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
+  const clarificationsFreeLeft = computed(() => {
+    if (!currentGame.value) return 0;
+    if (currentGame.value.mode === 'free') return 0;
+    return Math.max(0, 3 - (currentGame.value.clarifications_used ?? 0));
+  });
+
   // Синхронизация displayCell с currentCell вне анимации
   watch(currentCell, (val) => {
     if (!isChipAnimating.value) {
@@ -675,6 +681,7 @@ export const useGameStore = defineStore('game', () => {
     arrowsHit,
     snakesHit,
     highestCell,
+    clarificationsFreeLeft,
 
     // Вспомогательные функции
     getChakraLevel,

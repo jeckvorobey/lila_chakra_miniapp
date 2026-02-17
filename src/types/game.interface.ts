@@ -96,6 +96,7 @@ export interface GameOut {
   arrows_hit: number;
   snakes_hit: number;
   highest_cell: number;
+  clarifications_used: number;
   created_at: string;
   completed_at: string | null;
   magic_time_ends_at: string | null;
@@ -171,4 +172,15 @@ export interface DiceRollRequest {
 
 export interface InsightCreate {
   insight: string;
+}
+
+export interface ClarificationRequest {
+  question: string;
+}
+
+export interface ClarificationResponse {
+  answer: string;
+  cost_tkn: number;
+  balance_tkn: number;
+  free_left: number;
 }

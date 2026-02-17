@@ -78,6 +78,22 @@
           </div>
           <p class="text-body1">{{ cell.question }}</p>
         </div>
+
+        <div v-if="latestAiInterpretation" class="q-mb-md">
+          <div class="text-overline text-secondary q-mb-xs">
+            {{ t('cell.ai_interpretation') }}
+          </div>
+          <p class="text-body1 q-mb-none">
+            {{ typingAiInterpretation }}
+          </p>
+        </div>
+
+        <l-clarification-panel
+          v-if="showClarificationPanel"
+          :game-id="gameStore.currentGame?.id ?? 0"
+          :game-mode="gameStore.currentGame?.mode ?? 'free'"
+          :free-left="gameStore.clarificationsFreeLeft"
+        />
       </div>
     </q-scroll-area>
 
@@ -95,17 +111,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import type { Cell } from 'src/types/game.interface';
 import { getChakraColor, getChakraAvatarTextColor } from 'src/data/chakra-colors';
+import { useGameStore } from 'src/stores/game.store';
 import LModal from '../base/LModal.vue';
+import LClarificationPanel from './LClarificationPanel.vue';
 
 interface Props {
   modelValue: boolean;
   cell: Cell;
 }
+
+const TYPING_DELAY_MS = 30;
 
 const props = defineProps<Props>();
 
@@ -116,7 +136,10 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const $q = useQuasar();
+const gameStore = useGameStore();
 const isDarkMode = computed(() => $q.dark?.isActive ?? true);
+const typingAiInterpretation = ref('');
+let typingTimer: ReturnType<typeof setInterval> | null = null;
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -151,6 +174,51 @@ const transitionTarget = computed(() => {
   return '';
 });
 
+const latestAiInterpretation = computed(() => {
+  for (let index = gameStore.moves.length - 1; index >= 0; index -= 1) {
+    const move = gameStore.moves[index];
+    if (!move) {
+      continue;
+    }
+    if (move.final_cell !== props.cell.id) {
+      continue;
+    }
+    return move.ai_interpretation?.trim() || '';
+  }
+  return '';
+});
+
+const showClarificationPanel = computed(() => {
+  if (!gameStore.currentGame) return false;
+  if (!latestAiInterpretation.value) return false;
+  return gameStore.currentGame.mode !== 'free';
+});
+
+function clearTypingTimer(): void {
+  if (typingTimer) {
+    clearInterval(typingTimer);
+    typingTimer = null;
+  }
+}
+
+function startTypingInterpretation(value: string): void {
+  clearTypingTimer();
+  typingAiInterpretation.value = '';
+
+  if (!value) {
+    return;
+  }
+
+  let charIndex = 0;
+  typingTimer = setInterval(() => {
+    charIndex += 1;
+    typingAiInterpretation.value = value.slice(0, charIndex);
+    if (charIndex >= value.length) {
+      clearTypingTimer();
+    }
+  }, TYPING_DELAY_MS);
+}
+
 function close(): void {
   isOpen.value = false;
 }
@@ -158,6 +226,18 @@ function close(): void {
 function openInsightModal(): void {
   emit('write-insight');
 }
+
+watch(
+  () => latestAiInterpretation.value,
+  (value) => {
+    startTypingInterpretation(value);
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  clearTypingTimer();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -169,6 +169,19 @@ export default {
     ai_interpretation: 'AI Interpretation',
   },
 
+  clarification: {
+    button_free: 'Ask a clarification question (free, {n} left)',
+    button_paid: 'Ask a clarification question (1 TKN)',
+    dialog_title: 'Clarifying Question',
+    placeholder: 'What would you like to clarify about your current situation?',
+    submit: 'Send question',
+    loading: 'Mentor is thinking...',
+    ask_another: 'Ask another question',
+    error: 'Failed to get an answer',
+    retry: 'Retry',
+    insufficient_balance: 'Insufficient TKN balance',
+  },
+
   // Переходы
   transition: {
     arrow_to: 'Ascends to cell',

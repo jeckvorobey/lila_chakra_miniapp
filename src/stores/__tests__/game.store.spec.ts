@@ -184,6 +184,7 @@ describe('game.store rollDice', () => {
       completed_at: null,
       magic_time_ends_at: null,
       ai_summary: null,
+      clarifications_used: 0,
     };
 
     await nextTick();
@@ -222,6 +223,7 @@ describe('game.store rollDice', () => {
       completed_at: null,
       magic_time_ends_at: null,
       ai_summary: null,
+      clarifications_used: 0,
     };
 
     store.addManualSix();
@@ -288,6 +290,7 @@ describe('game.store rollDice', () => {
       completed_at: null,
       magic_time_ends_at: null,
       ai_summary: null,
+      clarifications_used: 0,
     };
 
     mockGamesApi.rollDice.mockResolvedValue({
@@ -309,5 +312,62 @@ describe('game.store rollDice', () => {
     expect(response?.requires_another_roll).toBe(true);
     expect(store.pendingAutoRolls).toEqual([6]);
     expect(store.currentDiceRolls).toEqual([6]);
+  });
+
+  it('корректно считает остаток бесплатных уточнений в AI режимах', () => {
+    const store = useGameStore();
+
+    store.currentGame = {
+      id: 15,
+      user_id: 7,
+      query: 'Проверка бесплатных уточнений',
+      category: 'career',
+      mode: 'ai_guide',
+      status: 'in_progress',
+      current_cell: 12,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 1,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 12,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+      clarifications_used: 1,
+    };
+
+    expect(store.clarificationsFreeLeft).toBe(2);
+
+    store.currentGame.clarifications_used = 4;
+    expect(store.clarificationsFreeLeft).toBe(0);
+  });
+
+  it('для FREE режима всегда возвращает 0 бесплатных уточнений', () => {
+    const store = useGameStore();
+
+    store.currentGame = {
+      id: 18,
+      user_id: 9,
+      query: 'FREE режим',
+      category: 'career',
+      mode: 'free',
+      status: 'in_progress',
+      current_cell: 6,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 1,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 6,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+      clarifications_used: 0,
+    };
+
+    expect(store.clarificationsFreeLeft).toBe(0);
   });
 });

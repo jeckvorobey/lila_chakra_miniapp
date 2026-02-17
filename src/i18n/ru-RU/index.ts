@@ -173,6 +173,19 @@ export default {
     ai_interpretation: 'AI Интерпретация',
   },
 
+  clarification: {
+    button_free: 'Задать уточняющий вопрос (бесплатно, осталось {n})',
+    button_paid: 'Задать уточняющий вопрос (1 ТКН)',
+    dialog_title: 'Уточняющий вопрос',
+    placeholder: 'Что хотите уточнить о своей ситуации?',
+    submit: 'Отправить вопрос',
+    loading: 'Ментор думает...',
+    ask_another: 'Задать ещё вопрос',
+    error: 'Не удалось получить ответ',
+    retry: 'Повторить',
+    insufficient_balance: 'Недостаточно ТКН',
+  },
+
   // Переходы
   transition: {
     arrow_to: 'Подъём на клетку',

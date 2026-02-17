@@ -1,5 +1,6 @@
 import { api } from 'src/boot/axios';
 import type {
+  ClarificationResponse,
   DiceRollRequest,
   GameCreate,
   GameDetail,
@@ -80,6 +81,16 @@ export const gamesApi = {
    */
   async rollDice(gameId: number, data?: DiceRollRequest): Promise<MoveResponse> {
     const response = await api.post<MoveResponse>(`/games/${gameId}/moves/roll`, data || {});
+    return response.data;
+  },
+
+  /**
+   * Задать уточняющий вопрос AI Ментору по текущей игре.
+   */
+  async askClarification(gameId: number, question: string): Promise<ClarificationResponse> {
+    const response = await api.post<ClarificationResponse>(`/ai/games/${gameId}/clarify`, {
+      question,
+    });
     return response.data;
   },
 };
