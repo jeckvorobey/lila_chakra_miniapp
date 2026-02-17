@@ -178,6 +178,7 @@ export default {
     loading: 'Mentor is thinking...',
     ask_another: 'Ask another question',
     error: 'Failed to get an answer',
+    quota_exceeded: 'AI request quota exceeded. Please try again later',
     retry: 'Retry',
     insufficient_balance: 'Insufficient TKN balance',
   },

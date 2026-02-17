@@ -182,6 +182,7 @@ export default {
     loading: 'Ментор думает...',
     ask_another: 'Задать ещё вопрос',
     error: 'Не удалось получить ответ',
+    quota_exceeded: 'Лимит AI-запросов исчерпан. Попробуйте позже',
     retry: 'Повторить',
     insufficient_balance: 'Недостаточно ТКН',
   },

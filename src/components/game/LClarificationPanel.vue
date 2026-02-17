@@ -188,6 +188,9 @@ function resolveErrorMessage(error: unknown): string {
   if (detail === 'errors.insufficient_balance') {
     return t('clarification.insufficient_balance');
   }
+  if (detail === 'errors.ai_quota_exceeded') {
+    return t('clarification.quota_exceeded');
+  }
   return t('clarification.error');
 }
 
