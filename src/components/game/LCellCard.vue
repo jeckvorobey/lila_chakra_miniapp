@@ -190,8 +190,7 @@ const latestAiInterpretation = computed(() => {
 
 const showClarificationPanel = computed(() => {
   if (!gameStore.currentGame) return false;
-  if (!latestAiInterpretation.value) return false;
-  return gameStore.currentGame.mode !== 'free';
+  return true;
 });
 
 function clearTypingTimer(): void {

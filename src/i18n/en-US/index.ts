@@ -170,8 +170,8 @@ export default {
   },
 
   clarification: {
-    button_free: 'Ask a clarification question (free, {n} left)',
-    button_paid: 'Ask a clarification question (1 TKN)',
+    button_free: 'Ask a clarification question',
+    button_paid: 'Ask a clarification question for 1 TKN',
     dialog_title: 'Clarifying Question',
     placeholder: 'What would you like to clarify about your current situation?',
     submit: 'Send question',

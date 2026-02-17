@@ -129,13 +129,9 @@ const canSubmitQuestion = computed(() => {
 });
 
 const buttonLabel = computed(() => {
-  if (props.gameMode === 'free') {
-    return t('clarification.button_paid');
-  }
-  if (props.freeLeft > 0) {
-    return t('clarification.button_free', { n: props.freeLeft });
-  }
-  return t('clarification.button_paid');
+  const hasFreeQuestion =
+    props.gameMode !== 'free' && props.freeLeft > 0;
+  return hasFreeQuestion ? t('clarification.button_free') : t('clarification.button_paid');
 });
 
 const showAskButton = computed(
