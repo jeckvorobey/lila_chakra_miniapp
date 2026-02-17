@@ -2,42 +2,64 @@
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
     <q-header v-if="showHeader" class="bg-glass" :class="{ 'bg-transparent': isGamePage }">
-      <q-toolbar class="safe-area-top">
-        <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
+      <q-toolbar class="safe-area-top row items-center no-wrap">
+        <!-- Левая секция -->
+        <div class="col row items-center no-wrap text-h3">
+          <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
+          <span v-if="pageTitle" class="text-h3 q-ml-sm">
+            {{ pageTitle }}
+          </span>
+        </div>
 
-        <q-toolbar-title v-if="pageTitle" class="text-weight-medium">
-          {{ pageTitle }}
-        </q-toolbar-title>
+        <!-- Центральная секция — баланс (только на главной) -->
+        <div class="col row items-center justify-center no-wrap">
+          <template v-if="isGamePage">
+            <q-icon name="mdi-wallet-outline" size="20px" class="q-mr-xs" />
+            <span >{{ userStore.balance }} {{ $t('rules.tkn')}}</span>
+            <q-btn
+              flat
+              dense
+              round
+              size="sm"
+              icon="mdi-plus-circle-outline"
+              class="q-ml-xs"
+              @click="navigateTo('/profile/payment')"
+            >
+              <q-tooltip>{{ $t('profile.top_up') }}</q-tooltip>
+            </q-btn>
+          </template>
+        </div>
 
-        <q-space />
+        <!-- Правая секция -->
+        <div class="col row items-center justify-end no-wrap">
+          <l-theme-toggle />
 
-        <l-theme-toggle />
-
-        <q-btn v-if="showMenu" flat dense round icon="mdi-dots-vertical">
-          <q-menu anchor="bottom right" self="top right">
-            <q-list style="min-width: 180px">
-              <q-item v-close-popup clickable @click="navigateTo('/profile')">
-                <q-item-section avatar>
-                  <q-icon name="mdi-account" />
-                </q-item-section>
-                <q-item-section>{{ $t('nav.profile') }}</q-item-section>
-              </q-item>
-              <q-item v-close-popup clickable @click="openRules">
-                <q-item-section avatar>
-                  <q-icon name="mdi-book-open-variant" />
-                </q-item-section>
-                <q-item-section>{{ $t('profile.rules') }}</q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item v-close-popup clickable @click="openFeedback">
-                <q-item-section avatar>
-                  <q-icon name="mdi-message-outline" />
-                </q-item-section>
-                <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
+          <q-btn v-if="showMenu" flat dense round icon="mdi-dots-vertical">
+            <q-menu anchor="bottom right" self="top right">
+              <q-list style="min-width: 180px">
+                <q-item v-close-popup clickable @click="navigateTo('/profile')">
+                  <q-item-section avatar>
+                    <q-icon name="mdi-account" />
+                  </q-item-section>
+                  <q-item-section>{{ $t('nav.profile') }}</q-item-section>
+                </q-item>
+                <q-item v-close-popup clickable @click="openRules">
+                  <q-item-section avatar>
+                    <q-icon name="mdi-book-open-variant" />
+                  </q-item-section>
+                  <q-item-section>{{ $t('profile.rules') }}</q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item v-close-popup clickable @click="openFeedback">
+                  <q-item-section avatar>
+                    <q-icon name="mdi-message-outline" />
+                  </q-item-section>
+                  <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -61,10 +83,12 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { LBottomNav } from 'src/components/navigation';
 import { LThemeToggle } from 'src/components/base';
+import { useUserStore } from 'src/stores/user.store';
 
 const route = useRoute();
 const router = useRouter();
 const i18n = useI18n();
+const userStore = useUserStore();
 
 const isGamePage = computed(() => route.path.startsWith('/game'));
 const isOnboarding = computed(() => route.path.startsWith('/onboarding'));
