@@ -65,7 +65,7 @@
             autogrow
             maxlength="500"
             counter
-            :hint="t('create.assistant.min_chars_hint')"
+            :hint="t('query.assistant.min_chars_hint')"
             :placeholder="t('clarification.placeholder')"
           />
         </q-card-section>
