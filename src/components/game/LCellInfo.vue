@@ -60,8 +60,6 @@
         </div>
       </q-card-section>
     </q-card>
-
-    <l-dice-roll-modal v-model="showDiceModal" @roll-finished="emit('roll-finished', $event)" />
   </div>
 </template>
 
@@ -71,7 +69,6 @@ import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
 import type { CellBrief, MoveResponse } from 'src/types/game.interface';
-import LDiceRollModal from './LDiceRollModal.vue';
 
 interface Props {
   currentCell: number;
