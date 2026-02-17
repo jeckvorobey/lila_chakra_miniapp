@@ -27,24 +27,40 @@
     <q-scroll-area style="height: 60vh">
       <div class="l-cell-card q-pa-sm">
         <q-banner
-          v-if="isArrow || isSnake"
-          :class="isArrow ? 'bg-positive-light' : 'bg-negative-light'"
+          v-if="showTransitionBanner"
+          :class="bannerType === 'arrow' ? 'bg-positive-light' : 'bg-negative-light'"
           class="rounded-borders q-mb-md"
         >
           <template #avatar>
             <q-icon
-              :name="isArrow ? 'mdi-arrow-up-bold' : 'mdi-snake'"
-              :color="isArrow ? 'positive' : 'negative'"
+              :name="bannerType === 'arrow' ? 'mdi-arrow-up-bold' : 'mdi-snake'"
+              :color="bannerType === 'arrow' ? 'positive' : 'negative'"
               size="32px"
             />
           </template>
 
           <div class="text-weight-medium">
-            {{ isArrow ? t('transition.arrow') : t('transition.snake') }}
+            {{ bannerType === 'arrow' ? t('transition.arrow') : t('transition.snake') }}
           </div>
           <div class="text-caption">
-            {{ isArrow ? t('transition.arrow_to') : t('transition.snake_to') }}
-            <strong>{{ transitionTarget }}</strong>
+            <template v-if="isLastMoveTransition">
+              {{
+                bannerType === 'arrow'
+                  ? t('transition.arrived_by_arrow', { from: transitionSource, to: transitionTarget })
+                  : t('transition.arrived_by_snake', { from: transitionSource, to: transitionTarget })
+              }}
+            </template>
+            <template v-else>
+              {{ bannerType === 'arrow' ? t('transition.arrow_to') : t('transition.snake_to') }}
+              <strong>{{ transitionTarget }}</strong>
+            </template>
+          </div>
+          <div v-if="isLastMoveTransition" class="text-caption q-mt-xs">
+            {{
+              bannerType === 'arrow'
+                ? t('transition.arrow_interpretation')
+                : t('transition.snake_interpretation')
+            }}
           </div>
         </q-banner>
 
@@ -162,15 +178,63 @@ const isArrow = computed(() => props.cell.is_arrow_start ?? false);
 
 const isSnake = computed(() => props.cell.is_snake_head ?? false);
 
+const latestMoveForCell = computed(() => {
+  for (let index = gameStore.moves.length - 1; index >= 0; index -= 1) {
+    const move = gameStore.moves[index];
+    if (!move || move.final_cell !== props.cell.id) {
+      continue;
+    }
+    return move;
+  }
+  return null;
+});
+
+const transitionFromLastMove = computed(() => {
+  const move = latestMoveForCell.value;
+  if (!move || move.transition_type === 'none') {
+    return null;
+  }
+  if (move.transition_to == null || move.transition_from == null) {
+    return null;
+  }
+  return move;
+});
+
+const isLastMoveTransition = computed(() => transitionFromLastMove.value !== null);
+
+const bannerType = computed<'arrow' | 'snake' | null>(() => {
+  const move = transitionFromLastMove.value;
+  if (move?.transition_type === 'arrow' || move?.transition_type === 'snake') {
+    return move.transition_type;
+  }
+  if (isArrow.value) {
+    return 'arrow';
+  }
+  if (isSnake.value) {
+    return 'snake';
+  }
+  return null;
+});
+
+const showTransitionBanner = computed(() => bannerType.value !== null);
+
+const transitionSource = computed(() => {
+  if (transitionFromLastMove.value) {
+    return transitionFromLastMove.value.transition_from ?? '';
+  }
+  return props.cell.id;
+});
+
 const transitionTarget = computed(() => {
+  if (transitionFromLastMove.value) {
+    return transitionFromLastMove.value.transition_to ?? '';
+  }
   if (isArrow.value) {
     return props.cell.arrow_end ?? '';
   }
-
   if (isSnake.value) {
     return props.cell.snake_tail ?? '';
   }
-
   return '';
 });
 

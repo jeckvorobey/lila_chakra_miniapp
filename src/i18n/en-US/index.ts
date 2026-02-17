@@ -190,6 +190,10 @@ export default {
     meaning: 'Meaning',
     arrow: 'Arrow',
     snake: 'Snake',
+    arrived_by_arrow: 'You ascended by an arrow from cell {from} to cell {to}.',
+    arrived_by_snake: 'You descended by a snake from cell {from} to cell {to}.',
+    arrow_interpretation: 'In Lila, an arrow symbolizes virtue supporting spiritual ascent.',
+    snake_interpretation: 'In Lila, a snake marks a vice lesson and a return for deeper work.',
   },
 
   // Дневник
