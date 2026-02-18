@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { UserOut, UserStats } from 'src/types/user.interface';
+import type { ReferralProgramData, UserOut, UserStats } from 'src/types/user.interface';
 
 /**
  * API пользователей.
@@ -44,6 +44,26 @@ export const usersApi = {
    */
   async getReferralData(): Promise<{ code: string; link: string }> {
     const response = await api.get<{ code: string; link: string }>('/users/me/referral-code');
+    return response.data;
+  },
+
+  /**
+   * Получить расширенные данные реферальной программы.
+   */
+  async getReferralProgram(): Promise<ReferralProgramData> {
+    const response = await api.get<ReferralProgramData>('/users/me/referral-program');
+    return response.data;
+  },
+
+  /**
+   * Сгенерировать промокод по тарифу x2/x5.
+   */
+  async generateReferralTierCode(
+    tierKey: 'x2' | 'x5',
+  ): Promise<{ key: string; promo_code: string }> {
+    const response = await api.post<{ key: string; promo_code: string }>(
+      `/users/me/referral-program/${tierKey}/generate`,
+    );
     return response.data;
   },
 };

@@ -5,13 +5,14 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { usersApi } from 'src/services/api';
-import type { UserProfile, UserStats } from 'src/types/user.interface';
+import type { ReferralProgramData, UserProfile, UserStats } from 'src/types/user.interface';
 
 export const useUserStore = defineStore('user', () => {
   // Состояние
   const profile = ref<UserProfile | null>(null);
   const stats = ref<UserStats | null>(null);
   const referralData = ref<{ code: string; link: string } | null>(null);
+  const referralProgram = ref<ReferralProgramData | null>(null);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
@@ -60,9 +61,26 @@ export const useUserStore = defineStore('user', () => {
    */
   async function fetchReferralData(): Promise<void> {
     try {
-      referralData.value = await usersApi.getReferralData();
+      const data = await usersApi.getReferralProgram();
+      referralProgram.value = data;
+      referralData.value = { code: data.code ?? '', link: data.link };
     } catch (err) {
       console.error('Ошибка загрузки реферальных данных:', err);
+    }
+  }
+
+  /**
+   * Загрузить расширенную реферальную программу.
+   */
+  async function fetchReferralProgram(): Promise<void> {
+    try {
+      referralProgram.value = await usersApi.getReferralProgram();
+      referralData.value = {
+        code: referralProgram.value.code ?? '',
+        link: referralProgram.value.link,
+      };
+    } catch (err) {
+      console.error('Ошибка загрузки расширенной реферальной программы:', err);
     }
   }
 
@@ -114,6 +132,8 @@ export const useUserStore = defineStore('user', () => {
   function reset(): void {
     profile.value = null;
     stats.value = null;
+    referralData.value = null;
+    referralProgram.value = null;
     error.value = null;
   }
 
@@ -122,6 +142,7 @@ export const useUserStore = defineStore('user', () => {
     profile,
     stats,
     referralData,
+    referralProgram,
     isLoading,
     error,
 
@@ -134,6 +155,7 @@ export const useUserStore = defineStore('user', () => {
     fetchProfile,
     fetchStats,
     fetchReferralData,
+    fetchReferralProgram,
     updateProfile,
     completeOnboarding,
     updateBalance,

@@ -17,3 +17,12 @@ export interface PaymentInitResponse {
   amount_tkn: number;
   bonus_tkn: number;
 }
+
+export interface PromoCodeApplyResponse {
+  success: boolean;
+  balance_added: number;
+  new_balance: number;
+  owner_bonus_released_tkn: number;
+  owner_bonus_pending_tkn: number;
+  message: string;
+}

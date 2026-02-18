@@ -41,6 +41,29 @@
       </q-card-section>
     </q-card>
 
+    <q-card flat bordered class="q-mb-md">
+      <q-card-section>
+        <q-input
+          v-model="promoCode"
+          dense
+          outlined
+          :label="$t('payment.promo_code')"
+          :disable="isApplyingPromo"
+        >
+          <template #append>
+            <q-btn
+              flat
+              color="primary"
+              :label="$t('payment.apply')"
+              :loading="isApplyingPromo"
+              :disable="!promoCode.trim()"
+              @click="applyPromoCode"
+            />
+          </template>
+        </q-input>
+      </q-card-section>
+    </q-card>
+
     <!-- Кнопка оплаты -->
     <q-btn
       :label="$t('payment.proceed')"
@@ -67,12 +90,16 @@ import { useQuasar } from 'quasar';
 import { paymentsApi } from 'src/services/api';
 import type { PaymentPackage } from 'src/types/payment.interface';
 import { getTelegramWebApp } from 'src/boot/telegram';
+import { useUserStore } from 'src/stores/user.store';
 
 const $q = useQuasar();
+const userStore = useUserStore();
 const packages = ref<PaymentPackage[]>([]);
 const selectedPackage = ref<number | null>(null);
+const promoCode = ref('');
 const isLoading = ref(false);
 const isProcessing = ref(false);
+const isApplyingPromo = ref(false);
 
 const selectedPackageData = computed(() =>
   packages.value.find((p) => p.amount_rub === selectedPackage.value),
@@ -112,6 +139,30 @@ function processPayment() {
     .finally(() => {
       isProcessing.value = false;
     });
+}
+
+async function applyPromoCode() {
+  const code = promoCode.value.trim();
+  if (!code) return;
+
+  isApplyingPromo.value = true;
+  try {
+    const response = await paymentsApi.applyPromoCode(code);
+    userStore.updateBalance(response.new_balance);
+    promoCode.value = '';
+    $q.notify({
+      type: 'positive',
+      message: `${response.message}: +${response.balance_added} ТКН`,
+    });
+  } catch (error) {
+    const detail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+    $q.notify({
+      type: 'negative',
+      message: detail || 'Ошибка применения промокода',
+    });
+  } finally {
+    isApplyingPromo.value = false;
+  }
 }
 
 async function loadPackages() {
