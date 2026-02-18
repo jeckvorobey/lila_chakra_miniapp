@@ -132,6 +132,7 @@ import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import type { Cell } from 'src/types/game.interface';
 import { getChakraColor, getChakraAvatarTextColor } from 'src/data/chakra-colors';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 import { useGameStore } from 'src/stores/game.store';
 import LModal from '../base/LModal.vue';
 import LClarificationPanel from './LClarificationPanel.vue';
@@ -162,7 +163,7 @@ const isOpen = computed({
   set: (value) => emit('update:modelValue', value),
 });
 
-const rowChakraLevel = computed(() => Math.ceil(props.cell.id / 9));
+const rowChakraLevel = computed(() => cellIdToChakraLevel(props.cell.id));
 const avatarTextColor = computed(() =>
   getChakraAvatarTextColor(rowChakraLevel.value, isDarkMode.value),
 );

@@ -27,6 +27,7 @@ import {
   CELLS_PER_ROW,
   WAITING_ZONE,
 } from 'src/data/game-constants';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 import { isActiveGameStatus } from 'src/data/game-status';
 
 // Повторный экспорт игровых констант для удобства
@@ -141,8 +142,7 @@ export const useGameStore = defineStore('game', () => {
    * Получить уровень чакры для клетки (1-8)
    */
   function getChakraLevel(cellId: number): number {
-    if (cellId <= 0) return 0;
-    return Math.ceil(cellId / CELLS_PER_ROW);
+    return cellIdToChakraLevel(cellId);
   }
 
   // Данные о переходах из reference store (SSOT)

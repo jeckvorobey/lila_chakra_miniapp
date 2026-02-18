@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useGameStore } from 'src/stores/game.store';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 import { LProgressBar } from 'src/components/base';
 import LGameBoardSection from './LGameBoardSection.vue';
 import LGameActionsPanel from './LGameActionsPanel.vue';
@@ -41,10 +42,7 @@ interface LGameBoardSectionExposed {
 const gameStore = useGameStore();
 const boardSectionRef = ref<LGameBoardSectionExposed | null>(null);
 
-const currentChakra = computed(() => {
-  if (gameStore.currentCell <= 0) return 0;
-  return Math.ceil(gameStore.currentCell / 9);
-});
+const currentChakra = computed(() => cellIdToChakraLevel(gameStore.currentCell));
 
 function showCurrentCellInfo(): void {
   void boardSectionRef.value?.openCurrentCellInfo();

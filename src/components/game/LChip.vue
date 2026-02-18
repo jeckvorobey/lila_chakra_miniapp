@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 
 type TransitionType = 'arrow' | 'snake' | null;
 
@@ -71,10 +72,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Рассчитать уровень чакры по позиции для цвета
-const chakraLevel = computed(() => {
-  if (props.position <= 0) return 1;
-  return Math.ceil(props.position / 9);
-});
+const chakraLevel = computed(() => cellIdToChakraLevel(props.position) || 1);
 
 // Цвета чакр
 const chakraColors: Record<number, { start: string; end: string }> = {

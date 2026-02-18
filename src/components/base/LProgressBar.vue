@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 
 interface Props {
   currentCell: number;
@@ -32,10 +33,7 @@ const progress = computed(() => {
   return Math.min((props.currentCell / props.maxCell) * 100, 100);
 });
 
-const currentChakra = computed(() => {
-  if (props.currentCell <= 0) return 0;
-  return Math.ceil(props.currentCell / 9);
-});
+const currentChakra = computed(() => cellIdToChakraLevel(props.currentCell));
 
 const fillStyle = computed(() => {
   const level = currentChakra.value || 1;

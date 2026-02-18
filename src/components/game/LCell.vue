@@ -34,6 +34,7 @@ import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useGameStore } from 'src/stores/game.store';
 import { getChakraColor } from 'src/data/chakra-colors';
+import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 
 interface Props {
   cellId: number;
@@ -60,10 +61,7 @@ const $q = useQuasar();
 const gameStore = useGameStore();
 const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 
-const chakraLevel = computed(() => {
-  if (props.cellId <= 0) return 0;
-  return Math.ceil(props.cellId / 9);
-});
+const chakraLevel = computed(() => cellIdToChakraLevel(props.cellId));
 
 const isArrow = computed(() => props.cellId in gameStore.arrowsMap);
 const isSnake = computed(() => props.cellId in gameStore.snakesMap);

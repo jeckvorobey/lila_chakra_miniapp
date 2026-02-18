@@ -74,10 +74,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import { CELLS_PER_ROW } from 'src/data/game-constants';
 import { getChakraColor } from 'src/data/chakra-colors';
 import type { CellPosition } from 'src/utils/board-geometry';
-import { getCellPixelPosition } from 'src/utils/board-geometry';
+import { cellIdToChakraLevel, getCellPixelPosition } from 'src/utils/board-geometry';
 import { createArrowHead, createArrowPath, createSnakePath } from 'src/utils/transition-paths';
 import { useTransitionAnimation } from 'src/composables/useTransitionAnimation';
 
@@ -111,8 +110,8 @@ const { phase, animate, stop } = useTransitionAnimation();
 const gradientId = `transition-gradient-${Math.random().toString(36).slice(2, 9)}`;
 const glowId = `transition-glow-${Math.random().toString(36).slice(2, 9)}`;
 
-const startChakraLevel = computed(() => Math.ceil(props.startCellId / CELLS_PER_ROW));
-const endChakraLevel = computed(() => Math.ceil(props.endCellId / CELLS_PER_ROW));
+const startChakraLevel = computed(() => cellIdToChakraLevel(props.startCellId));
+const endChakraLevel = computed(() => cellIdToChakraLevel(props.endCellId));
 
 const startColor = computed(() => getChakraColor(startChakraLevel.value, isDarkMode.value));
 const endColor = computed(() => getChakraColor(endChakraLevel.value, isDarkMode.value));

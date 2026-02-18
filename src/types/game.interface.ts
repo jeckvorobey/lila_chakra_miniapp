@@ -35,7 +35,6 @@ export interface CellBrief {
 export interface CellOut {
   id: number;
   name_ru: string;
-  name_en: string | null;
   name_sanskrit: string | null;
   chakra_level: number;
   chakra_name: string;

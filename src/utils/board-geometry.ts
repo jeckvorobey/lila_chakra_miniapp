@@ -15,6 +15,15 @@ const MIN_CELL_ID = 1;
 const MAX_CELL_ID = CHAKRA_ROWS * CELLS_PER_ROW;
 
 /**
+ * Возвращает уровень чакры (1-8) для ID клетки.
+ * Единственный источник этой логики — используется везде вместо inline Math.ceil.
+ */
+export function cellIdToChakraLevel(cellId: number): number {
+  if (cellId <= 0) return 0;
+  return Math.ceil(cellId / CELLS_PER_ROW);
+}
+
+/**
  * Конвертирует ID клетки в координаты сетки доски.
  */
 export function cellIdToGridCoords(cellId: number): GridCoords {
@@ -22,7 +31,7 @@ export function cellIdToGridCoords(cellId: number): GridCoords {
     throw new Error(`Некорректный cellId: ${cellId}`);
   }
 
-  const chakraLevel = Math.ceil(cellId / CELLS_PER_ROW);
+  const chakraLevel = cellIdToChakraLevel(cellId);
   const posInRow = (cellId - 1) % CELLS_PER_ROW;
   const row = CHAKRA_ROWS - chakraLevel;
   const col = chakraLevel % 2 === 0
