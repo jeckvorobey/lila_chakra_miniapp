@@ -333,13 +333,75 @@ export default {
   // Game Rules
   rules: {
     title: 'Game Rules',
-    general_title: 'General Rules',
+
+    // Preparation
+    prep_title: 'Preparing for the Game',
+    prep_text:
+      'Find a place where you will not be disturbed for 2–3 hours. ' +
+      'Before starting, it is recommended to do a short meditation or listen to calming music — ' +
+      'the goal is to quiet your mind and relax.',
+
+    // Intention
+    intention_title: 'Entering the Game — Your Intention',
+    intention_text:
+      'To start playing, you must enter the game with an intention — the question or situation ' +
+      'that matters most to you right now. It must be specific, clearly formulated and reflect a real goal. ' +
+      'It can be something practical: "How do I earn a million in the next six months?" ' +
+      'or something deeper: "What do I need to do to find my life\'s purpose?" ' +
+      'What matters is that it is what concerns you the most at this moment.',
+    intention_six:
+      'To enter the game, you must roll a 6. If another number comes up — ' +
+      'rethink and reformulate your intention. Be prepared: your true intention ' +
+      'may turn out to be very different from the one you started with.',
+
+    // Gameplay
+    general_title: 'Gameplay',
     general_board: 'Game board: 72 cells, 8 levels (chakras)',
     general_dice_auto: 'Dice roll — automatic, random result',
     general_dice_manual: 'Manual input — for your own dice, you choose the rolled value',
     general_arrows: 'Arrows of virtue — move you up the board',
     general_snakes: 'Snakes of vice — move you down the board',
     general_sixes: 'You need to roll a six to enter the game',
+    general_move:
+      'When you land on a cell, read its description and reflect on what this cell means ' +
+      'specifically for you and your intention.',
+    general_arrow_rule:
+      'If your token lands on the base of an arrow — it moves up to the tip. ' +
+      'For example, landing on "Higher Goal" (№27) sends the player up to "Realization" (№41).',
+    general_snake_rule:
+      'If your token lands on a snake\'s head — it slides down to the tail. ' +
+      'For example, Ego (№55) drops the player to Anger (№3).',
+    general_six_bonus:
+      'If you roll a six — take another turn.',
+
+    // Goal
+    goal_title: 'Goal and End of Game',
+    goal_text:
+      'The game ends when the token lands exactly on cell 68 — Cosmic Consciousness. ' +
+      'If the token overshoots and stops on 69, 70 or 71 — wait until the exact number comes up to return to 68. ' +
+      'Cell 69 (the Plane of the Absolute) is a special case: you cannot reach 68 directly from it — ' +
+      'you must wait for the Tamoguna snake to bring you back down.',
+
+    // Analysis
+    analysis_title: 'Analysing the Game',
+    analysis_text:
+      'After the game, carefully review all the cells you visited. ' +
+      'Pay special attention to:',
+    analysis_snakes: 'Cells with snakes that sent you down',
+    analysis_repeat: 'Cells you landed on more than once',
+    analysis_emotion: 'Cells that triggered the strongest emotions',
+    analysis_note:
+      'All these cells represent states that either bring you closer to your goal or push you away. ' +
+      'You may return to your notes later — a deeper understanding often reveals itself over time.',
+
+    // After the game
+    after_title: 'Working on Yourself After the Game',
+    after_text:
+      'Within 96 hours after the game, begin working through the issues and mental blocks ' +
+      'that surfaced during play. Building a new habit takes about 3 weeks. ' +
+      'Useful practices include meditation, yoga, psychotherapy, retreats and other tools.',
+
+    // Modes
     modes_title: 'Game Modes',
     mode_free_title: 'Free',
     mode_free_desc:
@@ -349,12 +411,16 @@ export default {
       'Full AI interpretation of every move. All data is saved in your game diary.',
     mode_incognito_title: 'With AI Mentor (Incognito)',
     mode_incognito_desc:
-      'AI interpretation without long-term storage. Only moves are saved; interpretations are deleted after the game ends. We recommend writing insights in a notebook.',
+      'AI interpretation without long-term storage. Only moves are saved; ' +
+      'interpretations are deleted after the game ends.',
+
+    // Extra question
     extra_question_title: 'Extra Question',
     extra_question_desc:
       'In any mode, you can ask the AI Mentor an additional question to get clarification on the interpretation.',
     tkn: 'TKN',
   },
+
 
   // About
   about: {
