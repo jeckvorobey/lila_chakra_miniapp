@@ -58,6 +58,26 @@
             @click="emit('confirm-end-game')"
           />
         </div>
+
+        <div v-if="showReflectionQuestions" class="q-mt-md">
+          <div class="text-overline text-secondary q-mb-xs">
+            {{ t('cell.reflection_questions') }}
+          </div>
+          <ul class="l-cell-info__questions q-pl-md q-mb-none">
+            <li
+              v-for="question in reflectionQuestionsList"
+              :key="question.topic"
+              class="q-mb-xs"
+            >
+              <div class="text-caption text-secondary">
+                {{ question.label }}
+              </div>
+              <div class="text-body2">
+                {{ question.text }}
+              </div>
+            </li>
+          </ul>
+        </div>
       </q-card-section>
     </q-card>
 
@@ -73,12 +93,13 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
-import type { CellBrief, MoveResponse } from 'src/types/game.interface';
+import type { CellBrief, GameMode, MoveResponse } from 'src/types/game.interface';
 import LDiceRollModal from './LDiceRollModal.vue';
 
 interface Props {
   currentCell: number;
   currentCellInfo: CellBrief | null;
+  gameMode: GameMode;
   currentChakra: number;
   isWaitingForSix: boolean;
   isChipAnimating: boolean;
@@ -112,4 +133,41 @@ const currentCellTitle = computed(() => {
 const currentChakraLabel = computed(() =>
   props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
 );
+
+const reflectionQuestionsList = computed(() => {
+  const questions = props.currentCellInfo?.is_revisit
+    ? (props.currentCellInfo?.questions_revisit ?? props.currentCellInfo?.reflection_questions)
+    : (props.currentCellInfo?.questions_first ?? props.currentCellInfo?.reflection_questions);
+  if (!questions) {
+    return [];
+  }
+
+  return [
+    {
+      topic: 'relationships',
+      label: t('query.category.relationships'),
+      text: questions.relationships,
+    },
+    {
+      topic: 'money',
+      label: t('query.category.finance'),
+      text: questions.money,
+    },
+    {
+      topic: 'career',
+      label: t('query.category.career'),
+      text: questions.career,
+    },
+  ].filter((item): item is { topic: string; label: string; text: string } => Boolean(item.text));
+});
+
+const showReflectionQuestions = computed(
+  () => props.gameMode === 'free' && reflectionQuestionsList.value.length > 0,
+);
 </script>
+
+<style scoped>
+.l-cell-info__questions {
+  list-style: none;
+}
+</style>

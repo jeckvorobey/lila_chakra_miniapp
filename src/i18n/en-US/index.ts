@@ -163,10 +163,12 @@ export default {
   // Информация о клетке
   cell: {
     description: 'Description',
+    description_revisit: 'Revisit Description',
     question: 'Reflection Question',
     sanskrit_name: 'Sanskrit Name',
     keywords: 'Keywords',
     ai_interpretation: 'AI Interpretation',
+    reflection_questions: 'Self-reflection questions',
   },
 
   clarification: {

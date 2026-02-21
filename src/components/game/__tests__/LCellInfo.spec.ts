@@ -54,6 +54,7 @@ const moveResponse: MoveResponse = {
 interface CellInfoProps {
   currentCell: number;
   currentCellInfo: CellBrief | null;
+  gameMode: 'free' | 'ai_incognito' | 'ai_guide';
   currentChakra: number;
   isWaitingForSix: boolean;
   isChipAnimating: boolean;
@@ -65,6 +66,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
     props: {
       currentCell: 5,
       currentCellInfo,
+      gameMode: 'free',
       currentChakra: 1,
       isWaitingForSix: false,
       isChipAnimating: false,
@@ -147,5 +149,34 @@ describe('LCellInfo', () => {
     const wrapper = mountCellInfo({ isChipAnimating: true });
     const btn = wrapper.get('[data-testid="open-dice-modal-btn"]');
     expect(btn.attributes('disabled')).toBeDefined();
+  });
+
+  it('показывает вопросы саморефлексии только в free режиме', () => {
+    const wrapper = mountCellInfo({
+      currentCellInfo: {
+        ...currentCellInfo,
+        reflection_questions: {
+          relationships: 'Вопрос про отношения',
+        },
+      },
+      gameMode: 'free',
+    });
+
+    expect(wrapper.text()).toContain('cell.reflection_questions');
+    expect(wrapper.text()).toContain('Вопрос про отношения');
+  });
+
+  it('не показывает вопросы саморефлексии в AI режимах', () => {
+    const wrapper = mountCellInfo({
+      currentCellInfo: {
+        ...currentCellInfo,
+        reflection_questions: {
+          relationships: 'Вопрос про отношения',
+        },
+      },
+      gameMode: 'ai_guide',
+    });
+
+    expect(wrapper.text()).not.toContain('Вопрос про отношения');
   });
 });

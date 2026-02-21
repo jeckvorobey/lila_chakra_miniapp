@@ -167,10 +167,12 @@ export default {
   // Информация о клетке
   cell: {
     description: 'Описание',
+    description_revisit: 'Описание (повторное попадание)',
     question: 'Вопрос для размышления',
     sanskrit_name: 'Санскритское название',
     keywords: 'Ключевые слова',
     ai_interpretation: 'AI Интерпретация',
+    reflection_questions: 'Вопросы для саморефлексии',
   },
 
   clarification: {

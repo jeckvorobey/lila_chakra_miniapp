@@ -46,7 +46,25 @@ const lastMoveId = computed(() => {
   return lastMove?.id ?? null;
 });
 
-async function showCellInfoById(cellId: number): Promise<void> {
+function buildCurrentCellModalData(baseCell: Cell): Cell {
+  const context = gameStore.currentCellInfo;
+  if (!context || context.id !== baseCell.id) {
+    return baseCell;
+  }
+
+  return {
+    ...baseCell,
+    description: context.description ?? baseCell.description,
+    description_revisit: context.description_revisit ?? baseCell.description_revisit ?? null,
+    reflection_questions:
+      gameStore.currentGame?.mode === 'free' ? (context.reflection_questions ?? null) : null,
+  };
+}
+
+async function showCellInfoById(
+  cellId: number,
+  source: 'board' | 'current-cell' = 'board',
+): Promise<void> {
   const requestId = activeRequestId.value + 1;
   activeRequestId.value = requestId;
 
@@ -64,7 +82,7 @@ async function showCellInfoById(cellId: number): Promise<void> {
     return;
   }
 
-  selectedCell.value = cellInfo;
+  selectedCell.value = source === 'current-cell' ? buildCurrentCellModalData(cellInfo) : cellInfo;
   showCellModal.value = true;
 }
 
@@ -111,7 +129,7 @@ defineExpose({
       return;
     }
 
-    await showCellInfoById(props.currentCell);
+    await showCellInfoById(props.currentCell, 'current-cell');
   },
 });
 </script>

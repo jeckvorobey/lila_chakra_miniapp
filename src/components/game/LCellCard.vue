@@ -40,7 +40,7 @@
           </template>
 
           <div class="text-weight-medium">
-            {{ bannerType === 'arrow' ? t('transition.arrow') : t('transition.snake') }}
+            {{ cell.transition?.name || (bannerType === 'arrow' ? t('transition.arrow') : t('transition.snake')) }}
           </div>
           <div class="text-caption">
             <template v-if="isLastMoveTransition">
@@ -61,6 +61,9 @@
                 ? t('transition.arrow_interpretation')
                 : t('transition.snake_interpretation')
             }}
+          </div>
+          <div v-if="cell.transition?.description" class="text-caption q-mt-xs">
+            {{ cell.transition.description }}
           </div>
         </q-banner>
 
@@ -88,11 +91,11 @@
           <p class="text-body1">{{ cell.description }}</p>
         </div>
 
-        <div v-if="cell.question" class="q-mb-md">
+        <div v-if="cell.description_revisit" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.question') }}
+            {{ t('cell.description_revisit') }}
           </div>
-          <p class="text-body1">{{ cell.question }}</p>
+          <p class="text-body1">{{ cell.description_revisit }}</p>
         </div>
 
         <div v-if="latestAiInterpretation" class="q-mb-md">

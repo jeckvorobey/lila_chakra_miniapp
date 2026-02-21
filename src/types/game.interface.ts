@@ -17,6 +17,17 @@ export type QueryCategory =
 
 export type TransitionType = 'none' | 'arrow' | 'snake';
 
+export interface ReflectionQuestions {
+  relationships?: string;
+  money?: string;
+  career?: string;
+}
+
+export interface CellTransitionInfo {
+  name?: string;
+  description?: string;
+}
+
 export interface MultilingualText {
   [key: string]: string;
   ru: string;
@@ -30,6 +41,13 @@ export interface CellBrief {
   chakra_name: string;
   transition_type: TransitionType;
   transition_to: number | null;
+  description?: string | null;
+  description_revisit?: string | null;
+  questions_first?: ReflectionQuestions | null;
+  questions_revisit?: ReflectionQuestions | null;
+  reflection_questions?: ReflectionQuestions | null;
+  visit_count?: number | null;
+  is_revisit?: boolean | null;
 }
 
 export interface CellOut {
@@ -55,7 +73,11 @@ export interface Cell {
   name_sanskrit?: string | null;
   chakra_level: number;
   description: string;
-  question?: string | null;
+  description_revisit?: string | null;
+  questions_first?: ReflectionQuestions | null;
+  questions_revisit?: ReflectionQuestions | null;
+  reflection_questions?: ReflectionQuestions | null;
+  transition?: CellTransitionInfo | null;
   keywords?: string[] | null;
   audio_url?: string | null;
   image_url?: string | null;

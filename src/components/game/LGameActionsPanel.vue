@@ -2,6 +2,7 @@
   <l-cell-info
     :current-cell="currentCell"
     :current-cell-info="currentCellInfo"
+    :game-mode="gameMode"
     :current-chakra="currentChakra"
     :is-waiting-for-six="isWaitingForSix"
     :is-chip-animating="gameStore.isChipAnimating"
@@ -17,13 +18,14 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
-import type { CellBrief, MoveResponse } from 'src/types/game.interface';
+import type { CellBrief, GameMode, MoveResponse } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
 import LCellInfo from './LCellInfo.vue';
 
 interface Props {
   currentCell: number;
   currentCellInfo: CellBrief | null;
+  gameMode: GameMode;
   currentChakra: number;
   isWaitingForSix: boolean;
 }

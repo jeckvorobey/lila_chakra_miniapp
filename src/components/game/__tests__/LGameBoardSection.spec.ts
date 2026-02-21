@@ -13,6 +13,13 @@ const mockGameStore = {
   getCellInfo: mockGetCellInfo,
   saveInsight: mockSaveInsight,
   moves: [{ id: 10 }],
+  currentGame: { mode: 'free' as const },
+  currentCellInfo: null as null | {
+    id: number;
+    description?: string | null;
+    description_revisit?: string | null;
+    reflection_questions?: { relationships?: string } | null;
+  },
   error: null as string | null,
 };
 
@@ -42,7 +49,7 @@ const cell: Cell = {
   name: 'Клетка 12',
   chakra_level: 2,
   description: 'Описание',
-  question: null,
+  description_revisit: 'Повторное описание',
 };
 
 function mountSection() {
@@ -56,6 +63,7 @@ function mountSection() {
           template: '<button data-testid="cell-click" @click="$emit(\'cell-click\', 12)" />',
         },
         LCellCard: {
+          name: 'LCellCard',
           template: '<div data-testid="cell-card" />',
           props: ['modelValue', 'cell'],
         },
@@ -73,6 +81,7 @@ describe('LGameBoardSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGameStore.error = null;
+    mockGameStore.currentCellInfo = null;
   });
 
   it('по клику на клетку загружает данные с forceRefresh=true и открывает модалку', async () => {
@@ -98,5 +107,29 @@ describe('LGameBoardSection', () => {
       expect.objectContaining({ message: 'Ошибка загрузки' }),
     );
     expect(wrapper.find('[data-testid="cell-card"]').exists()).toBe(false);
+  });
+
+  it('для текущей клетки подмешивает контекст хода (описания + вопросы)', async () => {
+    mockGetCellInfo.mockResolvedValue(cell);
+    mockGameStore.currentCellInfo = {
+      id: 12,
+      description: 'Описание из хода',
+      description_revisit: 'Повторное описание из хода',
+      reflection_questions: { relationships: 'Контекстный вопрос' },
+    };
+
+    const wrapper = mountSection();
+    const vm = wrapper.vm as unknown as { openCurrentCellInfo: () => Promise<void> };
+    await vm.openCurrentCellInfo();
+    await flushPromises();
+
+    const cellCard = wrapper.getComponent({ name: 'LCellCard' });
+    expect(cellCard.props('cell')).toEqual(
+      expect.objectContaining({
+        description: 'Описание из хода',
+        description_revisit: 'Повторное описание из хода',
+        reflection_questions: { relationships: 'Контекстный вопрос' },
+      }),
+    );
   });
 });

@@ -57,6 +57,7 @@ function mountPanel() {
     props: {
       currentCell: 5,
       currentCellInfo,
+      gameMode: 'free',
       currentChakra: 1,
       isWaitingForSix: false,
     },

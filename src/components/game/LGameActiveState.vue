@@ -20,6 +20,7 @@
       class="col-auto"
       :current-cell="gameStore.currentCell"
       :current-cell-info="gameStore.currentCellInfo"
+      :game-mode="gameStore.currentGame?.mode ?? 'free'"
       :current-chakra="currentChakra"
       :is-waiting-for-six="gameStore.isWaitingFor6"
       @show-current-cell-info="showCurrentCellInfo"
