@@ -14,6 +14,7 @@
     </template>
 
     <div class="q-pa-md">
+      <l-transition-banner v-if="cellId" :cell-id="cellId" />
       <l-cell-keywords v-if="currentCellInfo" :keywords="cellKeywords" />
 
       <div v-if="cellDescription" class="q-mb-md">
@@ -80,6 +81,7 @@ import LModal from 'src/components/base/LModal.vue';
 import LCellHeader from './LCellHeader.vue';
 import LCellKeywords from './LCellKeywords.vue';
 import LClarificationPanel from './LClarificationPanel.vue';
+import LTransitionBanner from './LTransitionBanner.vue';
 
 interface Props {
   modelValue: boolean;

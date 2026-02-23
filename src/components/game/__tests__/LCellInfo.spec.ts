@@ -64,6 +64,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
           props: ['modelValue'],
         },
         LClarificationPanel: true,
+        LTransitionBanner: true,
       },
     },
   });

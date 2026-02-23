@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import type { MoveOut, Cell } from 'src/types/game.interface';
 import LCellCard from '../LCellCard.vue';
 
@@ -12,6 +12,15 @@ vi.mock('src/stores/game.store', () => ({
     moves: mockMoves,
     currentGame: { id: 1, mode: 'free' },
     clarificationsFreeLeft: 0,
+    isArrowStart: () => false,
+    isSnakeHead: () => false,
+    getTransition: () => ({ type: 'none', to: null }),
+  }),
+}));
+
+vi.mock('src/stores/reference.store', () => ({
+  useReferenceStore: () => ({
+    fetchCellById: vi.fn().mockResolvedValue({ id: 1, name: 'Клетка', name_ru: 'Клетка' }),
   }),
 }));
 
@@ -40,11 +49,18 @@ vi.mock('vue-i18n', () => ({
       };
       const base = dict[key] ?? key;
       if (!params) return base;
-      const from = typeof params.from === 'number' ? params.from : '';
-      const to = typeof params.to === 'number' ? params.to : '';
+      const toText = (value: unknown): string => {
+        if (value == null) return '';
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          return String(value);
+        }
+        return '';
+      };
+      const from = toText(params.from);
+      const to = toText(params.to);
       return base
-        .replace('{from}', String(from))
-        .replace('{to}', String(to));
+        .replace('{from}', from)
+        .replace('{to}', to);
     },
   }),
 }));
@@ -95,7 +111,7 @@ function mountCard(cell: Cell) {
 }
 
 describe('LCellCard', () => {
-  it('показывает текст подъема и интерпретацию Лилы после стрелы', () => {
+  it('показывает текст подъема и интерпретацию Лилы после стрелы', async () => {
     mockMoves.splice(
       0,
       mockMoves.length,
@@ -109,14 +125,16 @@ describe('LCellCard', () => {
       description: 'Описание',
     });
 
+    await flushPromises();
+
     const text = wrapper.text();
-    expect(text).toContain('Вы поднялись по стреле с клетки 10 на клетку 23.');
+    expect(text).toContain('Вы поднялись по стреле с клетки 10 (Клетка) на клетку 23 (Клетка).');
     expect(text).toContain(
       'В Лиле стрела означает поддержку добродетели и рост уровня сознания.',
     );
   });
 
-  it('показывает текст спуска и интерпретацию Лилы после змеи', () => {
+  it('показывает текст спуска и интерпретацию Лилы после змеи', async () => {
     mockMoves.splice(
       0,
       mockMoves.length,
@@ -130,8 +148,10 @@ describe('LCellCard', () => {
       description: 'Описание',
     });
 
+    await flushPromises();
+
     const text = wrapper.text();
-    expect(text).toContain('Вы опустились по змее с клетки 44 на клетку 9.');
+    expect(text).toContain('Вы опустились по змее с клетки 44 (Клетка) на клетку 9 (Клетка).');
     expect(text).toContain(
       'В Лиле змея указывает на урок через порок и возвращение к проработке.',
     );

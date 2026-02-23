@@ -30,35 +30,36 @@
           <q-tooltip>{{ sortOrder === 'asc' ? 'Сначала старые' : 'Сначала новые' }}</q-tooltip>
         </q-btn>
       </div>
-      <q-timeline v-if="moves.length > 0" color="primary">
-        <q-timeline-entry v-for="move in moves" :key="move.id" :icon="getTransitionIcon(move.transition_type)"
-          :color="getTransitionColor(move.transition_type)">
+      <q-timeline v-if="timelineEntries.length > 0" color="primary">
+        <q-timeline-entry
+          v-for="entry in timelineEntries"
+          :key="entry.key"
+          :icon="getEntryIcon(entry)"
+          :color="getEntryColor(entry)"
+        >
           <template #title>
             <div class="row items-center">
-              <span>Ход #{{ move.move_number }}</span>
-              <q-badge class="q-ml-sm" color="grey-7">
-                🎲 {{ move.dice_rolls.join(', ') }}
+              <span>{{ getEntryTitle(entry) }}</span>
+              <q-badge v-if="entry.showDice && entry.move.dice_rolls.length > 0" class="q-ml-sm" color="grey-7">
+                🎲 {{ entry.move.dice_rolls.join(', ') }}
               </q-badge>
             </div>
           </template>
           <template #subtitle>
-            Клетка {{ move.start_cell }} → {{ move.final_cell }}
-            <span v-if="move.transition_type && move.transition_type !== 'none'"
-              :class="move.transition_type === 'arrow' ? 'text-positive' : 'text-negative'">
-              ({{ move.transition_type === 'arrow' ? 'Стрела' : 'Змея' }})
-            </span>
+            <div>{{ getEntrySubtitle(entry) }}</div>
+            <div class="text-caption text-secondary">{{ getCellName(entry.toCell) }}</div>
           </template>
-          <div v-if="move.player_insight" class="text-body2 q-mt-sm">
+          <div v-if="entry.kind === 'roll' && entry.move.player_insight" class="text-body2 q-mt-sm">
             <q-icon name="mdi-lightbulb" color="warning" class="q-mr-xs" />
-            {{ move.player_insight }}
+            {{ entry.move.player_insight }}
           </div>
-          <div v-if="move.ai_interpretation" class="text-body2 q-mt-sm">
+          <div v-if="entry.kind === 'roll' && entry.move.ai_interpretation" class="text-body2 q-mt-sm">
             <q-icon name="mdi-robot" color="primary" class="q-mr-xs" />
-            {{ move.ai_interpretation }}
+            {{ entry.move.ai_interpretation }}
           </div>
-          <div class="q-mt-sm">
+          <div v-if="entry.kind === 'roll'" class="q-mt-sm">
             <q-btn flat dense size="sm" icon="mdi-pencil" :label="$t('actions.write_insight')"
-              @click="editInsight(move)" />
+              @click="editInsight(entry.move)" />
           </div>
         </q-timeline-entry>
       </q-timeline>
@@ -77,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
@@ -85,14 +86,22 @@ import { gamesApi, movesApi } from 'src/services/api';
 import type { GameDetail, MoveOut } from 'src/types/game.interface';
 import { isActiveGameStatus } from 'src/data/game-status';
 import { LProgressBar } from 'src/components/base';
+import { useReferenceStore } from 'src/stores/reference.store';
+import {
+  buildDiaryTimelineEntries,
+  type DiaryTimelineEntry,
+} from './diary-timeline';
 
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
+const referenceStore = useReferenceStore();
 
 const game = ref<GameDetail | null>(null);
 const moves = ref<MoveOut[]>([]);
+const timelineEntries = computed(() => buildDiaryTimelineEntries(moves.value, sortOrder.value));
+const cellNames = ref<Record<number, string>>({});
 const isLoading = ref(true);
 const isCurrentGameActive = ref(false);
 const hasAnyActiveGame = ref(false);
@@ -106,16 +115,68 @@ function formatDate(dateString: string): string {
   });
 }
 
-function getTransitionIcon(type: string | null): string {
-  if (type === 'arrow') return 'mdi-arrow-up-bold';
-  if (type === 'snake') return 'mdi-snake';
+function getEntryIcon(entry: DiaryTimelineEntry): string {
+  if (entry.kind === 'transition' && entry.transitionType === 'arrow') return 'mdi-arrow-up-bold';
+  if (entry.kind === 'transition' && entry.transitionType === 'snake') return 'mdi-snake';
   return 'mdi-circle';
 }
 
-function getTransitionColor(type: string | null): string {
-  if (type === 'arrow') return 'positive';
-  if (type === 'snake') return 'negative';
+function getEntryColor(entry: DiaryTimelineEntry): string {
+  if (entry.kind === 'transition' && entry.transitionType === 'arrow') return 'positive';
+  if (entry.kind === 'transition' && entry.transitionType === 'snake') return 'negative';
   return 'primary';
+}
+
+function getEntryTitle(entry: DiaryTimelineEntry): string {
+  if (entry.kind === 'transition') {
+    const action = entry.transitionType === 'arrow' ? 'Подъём' : 'Спуск';
+    return `Ход #${entry.move.move_number} • ${action}`;
+  }
+  return `Ход #${entry.move.move_number}`;
+}
+
+function getEntrySubtitle(entry: DiaryTimelineEntry): string {
+  if (entry.kind === 'transition') {
+    const transitionLabel = entry.transitionType === 'arrow' ? 'Стрела' : 'Змея';
+    return `${transitionLabel}: клетка ${entry.fromCell} → ${entry.toCell}`;
+  }
+
+  return `Клетка ${entry.fromCell} → ${entry.toCell}`;
+}
+
+function getCellName(cellId: number): string {
+  if (cellId <= 0) {
+    return 'Вне поля';
+  }
+  return cellNames.value[cellId] || `Клетка ${cellId}`;
+}
+
+async function ensureCellNamesLoaded(entries: DiaryTimelineEntry[]): Promise<void> {
+  const targetIds = [...new Set(entries.map((entry) => entry.toCell).filter((cellId) => cellId > 0))];
+  const missingIds = targetIds.filter((cellId) => !cellNames.value[cellId]);
+  if (missingIds.length === 0) {
+    return;
+  }
+
+  const loadedCells = await Promise.all(
+    missingIds.map(async (cellId) => {
+      const cachedCell = referenceStore.getCell(cellId);
+      if (cachedCell?.name) {
+        return [cellId, cachedCell.name] as const;
+      }
+
+      const cell = await referenceStore.fetchCellById(cellId);
+      return [cellId, cell?.name || ''] as const;
+    }),
+  );
+
+  const updatedMap = { ...cellNames.value };
+  for (const [cellId, name] of loadedCells) {
+    if (name) {
+      updatedMap[cellId] = name;
+    }
+  }
+  cellNames.value = updatedMap;
 }
 
 function continueGame() {
@@ -125,7 +186,9 @@ function continueGame() {
 async function toggleSort() {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   if (game.value) {
-    moves.value = await gamesApi.getMoves(game.value.id, sortOrder.value);
+    const movesData = await gamesApi.getMoves(game.value.id, sortOrder.value);
+    moves.value = movesData;
+    void ensureCellNamesLoaded(buildDiaryTimelineEntries(movesData, sortOrder.value));
   }
 }
 
@@ -165,6 +228,7 @@ async function loadGameDetails() {
     ]);
     game.value = gameData;
     moves.value = movesData;
+    void ensureCellNamesLoaded(buildDiaryTimelineEntries(movesData, sortOrder.value));
     isCurrentGameActive.value = isActiveGameStatus(gameData.status);
     route.meta.title = isCurrentGameActive.value ? 'diary.active' : 'diary.completed';
     hasAnyActiveGame.value = gamesList
