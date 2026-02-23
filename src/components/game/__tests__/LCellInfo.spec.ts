@@ -1,13 +1,27 @@
-import { describe, expect, it, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
 import type { CellBrief } from 'src/types/game.interface';
 import LCellInfo from '../LCellInfo.vue';
 
+const { gameStoreState, getAiHistoryMock } = vi.hoisted(() => ({
+  gameStoreState: {
+    currentGame: { id: 1, mode: 'free' as 'free' | 'ai_incognito' | 'ai_guide' },
+    clarificationsFreeLeft: 3,
+  },
+  getAiHistoryMock: vi.fn(),
+}));
+
 vi.mock('src/stores/game.store', () => ({
   useGameStore: () => ({
-    currentGame: { id: 1, mode: 'free' },
-    clarificationsFreeLeft: 3,
+    currentGame: gameStoreState.currentGame,
+    clarificationsFreeLeft: gameStoreState.clarificationsFreeLeft,
   }),
+}));
+
+vi.mock('src/services/api', () => ({
+  gamesApi: {
+    getAiHistory: getAiHistoryMock,
+  },
 }));
 
 vi.mock('vue-i18n', () => ({
@@ -41,6 +55,13 @@ interface CellInfoProps {
   gameMode: 'free' | 'ai_incognito' | 'ai_guide';
 }
 
+beforeEach(() => {
+  gameStoreState.currentGame.id = 1;
+  gameStoreState.currentGame.mode = 'free';
+  getAiHistoryMock.mockReset();
+  getAiHistoryMock.mockResolvedValue({ interactions: [] });
+});
+
 function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
   return mount(LCellInfo, {
     props: {
@@ -63,7 +84,11 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
           template: '<div data-testid="cell-info-modal"><slot /></div>',
           props: ['modelValue'],
         },
-        LClarificationPanel: true,
+        LClarificationPanel: {
+          name: 'LClarificationPanel',
+          props: ['initialClarifications'],
+          template: '<div data-testid="clarification-panel" />',
+        },
         LTransitionBanner: true,
       },
     },
@@ -99,5 +124,36 @@ describe('LCellInfo', () => {
     });
 
     expect(wrapper.text()).not.toContain('Вопрос про отношения');
+  });
+
+  it('передаёт в панель ранее сохранённые уточнения из истории AI_GUIDE', async () => {
+    gameStoreState.currentGame.mode = 'ai_guide';
+    getAiHistoryMock.mockResolvedValue({
+      interactions: [
+        {
+          id: 1,
+          move_id: null,
+          cell_id: 5,
+          interaction_type: 'single_question',
+          ai_response: 'Разверни внимание на одном маленьком шаге сегодня.',
+          user_query: 'Что мне делать прямо сейчас?',
+          language: 'ru',
+          created_at: '2026-02-23T18:00:00Z',
+        },
+      ],
+    });
+
+    const wrapper = mountCellInfo({
+      gameMode: 'ai_guide',
+    });
+    await flushPromises();
+
+    const panel = wrapper.getComponent({ name: 'LClarificationPanel' });
+    expect(panel.props('initialClarifications')).toEqual([
+      {
+        question: 'Что мне делать прямо сейчас?',
+        answer: 'Разверни внимание на одном маленьком шаге сегодня.',
+      },
+    ]);
   });
 });

@@ -49,6 +49,8 @@
         :game-id="gameStore.currentGame?.id ?? 0"
         :game-mode="gameStore.currentGame?.mode ?? 'free'"
         :free-left="gameStore.clarificationsFreeLeft"
+        :initial-clarifications="clarificationHistory"
+        @clarification-added="onClarificationAdded"
       />
 
       <div v-if="currentMoveInsight" class="q-mt-lg q-pa-md bg-grey-2 rounded-borders dark-bg-custom">
@@ -73,9 +75,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type { CellBrief, Cell, GameMode } from 'src/types/game.interface';
+import { gamesApi } from 'src/services/api';
+import type {
+  CellBrief,
+  Cell,
+  ClarificationHistoryItem,
+  GameMode,
+} from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
 import LModal from 'src/components/base/LModal.vue';
 import LCellHeader from './LCellHeader.vue';
@@ -89,6 +97,11 @@ interface Props {
   gameMode: GameMode;
 }
 
+interface ClarificationEntry {
+  question: string;
+  answer: string;
+}
+
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
@@ -98,6 +111,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const gameStore = useGameStore();
+const clarificationHistory = ref<ClarificationEntry[]>([]);
+const loadedHistoryGameId = ref<number | null>(null);
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -193,6 +208,76 @@ const showClarificationPanel = computed(() => {
   if (!gameStore.currentGame) return false;
   return true;
 });
+
+function mapHistoryToClarifications(
+  items: ClarificationHistoryItem[],
+  targetCellId: number,
+): ClarificationEntry[] {
+  return items
+    .filter((item) => item.cell_id === targetCellId)
+    .map((item) => ({
+      question: item.question.trim(),
+      answer: item.answer.trim(),
+    }))
+    .filter((item) => item.question.length > 0 && item.answer.length > 0);
+}
+
+function upsertClarification(entry: ClarificationEntry): void {
+  const exists = clarificationHistory.value.some(
+    (item) => item.question === entry.question && item.answer === entry.answer,
+  );
+  if (exists) {
+    return;
+  }
+  clarificationHistory.value.push(entry);
+}
+
+function onClarificationAdded(entry: ClarificationEntry): void {
+  upsertClarification(entry);
+}
+
+async function loadClarificationHistory(gameId: number): Promise<void> {
+  const targetCellId = cellId.value;
+  if (!targetCellId) return;
+
+  try {
+    const response = await gamesApi.getClarificationHistory(gameId);
+    clarificationHistory.value = mapHistoryToClarifications(response.items, targetCellId);
+    loadedHistoryGameId.value = gameId;
+  } catch {
+    loadedHistoryGameId.value = gameId;
+  }
+}
+
+watch(
+  () => [isOpen.value, gameStore.currentGame?.id, cellId.value] as const,
+  ([open, gameId, currentCellId]) => {
+    if (!open || !gameId) {
+      return;
+    }
+    if (!currentCellId) {
+      clarificationHistory.value = [];
+      return;
+    }
+    if (loadedHistoryGameId.value === gameId) {
+      void loadClarificationHistory(gameId);
+      return;
+    }
+    void loadClarificationHistory(gameId);
+  },
+  { immediate: true },
+);
+
+watch(
+  () => gameStore.currentGame?.id,
+  (nextGameId, prevGameId) => {
+    if (nextGameId === prevGameId) {
+      return;
+    }
+    clarificationHistory.value = [];
+    loadedHistoryGameId.value = null;
+  },
+);
 
 const currentMoveInsight = computed(() => {
   const moves = gameStore.moves;

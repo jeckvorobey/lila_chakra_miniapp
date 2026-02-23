@@ -206,6 +206,33 @@ export interface ClarificationResponse {
   free_left: number;
 }
 
+export interface AIInteractionOut {
+  id: number;
+  move_id: number | null;
+  cell_id: number | null;
+  interaction_type: string;
+  ai_response: string;
+  user_query: string | null;
+  language: string;
+  created_at: string;
+}
+
+export interface AIHistoryResponse {
+  interactions: AIInteractionOut[];
+}
+
+export interface ClarificationHistoryItem {
+  id: number;
+  question: string;
+  answer: string;
+  cell_id: number | null;
+  created_at: string;
+}
+
+export interface ClarificationHistoryResponse {
+  items: ClarificationHistoryItem[];
+}
+
 export interface ClarificationStreamMetaEvent {
   type: 'meta';
   question: string;

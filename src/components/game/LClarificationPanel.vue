@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { gamesApi } from 'src/services/api';
 import { useGameStore } from 'src/stores/game.store';
@@ -97,6 +97,7 @@ interface Props {
   gameId: number;
   gameMode: GameMode;
   freeLeft: number;
+  initialClarifications?: ClarificationEntry[];
 }
 
 interface ClarificationEntry {
@@ -104,7 +105,12 @@ interface ClarificationEntry {
   answer: string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  initialClarifications: () => [],
+});
+const emit = defineEmits<{
+  (e: 'clarification-added', payload: ClarificationEntry): void;
+}>();
 
 const { t } = useI18n();
 const gameStore = useGameStore();
@@ -118,8 +124,21 @@ const typingAnswer = ref('');
 const errorMessage = ref<string | null>(null);
 const isLoading = ref(false);
 const isTyping = ref(false);
+const pendingTypewriterText = ref('');
 
 let streamAbortController: AbortController | null = null;
+let typewriterInterval: ReturnType<typeof setInterval> | null = null;
+
+const TYPEWRITER_CHAR_INTERVAL_MS = 16;
+const TYPEWRITER_CHARS_PER_TICK = 2;
+
+watch(
+  () => props.initialClarifications,
+  (value) => {
+    clarifications.value = [...value];
+  },
+  { immediate: true, deep: true },
+);
 
 const canSubmitQuestion = computed(() => {
   const normalized = questionDraft.value.trim();
@@ -141,6 +160,56 @@ function clearStreamController(): void {
     streamAbortController.abort();
     streamAbortController = null;
   }
+}
+
+function stopTypewriter(): void {
+  if (typewriterInterval !== null) {
+    clearInterval(typewriterInterval);
+    typewriterInterval = null;
+  }
+}
+
+function startTypewriter(): void {
+  if (typewriterInterval !== null) {
+    return;
+  }
+  typewriterInterval = setInterval(() => {
+    if (!pendingTypewriterText.value.length) {
+      stopTypewriter();
+      return;
+    }
+    typingAnswer.value += pendingTypewriterText.value.slice(0, TYPEWRITER_CHARS_PER_TICK);
+    pendingTypewriterText.value = pendingTypewriterText.value.slice(TYPEWRITER_CHARS_PER_TICK);
+  }, TYPEWRITER_CHAR_INTERVAL_MS);
+}
+
+function enqueueTypewriterText(text: string): void {
+  if (!text) {
+    return;
+  }
+  pendingTypewriterText.value += text;
+  startTypewriter();
+}
+
+async function waitTypewriterDrain(timeoutMs = 5000): Promise<void> {
+  const startAt = Date.now();
+  while (pendingTypewriterText.value.length && Date.now() - startAt < timeoutMs) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, TYPEWRITER_CHAR_INTERVAL_MS);
+    });
+  }
+  stopTypewriter();
+}
+
+function appendClarification(entry: ClarificationEntry): void {
+  const alreadyExists = clarifications.value.some(
+    (item) => item.question === entry.question && item.answer === entry.answer,
+  );
+  if (alreadyExists) {
+    return;
+  }
+  clarifications.value.push(entry);
+  emit('clarification-added', entry);
 }
 
 function openInputDialog(): void {
@@ -182,6 +251,8 @@ async function submitQuestion(): Promise<void> {
   errorMessage.value = null;
   pendingQuestion.value = normalizedQuestion;
   typingAnswer.value = '';
+  pendingTypewriterText.value = '';
+  stopTypewriter();
   isTyping.value = true;
 
   clearStreamController();
@@ -201,7 +272,7 @@ async function submitQuestion(): Promise<void> {
         continue;
       }
       if (event.type === 'delta') {
-        typingAnswer.value += event.text;
+        enqueueTypewriterText(event.text);
         isLoading.value = false;
         continue;
       }
@@ -210,11 +281,16 @@ async function submitQuestion(): Promise<void> {
       }
     }
 
+    await waitTypewriterDrain();
     const normalizedAnswer = (finalAnswer || typingAnswer.value).trim();
-    clarifications.value.push({ question: normalizedQuestion, answer: normalizedAnswer });
+    if (normalizedAnswer) {
+      appendClarification({ question: normalizedQuestion, answer: normalizedAnswer });
+    }
     questionDraft.value = '';
     pendingQuestion.value = '';
     typingAnswer.value = '';
+    pendingTypewriterText.value = '';
+    stopTypewriter();
     isTyping.value = false;
     isLoading.value = false;
   } catch (error: unknown) {
@@ -225,6 +301,8 @@ async function submitQuestion(): Promise<void> {
     isTyping.value = false;
     pendingQuestion.value = '';
     typingAnswer.value = '';
+    pendingTypewriterText.value = '';
+    stopTypewriter();
     errorMessage.value = resolveErrorMessage(error);
   } finally {
     streamAbortController = null;
@@ -233,6 +311,7 @@ async function submitQuestion(): Promise<void> {
 
 onBeforeUnmount(() => {
   clearStreamController();
+  stopTypewriter();
 });
 </script>
 

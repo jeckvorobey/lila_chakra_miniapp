@@ -1,5 +1,7 @@
 import { api, buildApiResourceUrl } from 'src/boot/axios';
 import type {
+  AIHistoryResponse,
+  ClarificationHistoryResponse,
   ClarificationStreamEvent,
   DiceRollRequest,
   GameCreate,
@@ -178,6 +180,24 @@ export const gamesApi = {
    */
   async getMoves(gameId: number, sort: 'asc' | 'desc' = 'desc'): Promise<MoveOut[]> {
     const response = await api.get<MoveOut[]>(`/games/${gameId}/moves`, { params: { sort } });
+    return response.data;
+  },
+
+  /**
+   * Получить историю AI-взаимодействий игры.
+   */
+  async getAiHistory(gameId: number): Promise<AIHistoryResponse> {
+    const response = await api.get<AIHistoryResponse>(`/games/${gameId}/ai-history`);
+    return response.data;
+  },
+
+  /**
+   * Получить историю уточняющих вопросов AI Ментору.
+   */
+  async getClarificationHistory(gameId: number): Promise<ClarificationHistoryResponse> {
+    const response = await api.get<ClarificationHistoryResponse>(
+      `/ai/games/${gameId}/clarify/history`,
+    );
     return response.data;
   },
 
