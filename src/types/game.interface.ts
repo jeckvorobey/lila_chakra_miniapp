@@ -205,3 +205,32 @@ export interface ClarificationResponse {
   balance_tkn: number;
   free_left: number;
 }
+
+export interface ClarificationStreamMetaEvent {
+  type: 'meta';
+  question: string;
+  cost_tkn: number;
+  balance_tkn: number;
+  free_left: number;
+}
+
+export interface ClarificationStreamDeltaEvent {
+  type: 'delta';
+  text: string;
+}
+
+export interface ClarificationStreamDoneEvent {
+  type: 'done';
+  answer: string;
+}
+
+export interface ClarificationStreamErrorEvent {
+  type: 'error';
+  message: string;
+}
+
+export type ClarificationStreamEvent =
+  | ClarificationStreamMetaEvent
+  | ClarificationStreamDeltaEvent
+  | ClarificationStreamDoneEvent
+  | ClarificationStreamErrorEvent;

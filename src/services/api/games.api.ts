@@ -1,6 +1,6 @@
-import { api } from 'src/boot/axios';
+import { api, buildApiResourceUrl } from 'src/boot/axios';
 import type {
-  ClarificationResponse,
+  ClarificationStreamEvent,
   DiceRollRequest,
   GameCreate,
   GameDetail,
@@ -9,6 +9,84 @@ import type {
   MoveOut,
   MoveResponse,
 } from 'src/types/game.interface';
+
+interface SseMessage {
+  event: string;
+  data: string;
+}
+
+function drainSseMessages(buffer: string): { messages: SseMessage[]; rest: string } {
+  const normalized = buffer.replace(/\r\n/g, '\n');
+  const chunks = normalized.split('\n\n');
+  const rest = chunks.pop() ?? '';
+  const messages = chunks
+    .map((chunk): SseMessage | null => {
+      const lines = chunk
+        .split('\n')
+        .map((line) => line.trimEnd())
+        .filter(Boolean);
+      if (!lines.length) return null;
+
+      let event = 'message';
+      const dataParts: string[] = [];
+      for (const line of lines) {
+        if (line.startsWith('event:')) {
+          event = line.slice('event:'.length).trim();
+          continue;
+        }
+        if (line.startsWith('data:')) {
+          dataParts.push(line.slice('data:'.length).trimStart());
+        }
+      }
+      if (!dataParts.length) return null;
+      return { event, data: dataParts.join('\n') };
+    })
+    .filter((message): message is SseMessage => message !== null);
+  return { messages, rest };
+}
+
+function mapClarificationSseEvent(message: SseMessage): ClarificationStreamEvent | null {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(message.data);
+  } catch {
+    return null;
+  }
+
+  if (typeof payload !== 'object' || payload === null) {
+    return null;
+  }
+  const data = payload as Record<string, unknown>;
+
+  if (message.event === 'meta') {
+    return {
+      type: 'meta',
+      question: String(data.question ?? ''),
+      cost_tkn: Number(data.cost_tkn ?? 0),
+      balance_tkn: Number(data.balance_tkn ?? 0),
+      free_left: Number(data.free_left ?? 0),
+    };
+  }
+  if (message.event === 'delta') {
+    return {
+      type: 'delta',
+      text: String(data.text ?? ''),
+    };
+  }
+  if (message.event === 'done') {
+    return {
+      type: 'done',
+      answer: String(data.answer ?? ''),
+    };
+  }
+  if (message.event === 'error') {
+    return {
+      type: 'error',
+      message: String(data.message ?? 'errors.ai_clarification_generation_failed'),
+    };
+  }
+  return null;
+}
 
 /**
  * API игр.
@@ -85,12 +163,78 @@ export const gamesApi = {
   },
 
   /**
-   * Задать уточняющий вопрос AI Ментору по текущей игре.
+   * Задать уточняющий вопрос AI Ментору по текущей игре (SSE поток).
    */
-  async askClarification(gameId: number, question: string): Promise<ClarificationResponse> {
-    const response = await api.post<ClarificationResponse>(`/ai/games/${gameId}/clarify`, {
-      question,
+  async *askClarificationStream(
+    gameId: number,
+    question: string,
+    signal?: AbortSignal,
+  ): AsyncGenerator<ClarificationStreamEvent> {
+    const authorizationHeader = api.defaults.headers.common['Authorization'];
+    const url = buildApiResourceUrl(`/ai/games/${gameId}/clarify/stream`);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'text/event-stream',
+        'Content-Type': 'application/json',
+        ...(typeof authorizationHeader === 'string'
+          ? { Authorization: authorizationHeader }
+          : {}),
+      },
+      body: JSON.stringify({ question }),
+      signal: signal ?? null,
     });
-    return response.data;
+
+    if (!response.ok) {
+      let detail = 'errors.ai_clarification_generation_failed';
+      try {
+        const errorData = (await response.json()) as { detail?: string };
+        if (typeof errorData?.detail === 'string' && errorData.detail) {
+          detail = errorData.detail;
+        }
+      } catch {
+        // no-op: оставить дефолтный detail
+      }
+      throw new Error(detail);
+    }
+
+    if (!response.body) {
+      throw new Error('errors.ai_clarification_generation_failed');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const { messages, rest } = drainSseMessages(buffer);
+        buffer = rest;
+        for (const message of messages) {
+          const event = mapClarificationSseEvent(message);
+          if (!event) continue;
+          if (event.type === 'error') {
+            throw new Error(event.message);
+          }
+          yield event;
+        }
+      }
+
+      buffer += decoder.decode();
+      const { messages } = drainSseMessages(buffer);
+      for (const message of messages) {
+        const event = mapClarificationSseEvent(message);
+        if (!event) continue;
+        if (event.type === 'error') {
+          throw new Error(event.message);
+        }
+        yield event;
+      }
+    } finally {
+      reader.releaseLock();
+    }
   },
 };

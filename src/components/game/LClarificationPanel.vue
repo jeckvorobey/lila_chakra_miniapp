@@ -91,7 +91,7 @@ import { useI18n } from 'vue-i18n';
 import { gamesApi } from 'src/services/api';
 import { useGameStore } from 'src/stores/game.store';
 import { useUserStore } from 'src/stores/user.store';
-import type { GameMode } from 'src/types/game.interface';
+import type { ClarificationStreamEvent, GameMode } from 'src/types/game.interface';
 
 interface Props {
   gameId: number;
@@ -103,8 +103,6 @@ interface ClarificationEntry {
   question: string;
   answer: string;
 }
-
-const TYPING_DELAY_MS = 30;
 
 const props = defineProps<Props>();
 
@@ -121,7 +119,7 @@ const errorMessage = ref<string | null>(null);
 const isLoading = ref(false);
 const isTyping = ref(false);
 
-let typingTimer: ReturnType<typeof setInterval> | null = null;
+let streamAbortController: AbortController | null = null;
 
 const canSubmitQuestion = computed(() => {
   const normalized = questionDraft.value.trim();
@@ -138,10 +136,10 @@ const showAskButton = computed(
   () => !isLoading.value && !isTyping.value && !showInputDialog.value,
 );
 
-function clearTypingTimer(): void {
-  if (typingTimer) {
-    clearInterval(typingTimer);
-    typingTimer = null;
+function clearStreamController(): void {
+  if (streamAbortController) {
+    streamAbortController.abort();
+    streamAbortController = null;
   }
 }
 
@@ -154,37 +152,16 @@ function closeInputDialog(): void {
   showInputDialog.value = false;
 }
 
-function startTypingAnswer(question: string, answer: string): void {
-  clearTypingTimer();
-  pendingQuestion.value = question;
-  typingAnswer.value = '';
-  isTyping.value = true;
-
-  const normalizedAnswer = answer.trim();
-  if (!normalizedAnswer) {
-    clarifications.value.push({ question, answer: '' });
-    pendingQuestion.value = '';
-    isTyping.value = false;
-    return;
+function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): void {
+  userStore.updateBalance(event.balance_tkn);
+  if (gameStore.currentGame && props.gameMode !== 'free') {
+    gameStore.currentGame.clarifications_used = Math.max(0, 3 - event.free_left);
   }
-
-  let charIndex = 0;
-  typingTimer = setInterval(() => {
-    charIndex += 1;
-    typingAnswer.value = normalizedAnswer.slice(0, charIndex);
-
-    if (charIndex >= normalizedAnswer.length) {
-      clearTypingTimer();
-      clarifications.value.push({ question, answer: normalizedAnswer });
-      pendingQuestion.value = '';
-      isTyping.value = false;
-    }
-  }, TYPING_DELAY_MS);
 }
 
 function resolveErrorMessage(error: unknown): string {
-  const axiosError = error as { response?: { data?: { detail?: string } } };
-  const detail = axiosError?.response?.data?.detail;
+  const axiosError = error as { response?: { data?: { detail?: string } }; message?: string };
+  const detail = axiosError?.response?.data?.detail || axiosError?.message;
   if (detail === 'errors.insufficient_balance') {
     return t('clarification.insufficient_balance');
   }
@@ -203,26 +180,59 @@ async function submitQuestion(): Promise<void> {
   showInputDialog.value = false;
   isLoading.value = true;
   errorMessage.value = null;
+  pendingQuestion.value = normalizedQuestion;
+  typingAnswer.value = '';
+  isTyping.value = true;
+
+  clearStreamController();
+  streamAbortController = new AbortController();
 
   try {
-    const response = await gamesApi.askClarification(props.gameId, normalizedQuestion);
-    questionDraft.value = '';
-    isLoading.value = false;
+    let finalAnswer = '';
 
-    userStore.updateBalance(response.balance_tkn);
-    if (gameStore.currentGame && props.gameMode !== 'free') {
-      gameStore.currentGame.clarifications_used = Math.max(0, 3 - response.free_left);
+    for await (const event of gamesApi.askClarificationStream(
+      props.gameId,
+      normalizedQuestion,
+      streamAbortController.signal,
+    )) {
+      if (event.type === 'meta') {
+        applyMeta(event);
+        isLoading.value = false;
+        continue;
+      }
+      if (event.type === 'delta') {
+        typingAnswer.value += event.text;
+        isLoading.value = false;
+        continue;
+      }
+      if (event.type === 'done') {
+        finalAnswer = event.answer.trim();
+      }
     }
 
-    startTypingAnswer(normalizedQuestion, response.answer);
-  } catch (error: unknown) {
+    const normalizedAnswer = (finalAnswer || typingAnswer.value).trim();
+    clarifications.value.push({ question: normalizedQuestion, answer: normalizedAnswer });
+    questionDraft.value = '';
+    pendingQuestion.value = '';
+    typingAnswer.value = '';
+    isTyping.value = false;
     isLoading.value = false;
+  } catch (error: unknown) {
+    if (streamAbortController?.signal.aborted) {
+      return;
+    }
+    isLoading.value = false;
+    isTyping.value = false;
+    pendingQuestion.value = '';
+    typingAnswer.value = '';
     errorMessage.value = resolveErrorMessage(error);
+  } finally {
+    streamAbortController = null;
   }
 }
 
 onBeforeUnmount(() => {
-  clearTypingTimer();
+  clearStreamController();
 });
 </script>
 
