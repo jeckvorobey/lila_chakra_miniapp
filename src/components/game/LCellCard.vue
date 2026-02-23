@@ -1,27 +1,15 @@
 <template>
   <l-modal v-model="isOpen" :title="cell.name" position="bottom" max-width="100%" :show-handle="false">
     <template #header>
-      <div class="l-cell-card__header" :style="headerGradientStyle">
-        <div class="row items-center q-gutter-md q-px-md q-py-sm">
-          <q-avatar
-            :class="`bg-chakra-${rowChakraLevel}`"
-            size="48px"
-            :text-color="avatarTextColor"
-            class="text-weight-bold"
-          >
-            {{ cell.id }}
-          </q-avatar>
-
-          <div class="col">
-            <div class="text-h4 text-weight-bold">{{ cell.name }}</div>
-            <div v-if="cell.name_sanskrit" class="text-caption text-secondary">
-              {{ cell.name_sanskrit }}
-            </div>
-          </div>
-
+      <l-cell-header
+        :id="cell.id"
+        :name="cell.name"
+        :name-sanskrit="cell.name_sanskrit"
+      >
+        <template #action>
           <q-btn flat round dense icon="close" @click="close" />
-        </div>
-      </div>
+        </template>
+      </l-cell-header>
     </template>
 
     <q-scroll-area style="height: 60vh">
@@ -67,22 +55,7 @@
           </div>
         </q-banner>
 
-        <div v-if="cell.keywords?.length" class="q-mb-md">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.keywords') }}
-          </div>
-          <div class="row q-gutter-xs">
-            <q-chip
-              v-for="keyword in cell.keywords"
-              :key="keyword"
-              color="primary"
-              text-color="white"
-              dense
-            >
-              {{ keyword }}
-            </q-chip>
-          </div>
-        </div>
+        <l-cell-keywords :keywords="cell.keywords" />
 
         <div class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
@@ -107,38 +80,22 @@
           </p>
         </div>
 
-        <l-clarification-panel
-          v-if="showClarificationPanel"
-          :game-id="gameStore.currentGame?.id ?? 0"
-          :game-mode="gameStore.currentGame?.mode ?? 'free'"
-          :free-left="gameStore.clarificationsFreeLeft"
-        />
+
       </div>
     </q-scroll-area>
 
-    <template #actions>
-      <q-btn
-        :label="t('actions.write_insight')"
-        color="primary"
-        icon="mdi-pencil"
-        unelevated
-        class="full-width"
-        @click="openInsightModal"
-      />
-    </template>
+
   </l-modal>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import type { Cell } from 'src/types/game.interface';
-import { getChakraColor, getChakraAvatarTextColor } from 'src/data/chakra-colors';
-import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 import { useGameStore } from 'src/stores/game.store';
 import LModal from '../base/LModal.vue';
-import LClarificationPanel from './LClarificationPanel.vue';
+import LCellHeader from './LCellHeader.vue';
+import LCellKeywords from './LCellKeywords.vue';
 
 interface Props {
   modelValue: boolean;
@@ -151,31 +108,16 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'write-insight'): void;
 }>();
 
 const { t } = useI18n();
-const $q = useQuasar();
 const gameStore = useGameStore();
-const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 const typingAiInterpretation = ref('');
 let typingTimer: ReturnType<typeof setInterval> | null = null;
 
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
-});
-
-const rowChakraLevel = computed(() => cellIdToChakraLevel(props.cell.id));
-const avatarTextColor = computed(() =>
-  getChakraAvatarTextColor(rowChakraLevel.value, isDarkMode.value),
-);
-
-const headerGradientStyle = computed(() => {
-  const chakraColor = getChakraColor(rowChakraLevel.value, isDarkMode.value);
-  return {
-    background: `linear-gradient(180deg, ${chakraColor}33 0%, transparent 100%)`,
-  };
 });
 
 const isArrow = computed(() => props.cell.is_arrow_start ?? false);
@@ -256,11 +198,6 @@ const latestAiInterpretation = computed(() => {
   return '';
 });
 
-const showClarificationPanel = computed(() => {
-  if (!gameStore.currentGame) return false;
-  return true;
-});
-
 function clearTypingTimer(): void {
   if (typingTimer) {
     clearInterval(typingTimer);
@@ -290,10 +227,6 @@ function close(): void {
   isOpen.value = false;
 }
 
-function openInsightModal(): void {
-  emit('write-insight');
-}
-
 watch(
   () => latestAiInterpretation.value,
   (value) => {
@@ -310,10 +243,5 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .l-cell-card {
   color: var(--lila-text-primary);
-}
-
-.l-cell-card__header {
-  border-radius: 24px 24px 0 0;
-  margin-top: -1px;
 }
 </style>

@@ -1,6 +1,17 @@
 <template>
-  <l-modal v-model="isOpen" position="bottom" data-testid="cell-info-modal">
+  <l-modal v-model="isOpen" position="bottom" data-testid="cell-info-modal" max-width="100%" :show-handle="false">
+    <template #header>
+      <l-cell-header
+        v-if="currentCellInfo"
+        :id="cellId"
+        :name="cellName"
+        :name-sanskrit="cellNameSanskrit"
+      />
+    </template>
+
     <div class="q-pa-md">
+      <l-cell-keywords v-if="currentCellInfo" :keywords="cellKeywords" />
+
       <div v-if="showReflectionQuestions">
         <div class="text-overline text-secondary q-mb-xs">
           {{ t('cell.reflection_questions') }}
@@ -23,7 +34,25 @@
       <div v-else class="text-center text-secondary q-py-md">
         Отражение не найдено
       </div>
+
+      <l-clarification-panel
+        v-if="showClarificationPanel"
+        :game-id="gameStore.currentGame?.id ?? 0"
+        :game-mode="gameStore.currentGame?.mode ?? 'free'"
+        :free-left="gameStore.clarificationsFreeLeft"
+      />
     </div>
+
+    <template #actions>
+      <q-btn
+        :label="t('actions.write_insight')"
+        color="primary"
+        icon="mdi-pencil"
+        unelevated
+        class="full-width"
+        @click="openInsightModal"
+      />
+    </template>
   </l-modal>
 </template>
 
@@ -31,7 +60,11 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { CellBrief, Cell, GameMode } from 'src/types/game.interface';
+import { useGameStore } from 'src/stores/game.store';
 import LModal from 'src/components/base/LModal.vue';
+import LCellHeader from './LCellHeader.vue';
+import LCellKeywords from './LCellKeywords.vue';
+import LClarificationPanel from './LClarificationPanel.vue';
 
 interface Props {
   modelValue: boolean;
@@ -43,14 +76,37 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
+  (e: 'write-insight'): void;
 }>();
 
 const { t } = useI18n();
+const gameStore = useGameStore();
 
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
+
+const cellId = computed(() => props.currentCellInfo?.id ?? 0);
+
+const cellName = computed(() => {
+  if (!props.currentCellInfo) return '';
+  return 'name' in props.currentCellInfo ? props.currentCellInfo.name : props.currentCellInfo.name_ru;
+});
+
+const cellNameSanskrit = computed(() => {
+  if (!props.currentCellInfo) return '';
+  return 'name_sanskrit' in props.currentCellInfo ? props.currentCellInfo.name_sanskrit : '';
+});
+
+const cellKeywords = computed(() => {
+  if (!props.currentCellInfo) return [];
+  return 'keywords' in props.currentCellInfo ? props.currentCellInfo.keywords : [];
+});
+
+function openInsightModal(): void {
+  emit('write-insight');
+}
 
 const reflectionQuestionsList = computed(() => {
   if (!props.currentCellInfo) return [];
@@ -86,6 +142,11 @@ const reflectionQuestionsList = computed(() => {
 const showReflectionQuestions = computed(
   () => props.gameMode === 'free' && reflectionQuestionsList.value.length > 0,
 );
+
+const showClarificationPanel = computed(() => {
+  if (!gameStore.currentGame) return false;
+  return true;
+});
 </script>
 
 <style scoped>
