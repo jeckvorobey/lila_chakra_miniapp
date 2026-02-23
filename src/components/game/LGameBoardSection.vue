@@ -13,13 +13,12 @@
       v-if="selectedCell"
       v-model="showCellModal"
       :cell="selectedCell"
-      @write-insight="openInsightModal"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import type { Cell } from 'src/types/game.interface';
@@ -40,11 +39,6 @@ const gameStore = useGameStore();
 const selectedCell = ref<Cell | null>(null);
 const showCellModal = ref(false);
 const activeRequestId = ref(0);
-
-const lastMoveId = computed(() => {
-  const lastMove = gameStore.moves[gameStore.moves.length - 1];
-  return lastMove?.id ?? null;
-});
 
 function buildCurrentCellModalData(baseCell: Cell): Cell {
   const context = gameStore.currentCellInfo;
@@ -96,30 +90,6 @@ function onCellLongPress(cellId: number): void {
 
 function onTransitionEnd(): void {
   gameStore.onTransitionAnimationEnd();
-}
-
-function openInsightModal(): void {
-  showCellModal.value = false;
-
-  if (!lastMoveId.value) {
-    return;
-  }
-
-  $q.dialog({
-    title: t('actions.write_insight'),
-    message: t('cell.question'),
-    prompt: {
-      model: '',
-      type: 'textarea',
-      isValid: (val: string) => val.trim().length >= 3,
-      autogrow: true,
-    },
-    persistent: true,
-    ok: t('actions.save'),
-    cancel: t('actions.cancel'),
-  }).onOk((insight: string) => {
-    void gameStore.saveInsight(lastMoveId.value as number, insight.trim());
-  });
 }
 
 defineExpose({

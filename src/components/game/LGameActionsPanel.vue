@@ -70,6 +70,7 @@
       v-model="showCellInfoModal"
       :current-cell-info="currentCellInfo"
       :game-mode="gameMode"
+      @write-insight="openInsightModal"
     />
   </div>
 </template>
@@ -137,6 +138,33 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
   if (result.is_victory) {
     showVictoryDialog();
   }
+}
+
+const lastMoveId = computed(() => {
+  const lastMove = gameStore.moves[gameStore.moves.length - 1];
+  return lastMove?.id ?? null;
+});
+
+function openInsightModal(): void {
+  if (!lastMoveId.value) {
+    return;
+  }
+
+  $q.dialog({
+    title: t('actions.write_insight'),
+    message: t('cell.question'),
+    prompt: {
+      model: '',
+      type: 'textarea',
+      isValid: (val: string) => val.trim().length >= 3,
+      autogrow: true,
+    },
+    persistent: true,
+    ok: t('actions.save'),
+    cancel: t('actions.cancel'),
+  }).onOk((insight: string) => {
+    void gameStore.saveInsight(lastMoveId.value as number, insight.trim());
+  });
 }
 
 
