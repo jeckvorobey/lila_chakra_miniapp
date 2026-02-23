@@ -79,13 +79,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/profile/RulesPage.vue'),
         meta: { title: 'rules.title', showBack: true },
       },
-      {
-        path: 'profile/about',
-        name: 'about',
-        component: () => import('pages/profile/AboutPage.vue'),
-        meta: { title: 'about.title', showBack: true },
-      },
-      // Временно отключено для разработки (страница требования Telegram).
+
       // {
       //   path: 'telegram-required',
       //   name: 'telegram-required',

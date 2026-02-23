@@ -57,18 +57,18 @@
 
         <l-cell-keywords :keywords="cell.keywords" />
 
-        <div class="q-mb-md">
+        <div v-if="baseDescription" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.description') }}
           </div>
-          <p class="text-body1">{{ cell.description }}</p>
+          <p class="text-body1">{{ baseDescription }}</p>
         </div>
 
-        <div v-if="cell.description_revisit" class="q-mb-md">
+        <div v-if="revisitDescription" class="q-mb-md">
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.description_revisit') }}
           </div>
-          <p class="text-body1">{{ cell.description_revisit }}</p>
+          <p class="text-body1">{{ revisitDescription }}</p>
         </div>
 
         <div v-if="latestAiInterpretation" class="q-mb-md">
@@ -119,6 +119,22 @@ const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
+
+function normalizeLocalizedText(value: string | null | undefined): string {
+  if (!value) {
+    return '';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed || /^cells\./.test(trimmed)) {
+    return '';
+  }
+
+  return trimmed;
+}
+
+const baseDescription = computed(() => normalizeLocalizedText(props.cell.description));
+const revisitDescription = computed(() => normalizeLocalizedText(props.cell.description_revisit));
 
 const isArrow = computed(() => props.cell.is_arrow_start ?? false);
 

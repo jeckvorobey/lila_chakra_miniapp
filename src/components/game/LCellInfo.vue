@@ -119,13 +119,32 @@ const cellKeywords = computed(() => {
   return 'keywords' in props.currentCellInfo ? props.currentCellInfo.keywords : [];
 });
 
+function normalizeLocalizedText(value: string | null | undefined): string {
+  if (!value) {
+    return '';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed || /^cells\./.test(trimmed)) {
+    return '';
+  }
+
+  return trimmed;
+}
+
 const cellDescription = computed(() => {
   if (!props.currentCellInfo) return '';
   const isRevisit = 'is_revisit' in props.currentCellInfo ? props.currentCellInfo.is_revisit : false;
-  if (isRevisit && 'description_revisit' in props.currentCellInfo && props.currentCellInfo.description_revisit) {
-    return props.currentCellInfo.description_revisit;
+  if (
+    isRevisit
+    && 'description_revisit' in props.currentCellInfo
+    && props.currentCellInfo.description_revisit
+  ) {
+    return normalizeLocalizedText(props.currentCellInfo.description_revisit);
   }
-  return 'description' in props.currentCellInfo ? props.currentCellInfo.description : '';
+  return 'description' in props.currentCellInfo
+    ? normalizeLocalizedText(props.currentCellInfo.description)
+    : '';
 });
 
 function openInsightModal(): void {

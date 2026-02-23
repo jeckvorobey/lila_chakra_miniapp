@@ -172,16 +172,6 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="$router.push('/profile/about')">
-        <q-item-section avatar>
-          <q-icon name="mdi-information-outline" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.about') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-
       <q-item clickable @click="$router.push('/profile/referral')">
         <q-item-section avatar>
           <q-icon name="mdi-share-variant" />
