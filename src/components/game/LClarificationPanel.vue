@@ -129,7 +129,7 @@ const pendingTypewriterText = ref('');
 let streamAbortController: AbortController | null = null;
 let typewriterInterval: ReturnType<typeof setInterval> | null = null;
 
-const TYPEWRITER_CHAR_INTERVAL_MS = 16;
+const TYPEWRITER_CHAR_INTERVAL_MS = 48;
 const TYPEWRITER_CHARS_PER_TICK = 2;
 
 watch(
