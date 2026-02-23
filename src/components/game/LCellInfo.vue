@@ -6,7 +6,11 @@
         :id="cellId"
         :name="cellName"
         :name-sanskrit="cellNameSanskrit"
-      />
+      >
+        <template #action>
+          <q-btn flat round dense icon="close" @click="close" />
+        </template>
+      </l-cell-header>
     </template>
 
     <div class="q-pa-md">
@@ -106,6 +110,10 @@ const cellKeywords = computed(() => {
 
 function openInsightModal(): void {
   emit('write-insight');
+}
+
+function close(): void {
+  isOpen.value = false;
 }
 
 const reflectionQuestionsList = computed(() => {
