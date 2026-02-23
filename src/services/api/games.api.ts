@@ -15,6 +15,33 @@ interface SseMessage {
   data: string;
 }
 
+function readStringField(
+  data: Record<string, unknown>,
+  key: string,
+  fallback = '',
+): string {
+  const value = data[key];
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return fallback;
+}
+
+function readNumberField(
+  data: Record<string, unknown>,
+  key: string,
+  fallback = 0,
+): number {
+  const value = data[key];
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+}
+
 function drainSseMessages(buffer: string): { messages: SseMessage[]; rest: string } {
   const normalized = buffer.replace(/\r\n/g, '\n');
   const chunks = normalized.split('\n\n');
@@ -61,28 +88,28 @@ function mapClarificationSseEvent(message: SseMessage): ClarificationStreamEvent
   if (message.event === 'meta') {
     return {
       type: 'meta',
-      question: String(data.question ?? ''),
-      cost_tkn: Number(data.cost_tkn ?? 0),
-      balance_tkn: Number(data.balance_tkn ?? 0),
-      free_left: Number(data.free_left ?? 0),
+      question: readStringField(data, 'question', ''),
+      cost_tkn: readNumberField(data, 'cost_tkn', 0),
+      balance_tkn: readNumberField(data, 'balance_tkn', 0),
+      free_left: readNumberField(data, 'free_left', 0),
     };
   }
   if (message.event === 'delta') {
     return {
       type: 'delta',
-      text: String(data.text ?? ''),
+      text: readStringField(data, 'text', ''),
     };
   }
   if (message.event === 'done') {
     return {
       type: 'done',
-      answer: String(data.answer ?? ''),
+      answer: readStringField(data, 'answer', ''),
     };
   }
   if (message.event === 'error') {
     return {
       type: 'error',
-      message: String(data.message ?? 'errors.ai_clarification_generation_failed'),
+      message: readStringField(data, 'message', 'errors.ai_clarification_generation_failed'),
     };
   }
   return null;
@@ -172,7 +199,7 @@ export const gamesApi = {
   ): AsyncGenerator<ClarificationStreamEvent> {
     const authorizationHeader = api.defaults.headers.common['Authorization'];
     const url = buildApiResourceUrl(`/ai/games/${gameId}/clarify/stream`);
-    const response = await fetch(url, {
+    const requestInit: RequestInit = {
       method: 'POST',
       headers: {
         Accept: 'text/event-stream',
@@ -182,8 +209,9 @@ export const gamesApi = {
           : {}),
       },
       body: JSON.stringify({ question }),
-      signal: signal ?? null,
-    });
+      ...(signal ? { signal } : {}),
+    };
+    const response = await fetch(url, requestInit);
 
     if (!response.ok) {
       let detail = 'errors.ai_clarification_generation_failed';
