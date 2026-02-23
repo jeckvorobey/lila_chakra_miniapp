@@ -49,11 +49,18 @@
         :game-mode="gameStore.currentGame?.mode ?? 'free'"
         :free-left="gameStore.clarificationsFreeLeft"
       />
+
+      <div v-if="currentMoveInsight" class="q-mt-lg q-pa-md bg-grey-2 rounded-borders dark-bg-custom">
+        <div class="text-overline text-secondary q-mb-xs">
+          Ваш инсайт
+        </div>
+        <p class="text-body1 q-mb-none" style="white-space: pre-wrap;">{{ currentMoveInsight }}</p>
+      </div>
     </div>
 
     <template #actions>
       <q-btn
-        :label="t('actions.write_insight')"
+        :label="currentMoveInsight ? 'Дополнить инсайт' : t('actions.write_insight')"
         color="primary"
         icon="mdi-pencil"
         unelevated
@@ -165,7 +172,20 @@ const showClarificationPanel = computed(() => {
   if (!gameStore.currentGame) return false;
   return true;
 });
+
+const currentMoveInsight = computed(() => {
+  const moves = gameStore.moves;
+  if (!moves || !moves.length) return '';
+  const lastMove = moves[moves.length - 1];
+  return lastMove?.player_insight || '';
+});
 </script>
 
 <style scoped>
+.dark-bg-custom {
+  background-color: var(--q-dark-page);
+}
+.body--dark .dark-bg-custom {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
 </style>

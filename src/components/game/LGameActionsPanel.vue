@@ -150,11 +150,14 @@ function openInsightModal(): void {
     return;
   }
 
+  const lastMove = gameStore.moves[gameStore.moves.length - 1];
+  const currentInsight = lastMove?.player_insight ?? '';
+
   $q.dialog({
     title: t('actions.write_insight'),
     message: t('cell.question'),
     prompt: {
-      model: '',
+      model: currentInsight,
       type: 'textarea',
       isValid: (val: string) => val.trim().length >= 3,
       autogrow: true,
