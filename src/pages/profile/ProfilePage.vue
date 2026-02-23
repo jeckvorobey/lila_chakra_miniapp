@@ -212,7 +212,7 @@ const stats = computed(() => ({
 
 const profileDiceMode = computed({
   get: () => userStore.profile?.dice_mode || 'auto',
-  set: (val) => {
+  set: () => {
     // handled by update:model-value
   },
 });
