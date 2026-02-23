@@ -88,7 +88,7 @@ export const useUserStore = defineStore('user', () => {
    * Обновить профиль пользователя
    */
   async function updateProfile(
-    updates: Partial<Pick<UserProfile, 'language_code_app' | 'has_seen_onboarding'>>,
+    updates: Partial<Pick<UserProfile, 'language_code_app' | 'has_seen_onboarding' | 'dice_mode'>>,
   ): Promise<boolean> {
     isLoading.value = true;
     error.value = null;

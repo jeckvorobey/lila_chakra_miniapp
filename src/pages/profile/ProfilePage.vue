@@ -126,7 +126,7 @@
         </q-item-section>
         <q-item-section side>
           <q-btn-toggle
-            v-model="settingsStore.diceMode"
+            v-model="profileDiceMode"
             :options="[
               { label: 'Авто', value: 'auto' },
               { label: 'Ручной', value: 'manual' },
@@ -135,6 +135,7 @@
             flat
             dense
             size="sm"
+            @update:model-value="onDiceModeChange"
           />
         </q-item-section>
       </q-item>
@@ -208,6 +209,17 @@ const stats = computed(() => ({
   highestLevel: userStore.stats?.highest_chakra_reached ?? 1,
   currentLevel: userStore.stats?.current_chakra ?? 0,
 }));
+
+const profileDiceMode = computed({
+  get: () => userStore.profile?.dice_mode || 'auto',
+  set: (val) => {
+    // handled by update:model-value
+  },
+});
+
+async function onDiceModeChange(newMode: string) {
+  await userStore.updateProfile({ dice_mode: newMode as 'auto' | 'manual' });
+}
 
 onMounted(() => {
   void userStore.fetchProfile();

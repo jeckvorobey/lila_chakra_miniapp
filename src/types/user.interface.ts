@@ -21,12 +21,13 @@ export interface UserOut {
   total_games?: number;
   completed_games?: number;
   referral_code?: string | null;
+  dice_mode?: 'auto' | 'manual';
   created_at?: string;
 
   // Блокировки (ISO datetime string или null)
   blocked_at?: string | null;
   bot_blocked_at?: string | null;
-  
+
 }
 
 export interface UserStats {

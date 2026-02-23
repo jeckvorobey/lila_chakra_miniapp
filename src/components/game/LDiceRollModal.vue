@@ -1,16 +1,6 @@
 <template>
   <l-modal v-model="isOpen" position="bottom" data-testid="dice-roll-modal">
     <div class="column items-center justify-between l-dice-modal__content">
-      <q-btn-toggle
-        v-model="diceMode"
-        :options="diceModeOptions"
-        toggle-color="primary"
-        class="q-mb-md"
-        rounded
-        unelevated
-        :disable="isSubmitting || isRollingVisual || pendingAutoRolls.length > 0"
-      />
-
       <template v-if="showDiceVisual">
         <div class="col column items-center justify-center">
           <l-dice
@@ -54,6 +44,10 @@
           <strong>{{ displayRolls.reduce((a: number, b: number) => a + b, 0) }}</strong>
         </div>
       </div>
+
+      <div class="q-mt-md text-center text-caption text-secondary">
+        {{ t('dice.change_mode_prefix') }}<router-link to="/profile" class="text-primary" style="text-decoration: underline;">{{ t('dice.change_mode_link') }}</router-link>
+      </div>
     </div>
   </l-modal>
 </template>
@@ -66,6 +60,7 @@ import type { MoveResponse } from 'src/types/game.interface';
 import LModal from 'src/components/base/LModal.vue';
 import { useGameStore } from 'src/stores/game.store';
 import { useSettingsStore } from 'src/stores/settings.store';
+import { useUserStore } from 'src/stores/user.store';
 import LDice from './LDice.vue';
 import LDiceManual from './LDiceManual.vue';
 
@@ -87,8 +82,9 @@ const { t } = useI18n();
 const $q = useQuasar();
 const gameStore = useGameStore();
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 
-const diceMode = ref<'auto' | 'manual'>('auto');
+const diceMode = computed(() => userStore.profile?.dice_mode || 'auto');
 const manualDiceValue = ref<number>(1);
 const lastDiceResult = ref<number | null>(null);
 const isRollingVisual = ref(false);
@@ -102,11 +98,6 @@ const isOpen = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value),
 });
-
-const diceModeOptions = computed(() => [
-  { label: t('dice.auto'), value: 'auto' },
-  { label: t('dice.manual'), value: 'manual' },
-]);
 const showDiceVisual = computed(
   () =>
     diceMode.value === 'auto' ||

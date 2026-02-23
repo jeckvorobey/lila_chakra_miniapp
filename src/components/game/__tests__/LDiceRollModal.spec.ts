@@ -37,6 +37,14 @@ vi.mock('src/stores/game.store', () => ({
   useGameStore: () => mockGameStore,
 }));
 
+const mockUserStore = {
+  profile: { dice_mode: 'auto' as 'auto' | 'manual' },
+};
+
+vi.mock('src/stores/user.store', () => ({
+  useUserStore: () => mockUserStore,
+}));
+
 vi.mock('src/stores/settings.store', () => ({
   useSettingsStore: () => ({
     vibrate: mockVibrate,
@@ -133,6 +141,10 @@ function mountModal() {
           template: '<div v-if="modelValue"><slot /></div>',
           props: ['modelValue'],
         },
+        'router-link': {
+          template: '<a><slot /></a>',
+          props: ['to'],
+        },
         'q-btn': {
           template:
             '<button :data-testid="$attrs[\'data-testid\']" @click="$emit(\'click\')"><slot /></button>',
@@ -162,6 +174,7 @@ describe('LDiceRollModal', () => {
     vi.clearAllMocks();
     mockGameStore.currentDiceRolls = [];
     mockGameStore.error = null;
+    mockUserStore.profile.dice_mode = 'auto';
     mockDialog.mockReturnValue({
       onOk: () => ({ onOk: () => undefined }),
     });
@@ -238,9 +251,8 @@ describe('LDiceRollModal', () => {
   it('ручной режим вызывает rollDiceManual с выбранным значением', async () => {
     mockRollDiceManual.mockResolvedValue(createFinalMoveResponse());
 
+    mockUserStore.profile.dice_mode = 'manual';
     const wrapper = mountModal();
-    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
-    await nextTick();
 
     await wrapper.get('[data-testid="manual-confirm"]').trigger('click');
 
@@ -251,9 +263,8 @@ describe('LDiceRollModal', () => {
   it('в ручном режиме выбор 6 вызывает addManualSix без API запроса', async () => {
     mockAddManualSix.mockReturnValue([6]);
 
+    mockUserStore.profile.dice_mode = 'manual';
     const wrapper = mountModal();
-    (wrapper.vm as unknown as { diceMode: 'auto' | 'manual' }).diceMode = 'manual';
-    await nextTick();
 
     await wrapper.get('[data-testid="manual-six"]').trigger('click');
 
