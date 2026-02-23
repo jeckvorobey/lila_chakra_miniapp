@@ -3,12 +3,12 @@ import { flushPromises, mount } from '@vue/test-utils';
 import type { CellBrief } from 'src/types/game.interface';
 import LCellInfo from '../LCellInfo.vue';
 
-const { gameStoreState, getAiHistoryMock } = vi.hoisted(() => ({
+const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
   gameStoreState: {
     currentGame: { id: 1, mode: 'free' as 'free' | 'ai_incognito' | 'ai_guide' },
     clarificationsFreeLeft: 3,
   },
-  getAiHistoryMock: vi.fn(),
+  getClarificationHistoryMock: vi.fn(),
 }));
 
 vi.mock('src/stores/game.store', () => ({
@@ -20,7 +20,7 @@ vi.mock('src/stores/game.store', () => ({
 
 vi.mock('src/services/api', () => ({
   gamesApi: {
-    getAiHistory: getAiHistoryMock,
+    getClarificationHistory: getClarificationHistoryMock,
   },
 }));
 
@@ -58,8 +58,8 @@ interface CellInfoProps {
 beforeEach(() => {
   gameStoreState.currentGame.id = 1;
   gameStoreState.currentGame.mode = 'free';
-  getAiHistoryMock.mockReset();
-  getAiHistoryMock.mockResolvedValue({ interactions: [] });
+  getClarificationHistoryMock.mockReset();
+  getClarificationHistoryMock.mockResolvedValue({ items: [] });
 });
 
 function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
@@ -128,16 +128,13 @@ describe('LCellInfo', () => {
 
   it('передаёт в панель ранее сохранённые уточнения из истории AI_GUIDE', async () => {
     gameStoreState.currentGame.mode = 'ai_guide';
-    getAiHistoryMock.mockResolvedValue({
-      interactions: [
+    getClarificationHistoryMock.mockResolvedValue({
+      items: [
         {
           id: 1,
-          move_id: null,
           cell_id: 5,
-          interaction_type: 'single_question',
-          ai_response: 'Разверни внимание на одном маленьком шаге сегодня.',
-          user_query: 'Что мне делать прямо сейчас?',
-          language: 'ru',
+          answer: 'Разверни внимание на одном маленьком шаге сегодня.',
+          question: 'Что мне делать прямо сейчас?',
           created_at: '2026-02-23T18:00:00Z',
         },
       ],
