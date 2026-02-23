@@ -52,6 +52,39 @@ const currentCellInfo: CellBrief = {
   transition_to: null,
 };
 
+const globalMountOptions = {
+  stubs: {
+    'q-card': {
+      template: '<div><slot /></div>',
+    },
+    'q-card-section': {
+      template: '<div><slot /></div>',
+    },
+    'q-avatar': {
+      template: '<div><slot /></div>',
+    },
+    'q-icon': true,
+    'q-btn': {
+      template:
+        "<button :data-testid=\"$attrs['data-testid']\" @click=\"$emit('click')\"><slot /></button>",
+    },
+    LDiceRollModal: {
+      template:
+        '<div data-testid="dice-modal">' +
+        '{{ modelValue }}' +
+        '<button data-testid="dice-finished-btn" @click="$emit(\'roll-finished\', ' +
+        "{ move: { transition_type: 'none', final_cell: 5 }, is_victory: false }" +
+        ')" />' +
+        '</div>',
+      props: ['modelValue'],
+    },
+    LCellInfo: {
+      template: '<div data-testid="cell-info-modal">{{ modelValue }}</div>',
+      props: ['modelValue'],
+    },
+  },
+};
+
 function mountPanel() {
   return mount(LGameActionsPanel, {
     props: {
@@ -61,34 +94,7 @@ function mountPanel() {
       currentChakra: 1,
       isWaitingForSix: false,
     },
-    global: {
-      stubs: {
-        'q-card': {
-          template: '<div><slot /></div>',
-        },
-        'q-card-section': {
-          template: '<div><slot /></div>',
-        },
-        'q-avatar': {
-          template: '<div><slot /></div>',
-        },
-        'q-icon': true,
-        'q-btn': {
-          template:
-            "<button :data-testid=\"$attrs['data-testid']\" @click=\"$emit('click')\"><slot /></button>",
-        },
-        LDiceRollModal: {
-          template:
-            '<div data-testid="dice-modal">' +
-            '{{ modelValue }}' +
-            '<button data-testid="dice-finished-btn" @click="$emit(\'roll-finished\', ' +
-            "{ move: { transition_type: 'none', final_cell: 5 }, is_victory: false }" +
-            ')" />' +
-            '</div>',
-          props: ['modelValue'],
-        },
-      },
-    },
+    global: globalMountOptions,
   });
 }
 
@@ -109,11 +115,42 @@ describe('LGameActionsPanel', () => {
     });
   });
 
-  it('по кнопке инфо эмитит событие показа текущей клетки', async () => {
+  it('отображает номер текущей клетки', () => {
     const wrapper = mountPanel();
+    expect(wrapper.text()).toContain('5');
+  });
+
+  it('отображает название текущей клетки из props', () => {
+    const wrapper = mountPanel();
+    expect(wrapper.text()).toContain('Клетка 5');
+  });
+
+  it('показывает предупреждение при ожидании шестёрки', () => {
+    const wrapper = mount(LGameActionsPanel, {
+      props: {
+        currentCell: 5,
+        currentCellInfo,
+        gameMode: 'free',
+        currentChakra: 1,
+        isWaitingForSix: true,
+      },
+      global: globalMountOptions,
+    });
+    expect(wrapper.text()).toContain('dice.waiting_for_6');
+  });
+
+  it('не показывает предупреждение при нормальном броске', () => {
+    const wrapper = mountPanel();
+    expect(wrapper.text()).not.toContain('dice.waiting_for_6');
+  });
+
+  it('по кнопке инфо открывает модалку ячейки вместо эмита', async () => {
+    const wrapper = mountPanel();
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('false');
+
     await wrapper.get('[data-testid="current-cell-info-btn"]').trigger('click');
 
-    expect(wrapper.emitted('show-current-cell-info')).toBeTruthy();
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true');
   });
 
   it('по кнопке броска открывает модалку кубика', async () => {

@@ -1,143 +1,65 @@
 <template>
-  <div class="full-width">
-    <q-card flat bordered class="bg-surface">
-      <q-card-section class="q-pa-md">
-        <div class="row items-center q-mb-md">
-          <q-avatar
-            :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]"
-            size="40px"
-            :text-color="currentCellAvatarTextColor"
+  <l-modal v-model="isOpen" position="bottom" data-testid="cell-info-modal">
+    <div class="q-pa-md">
+      <div v-if="showReflectionQuestions">
+        <div class="text-overline text-secondary q-mb-xs">
+          {{ t('cell.reflection_questions') }}
+        </div>
+        <ul class="l-cell-info__questions q-pl-md q-mb-none">
+          <li
+            v-for="question in reflectionQuestionsList"
+            :key="question.topic"
+            class="q-mb-xs"
           >
-            {{ currentCell }}
-          </q-avatar>
-          <div class="col">
-            <div class="text-subtitle2 text-weight-medium ellipsis">
-              {{ currentCellTitle }}
-            </div>
             <div class="text-caption text-secondary">
-              {{ currentChakraLabel }}
+              {{ question.label }}
             </div>
-          </div>
-          <q-btn
-            flat
-            round
-            dense
-            icon="mdi-information-outline"
-            data-testid="current-cell-info-btn"
-            @click="emit('show-current-cell-info')"
-          />
-        </div>
-
-        <div v-if="isWaitingForSix" class="text-center q-mb-md">
-          <q-icon name="mdi-dice-6" size="24px" color="warning" class="q-mr-sm" />
-          <span class="text-body2 text-secondary">{{ t('dice.waiting_for_6') }}</span>
-        </div>
-
-        <div class="row justify-center q-gutter-sm">
-          <q-btn
-            :label="t('dice.roll')"
-            color="primary"
-            size="lg"
-            unelevated
-            icon="mdi-dice-multiple"
-            class="q-px-xl"
-            :disable="isChipAnimating"
-            data-testid="open-dice-modal-btn"
-            @click="showDiceModal = true"
-          />
-        </div>
-
-        <div class="row justify-center q-mt-md">
-          <q-btn
-            :label="t('game.end_game')"
-            color="negative"
-            flat
-            size="sm"
-            :loading="isEndingGame"
-            data-testid="end-game-btn"
-            @click="emit('confirm-end-game')"
-          />
-        </div>
-
-        <div v-if="showReflectionQuestions" class="q-mt-md">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.reflection_questions') }}
-          </div>
-          <ul class="l-cell-info__questions q-pl-md q-mb-none">
-            <li
-              v-for="question in reflectionQuestionsList"
-              :key="question.topic"
-              class="q-mb-xs"
-            >
-              <div class="text-caption text-secondary">
-                {{ question.label }}
-              </div>
-              <div class="text-body2">
-                {{ question.text }}
-              </div>
-            </li>
-          </ul>
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <l-dice-roll-modal
-      v-model="showDiceModal"
-      @roll-finished="(result) => emit('roll-finished', result)"
-    />
-  </div>
+            <div class="text-body2">
+              {{ question.text }}
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div v-else class="text-center text-secondary q-py-md">
+        Отражение не найдено
+      </div>
+    </div>
+  </l-modal>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useQuasar } from 'quasar';
-import { getChakraAvatarTextColor } from 'src/data/chakra-colors';
-import type { CellBrief, GameMode, MoveResponse } from 'src/types/game.interface';
-import LDiceRollModal from './LDiceRollModal.vue';
+import type { CellBrief, Cell, GameMode } from 'src/types/game.interface';
+import LModal from 'src/components/base/LModal.vue';
 
 interface Props {
-  currentCell: number;
-  currentCellInfo: CellBrief | null;
+  modelValue: boolean;
+  currentCellInfo: CellBrief | Cell | null;
   gameMode: GameMode;
-  currentChakra: number;
-  isWaitingForSix: boolean;
-  isChipAnimating: boolean;
-  isEndingGame: boolean;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'show-current-cell-info'): void;
-  (e: 'roll-finished', result: MoveResponse): void;
-  (e: 'confirm-end-game'): void;
+  (e: 'update:modelValue', value: boolean): void;
 }>();
 
 const { t } = useI18n();
-const $q = useQuasar();
 
-const showDiceModal = ref(false);
-const isDarkMode = computed(() => $q.dark?.isActive ?? true);
-
-const currentCellAvatarBgClass = computed(() =>
-  props.currentChakra > 0 ? `bg-chakra-${props.currentChakra}` : 'bg-grey-6',
-);
-const currentCellAvatarTextColor = computed(() =>
-  getChakraAvatarTextColor(props.currentChakra, isDarkMode.value),
-);
-const currentCellTitle = computed(() => {
-  if (props.currentCell === 0) return t('game.outside_board');
-  return props.currentCellInfo?.name_ru ?? '';
+const isOpen = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
 });
-const currentChakraLabel = computed(() =>
-  props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
-);
 
 const reflectionQuestionsList = computed(() => {
-  const questions = props.currentCellInfo?.is_revisit
-    ? (props.currentCellInfo?.questions_revisit ?? props.currentCellInfo?.reflection_questions)
-    : (props.currentCellInfo?.questions_first ?? props.currentCellInfo?.reflection_questions);
+  if (!props.currentCellInfo) return [];
+  const isRevisit = 'is_revisit' in props.currentCellInfo ? props.currentCellInfo.is_revisit : false;
+
+  const questions = isRevisit
+    ? (props.currentCellInfo.questions_revisit ?? props.currentCellInfo.reflection_questions)
+    : (props.currentCellInfo.questions_first ?? props.currentCellInfo.reflection_questions);
+  
   if (!questions) {
     return [];
   }

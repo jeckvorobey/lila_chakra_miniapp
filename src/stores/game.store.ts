@@ -44,7 +44,7 @@ export const useGameStore = defineStore('game', () => {
   // Состояние
   const currentGame = ref<GameDetail | null>(null);
   const moves = ref<MoveOut[]>([]);
-  const currentCellInfo = ref<CellBrief | null>(null);
+  const currentCellInfo = ref<CellBrief | Cell | null>(null);
   const isLoading = ref(false);
   const isRolling = ref(false);
   const error = ref<string | null>(null);
@@ -240,6 +240,12 @@ export const useGameStore = defineStore('game', () => {
       moves.value = gameMoves;
       pendingAutoRolls.value = [];
       pendingManualRolls.value = [];
+
+      if (game.current_cell > 0) {
+        currentCellInfo.value = await getCellInfo(game.current_cell);
+      } else {
+        currentCellInfo.value = null;
+      }
 
       return true;
     } catch (err) {
