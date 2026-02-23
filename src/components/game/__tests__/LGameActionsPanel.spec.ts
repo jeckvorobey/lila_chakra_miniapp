@@ -163,14 +163,14 @@ describe('LGameActionsPanel', () => {
     expect(wrapper.get('[data-testid="dice-modal"]').text()).toBe('true');
   });
 
-  it('после завершения броска эмитит событие показа информации о текущей клетке', async () => {
+  it('после завершения броска открывает информацию о текущей клетке', async () => {
     const wrapper = mountPanel();
 
     await wrapper.get('[data-testid="dice-finished-btn"]').trigger('click');
     await flushPromises();
 
     expect(mockStartChipAnimation).toHaveBeenCalledOnce();
-    expect(wrapper.emitted('show-current-cell-info')).toBeTruthy();
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true');
   });
 
   it('подтверждает завершение игры и переводит на выходную медитацию', async () => {

@@ -16,19 +16,23 @@
     <div class="q-pa-md">
       <l-cell-keywords v-if="currentCellInfo" :keywords="cellKeywords" />
 
+      <div v-if="cellDescription" class="q-mb-md">
+        <div class="text-overline text-secondary q-mb-xs">
+          {{ t('cell.description') }}
+        </div>
+        <p class="text-body1">{{ cellDescription }}</p>
+      </div>
+
       <div v-if="showReflectionQuestions">
         <div class="text-overline text-secondary q-mb-xs">
           {{ t('cell.reflection_questions') }}
         </div>
-        <ul class="l-cell-info__questions q-pl-md q-mb-none">
+        <ul class="q-pl-lg q-mb-none">
           <li
             v-for="question in reflectionQuestionsList"
             :key="question.topic"
             class="q-mb-xs"
           >
-            <div class="text-caption text-secondary">
-              {{ question.label }}
-            </div>
             <div class="text-body2">
               {{ question.text }}
             </div>
@@ -108,6 +112,15 @@ const cellKeywords = computed(() => {
   return 'keywords' in props.currentCellInfo ? props.currentCellInfo.keywords : [];
 });
 
+const cellDescription = computed(() => {
+  if (!props.currentCellInfo) return '';
+  const isRevisit = 'is_revisit' in props.currentCellInfo ? props.currentCellInfo.is_revisit : false;
+  if (isRevisit && 'description_revisit' in props.currentCellInfo && props.currentCellInfo.description_revisit) {
+    return props.currentCellInfo.description_revisit;
+  }
+  return 'description' in props.currentCellInfo ? props.currentCellInfo.description : '';
+});
+
 function openInsightModal(): void {
   emit('write-insight');
 }
@@ -131,20 +144,17 @@ const reflectionQuestionsList = computed(() => {
   return [
     {
       topic: 'relationships',
-      label: t('query.category.relationships'),
       text: questions.relationships,
     },
     {
       topic: 'money',
-      label: t('query.category.finance'),
       text: questions.money,
     },
     {
       topic: 'career',
-      label: t('query.category.career'),
       text: questions.career,
     },
-  ].filter((item): item is { topic: string; label: string; text: string } => Boolean(item.text));
+  ].filter((item): item is { topic: string; text: string } => Boolean(item.text));
 });
 
 const showReflectionQuestions = computed(
@@ -158,7 +168,4 @@ const showClarificationPanel = computed(() => {
 </script>
 
 <style scoped>
-.l-cell-info__questions {
-  list-style: none;
-}
 </style>

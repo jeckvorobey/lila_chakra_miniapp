@@ -3,6 +3,13 @@ import { mount } from '@vue/test-utils';
 import type { CellBrief } from 'src/types/game.interface';
 import LCellInfo from '../LCellInfo.vue';
 
+vi.mock('src/stores/game.store', () => ({
+  useGameStore: () => ({
+    currentGame: { id: 1, mode: 'free' },
+    clarificationsFreeLeft: 3,
+  }),
+}));
+
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
@@ -56,6 +63,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
           template: '<div data-testid="cell-info-modal"><slot /></div>',
           props: ['modelValue'],
         },
+        LClarificationPanel: true,
       },
     },
   });

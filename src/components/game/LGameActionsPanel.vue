@@ -95,10 +95,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  (e: 'show-current-cell-info'): void;
-}>();
-
 const { t } = useI18n();
 const router = useRouter();
 const $q = useQuasar();
@@ -136,7 +132,7 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
   }
 
   await gameStore.startChipAnimation();
-  emit('show-current-cell-info');
+  showCellInfoModal.value = true;
 
   if (result.is_victory) {
     showVictoryDialog();
