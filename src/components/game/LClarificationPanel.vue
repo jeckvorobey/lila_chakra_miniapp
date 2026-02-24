@@ -191,7 +191,7 @@ function enqueueTypewriterText(text: string): void {
   startTypewriter();
 }
 
-async function waitTypewriterDrain(timeoutMs = 5000): Promise<void> {
+async function waitTypewriterDrain(timeoutMs = 120000): Promise<void> {
   const startAt = Date.now();
   while (pendingTypewriterText.value.length && Date.now() - startAt < timeoutMs) {
     await new Promise((resolve) => {

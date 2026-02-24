@@ -79,9 +79,17 @@ export const useGameStore = defineStore('game', () => {
   let pendingAnimation: PendingAnimation | null = null;
 
   // Вычисляемые значения
-  const isGameActive = computed(
-    () => (currentGame.value ? isActiveGameStatus(currentGame.value.status) : false),
-  );
+  const isGameActive = computed(() => {
+    if (!currentGame.value) return false;
+    if (isActiveGameStatus(currentGame.value.status)) return true;
+    // Игра завершена (клетка 68), но выходная медитация ещё не пройдена —
+    // держим страницу активной, чтобы показать победный экран в LCellInfo
+    if (
+      currentGame.value.status === 'completed'
+      && !currentGame.value.exit_meditation_completed
+    ) return true;
+    return false;
+  });
 
 
   const isWaitingFor6 = computed(() => currentGame.value?.status === 'waiting_for_6');
