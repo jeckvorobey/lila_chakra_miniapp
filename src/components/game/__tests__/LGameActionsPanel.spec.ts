@@ -75,6 +75,9 @@ const globalMountOptions = {
         '<button data-testid="dice-finished-btn" @click="$emit(\'roll-finished\', ' +
         "{ move: { transition_type: 'none', final_cell: 5 }, is_victory: false }" +
         ')" />' +
+        '<button data-testid="dice-victory-btn" @click="$emit(\'roll-finished\', ' +
+        "{ move: { transition_type: 'none', final_cell: 68 }, is_victory: true }" +
+        ')" />' +
         '</div>',
       props: ['modelValue'],
     },
@@ -171,6 +174,18 @@ describe('LGameActionsPanel', () => {
 
     expect(mockStartChipAnimation).toHaveBeenCalledOnce();
     expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true');
+  });
+
+  it('при победном броске не показывает старый victory dialog', async () => {
+    const wrapper = mountPanel();
+
+    await wrapper.get('[data-testid="dice-victory-btn"]').trigger('click');
+    await flushPromises();
+
+    expect(mockStartChipAnimation).toHaveBeenCalledOnce();
+    expect(mockDialog).not.toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'victory.title' }),
+    );
   });
 
   it('подтверждает завершение игры и переводит на выходную медитацию', async () => {

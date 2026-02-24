@@ -284,6 +284,26 @@ export default {
     share: 'Share',
   },
 
+  finale: {
+    title: 'Epic Finale',
+    subtitle: 'Your path is complete. Capture your summary, 72-hour plan, and journey artwork.',
+    summary_block: 'Epic Summary',
+    plan_block: 'Magical 72 Hours',
+    art_block: 'AI Journey Art',
+    generate_summary: 'Generate Summary',
+    generate_image: 'Generate AI Art',
+    image_generating: 'Image generation is in progress...',
+    image_failed: 'Image generation is unavailable. Please try later.',
+    image_ready: 'Image is ready for download and sharing.',
+    image_not_started: 'Image has not been generated yet.',
+    download: 'Download',
+    share: 'Share',
+    share_title: 'My Lila Journey',
+    share_fallback: 'Sharing is unavailable, file downloaded locally.',
+    victory_title: 'Cell 68: Cosmic Consciousness',
+    victory_message: 'Complete your closing ritual: capture insight and move to exit meditation.',
+  },
+
   // Конец игры
   end: {
     title: 'Game Ended',

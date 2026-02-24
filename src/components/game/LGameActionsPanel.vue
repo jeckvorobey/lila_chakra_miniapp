@@ -71,6 +71,7 @@
       :current-cell-info="currentCellInfo"
       :game-mode="gameMode"
       @write-insight="openInsightModal"
+      @go-next="goToExitMeditation"
     />
   </div>
 </template>
@@ -134,10 +135,6 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
 
   await gameStore.startChipAnimation();
   showCellInfoModal.value = true;
-
-  if (result.is_victory) {
-    showVictoryDialog();
-  }
 }
 
 const lastMoveId = computed(() => {
@@ -170,16 +167,8 @@ function openInsightModal(): void {
   });
 }
 
-
-
-function showVictoryDialog(): void {
-  $q.dialog({
-    title: t('victory.title'),
-    message: t('victory.message'),
-    ok: t('victory.meditation'),
-  }).onOk(() => {
-    void router.push('/game/meditation/exit');
-  });
+function goToExitMeditation(): void {
+  void router.push('/game/meditation/exit');
 }
 
 async function endGame(): Promise<void> {

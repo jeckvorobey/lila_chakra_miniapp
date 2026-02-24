@@ -99,7 +99,7 @@ describe('MeditationPage', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/game');
   });
 
-  it('для exit пропускает медитацию и переходит в /game', async () => {
+  it('для exit пропускает медитацию и переходит в /game/final/:id', async () => {
     mockRoute.params.type = 'exit';
 
     const store = useGameStore();
@@ -115,7 +115,7 @@ describe('MeditationPage', () => {
     await flushPromises();
 
     expect(completeExitSpy).toHaveBeenCalledOnce();
-    expect(mockRouterPush).toHaveBeenCalledWith('/game');
+    expect(mockRouterPush).toHaveBeenCalledWith('/game/final/1');
   });
 
   it('показывает notify и не уходит со страницы при ошибке пропуска', async () => {

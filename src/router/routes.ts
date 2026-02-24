@@ -29,6 +29,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/game/MeditationPage.vue'),
         meta: { showBack: true },
       },
+      {
+        path: 'game/final/:gameId',
+        name: 'game-final',
+        component: () => import('pages/game/GameFinalePage.vue'),
+        meta: { title: 'finale.title', showBack: true },
+      },
       // Маршруты дневника
       {
         path: 'diary',

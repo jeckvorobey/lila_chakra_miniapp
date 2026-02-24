@@ -5,8 +5,13 @@ import LCellInfo from '../LCellInfo.vue';
 
 const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
   gameStoreState: {
-    currentGame: { id: 1, mode: 'free' as 'free' | 'ai_incognito' | 'ai_guide' },
+    currentGame: {
+      id: 1,
+      mode: 'free' as 'free' | 'ai_incognito' | 'ai_guide',
+      status: 'in_progress' as 'in_progress' | 'completed',
+    },
     clarificationsFreeLeft: 3,
+    moves: [],
   },
   getClarificationHistoryMock: vi.fn(),
 }));
@@ -15,6 +20,7 @@ vi.mock('src/stores/game.store', () => ({
   useGameStore: () => ({
     currentGame: gameStoreState.currentGame,
     clarificationsFreeLeft: gameStoreState.clarificationsFreeLeft,
+    moves: gameStoreState.moves,
   }),
 }));
 
@@ -58,6 +64,8 @@ interface CellInfoProps {
 beforeEach(() => {
   gameStoreState.currentGame.id = 1;
   gameStoreState.currentGame.mode = 'free';
+  gameStoreState.currentGame.status = 'in_progress';
+  gameStoreState.moves = [];
   getClarificationHistoryMock.mockReset();
   getClarificationHistoryMock.mockResolvedValue({ items: [] });
 });
@@ -81,7 +89,8 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
             "<button :data-testid=\"$attrs['data-testid']\" :disabled=\"$attrs.disable\" @click=\"$emit('click')\"><slot /></button>",
         },
         LModal: {
-          template: '<div data-testid="cell-info-modal"><slot /></div>',
+          template:
+            '<div data-testid="cell-info-modal"><slot name="header" /><slot /><slot name="actions" /></div>',
           props: ['modelValue'],
         },
         LClarificationPanel: {
@@ -152,5 +161,22 @@ describe('LCellInfo', () => {
         answer: 'Разверни внимание на одном маленьком шаге сегодня.',
       },
     ]);
+  });
+
+  it('на клетке 68 в completed показывает кнопку Далее и эмитит go-next', async () => {
+    gameStoreState.currentGame.status = 'completed';
+
+    const wrapper = mountCellInfo({
+      currentCellInfo: {
+        ...currentCellInfo,
+        id: 68,
+      },
+    });
+
+    const continueBtn = wrapper.get('[data-testid="victory-continue-btn"]');
+    await continueBtn.trigger('click');
+
+    expect(wrapper.emitted('go-next')).toBeTruthy();
+    expect(wrapper.find('[data-testid="clarification-panel"]').exists()).toBe(false);
   });
 });

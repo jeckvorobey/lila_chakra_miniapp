@@ -6,6 +6,9 @@ import type {
   DiceRollRequest,
   GameCreate,
   GameDetail,
+  GameFinaleImageJob,
+  GameFinaleState,
+  GameFinaleSummary,
   GameListResponse,
   GameOut,
   MoveOut,
@@ -146,6 +149,48 @@ export const gamesApi = {
    */
   async get(gameId: number): Promise<GameDetail> {
     const response = await api.get<GameDetail>(`/games/${gameId}`);
+    return response.data;
+  },
+
+  /**
+   * Получить агрегированное состояние финала игры.
+   */
+  async getFinaleState(gameId: number): Promise<GameFinaleState> {
+    const response = await api.get<GameFinaleState>(`/games/${gameId}/finale`);
+    return response.data;
+  },
+
+  /**
+   * Идемпотентно сгенерировать итоговый AI summary.
+   */
+  async generateFinaleSummary(gameId: number): Promise<GameFinaleSummary> {
+    const response = await api.post<GameFinaleSummary>(`/games/${gameId}/finale/summary/generate`);
+    return response.data;
+  },
+
+  /**
+   * Запустить async-генерацию AI-арта.
+   */
+  async generateFinaleImage(gameId: number): Promise<GameFinaleImageJob> {
+    const response = await api.post<GameFinaleImageJob>(`/games/${gameId}/finale/image/generate`);
+    return response.data;
+  },
+
+  /**
+   * Получить статус async-задачи AI-арта.
+   */
+  async getFinaleImageJob(gameId: number, jobId: string): Promise<GameFinaleImageJob> {
+    const response = await api.get<GameFinaleImageJob>(`/games/${gameId}/finale/image/jobs/${jobId}`);
+    return response.data;
+  },
+
+  /**
+   * Скачать финальный AI-арт как Blob.
+   */
+  async downloadFinaleImage(gameId: number, artifactId: number): Promise<Blob> {
+    const response = await api.get<Blob>(`/games/${gameId}/finale/image/${artifactId}/download`, {
+      responseType: 'blob',
+    });
     return response.data;
   },
 

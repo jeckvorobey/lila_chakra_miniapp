@@ -127,6 +127,51 @@ export interface GameDetail extends GameOut {
   ai_summary: string | null;
 }
 
+export interface GameFinalePlanWindow {
+  window: string;
+  title: string;
+  steps: string[];
+}
+
+export interface GameFinaleSummary {
+  epic_summary: string;
+  journey_highlights: string[];
+  next_72h_plan: GameFinalePlanWindow[];
+  parting_message: string;
+  path_phrase: string;
+  generated_at: string;
+}
+
+export interface GameFinaleImageArtifact {
+  artifact_id: number;
+  file_name: string;
+  mime_type: string;
+  generation_index: number;
+  created_at: string;
+}
+
+export interface GameFinaleImageJob {
+  job_id: string;
+  game_id: number;
+  status: 'queued' | 'processing' | 'completed' | 'failed';
+  error: string | null;
+  artifact_id: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GameFinaleImageState {
+  latest_artifact: GameFinaleImageArtifact | null;
+  active_job: GameFinaleImageJob | null;
+  free_generations_left: number;
+}
+
+export interface GameFinaleState {
+  game_id: number;
+  summary: GameFinaleSummary | null;
+  image: GameFinaleImageState;
+}
+
 export interface GameBrief {
   id: number;
   query: string;

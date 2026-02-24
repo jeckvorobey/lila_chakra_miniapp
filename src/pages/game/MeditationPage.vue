@@ -81,6 +81,11 @@ async function completeMeditationAndGoGame(): Promise<void> {
     return;
   }
 
+  if (!isEntry.value && gameStore.currentGame?.id) {
+    await router.push(`/game/final/${gameStore.currentGame.id}`);
+    return;
+  }
+
   await router.push('/game');
 }
 
