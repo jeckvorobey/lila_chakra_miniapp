@@ -141,6 +141,63 @@
       </q-item>
     </q-list>
 
+    <!-- Chip Settings -->
+    <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.chip_settings', 'Настройка фишки') }}</div>
+    <q-card flat bordered class="q-mb-md bg-surface">
+      <q-card-section class="q-gutter-y-md">
+        <!-- Preview -->
+        <div class="row justify-center q-mb-md">
+          <q-avatar
+            size="64px"
+            :style="{ backgroundColor: localChipColor, color: localChipTextColor }"
+            class="shadow-2"
+          >
+            36
+          </q-avatar>
+        </div>
+
+        <!-- Color Pickers -->
+        <div class="row q-col-gutter-sm">
+          <div class="col-12 col-sm-6">
+            <q-input
+              v-model="localChipColor"
+              readonly
+              outlined
+              dense
+              label="Цвет фишки"
+              class="cursor-pointer"
+            >
+              <template #append>
+                <q-icon name="mdi-palette" :style="{ color: localChipColor }">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" @before-hide="onChipColorChange">
+                    <q-color v-model="localChipColor" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+          <div class="col-12 col-sm-6">
+            <q-input
+              v-model="localChipTextColor"
+              readonly
+              outlined
+              dense
+              label="Цвет текста"
+              class="cursor-pointer"
+            >
+              <template #append>
+                <q-icon name="mdi-format-color-text" :style="{ color: localChipTextColor }">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" @before-hide="onChipColorChange">
+                    <q-color v-model="localChipTextColor" />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+
     <!-- Support links -->
     <q-list bordered separator class="rounded-borders bg-surface">
       <q-item clickable @click="$router.push('/profile/rules')">
@@ -187,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useUserStore } from 'src/stores/user.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useAuthStore } from 'src/stores/auth.store';
@@ -219,6 +276,30 @@ const profileDiceMode = computed({
 
 async function onDiceModeChange(newMode: string) {
   await userStore.updateProfile({ dice_mode: newMode as 'auto' | 'manual' });
+}
+
+const localChipColor = ref(userStore.profile?.settings?.chip_color || '#6B46C1');
+const localChipTextColor = ref(userStore.profile?.settings?.chip_text_color || '#FFFFFF');
+
+watch(() => userStore.profile?.settings?.chip_color, (newVal) => {
+  if (newVal) localChipColor.value = newVal;
+});
+watch(() => userStore.profile?.settings?.chip_text_color, (newVal) => {
+  if (newVal) localChipTextColor.value = newVal;
+});
+
+async function onChipColorChange() {
+  if (
+    localChipColor.value !== userStore.profile?.settings?.chip_color ||
+    localChipTextColor.value !== userStore.profile?.settings?.chip_text_color
+  ) {
+    await userStore.updateProfile({
+      settings: {
+        chip_color: localChipColor.value,
+        chip_text_color: localChipTextColor.value,
+      },
+    });
+  }
 }
 
 onMounted(() => {

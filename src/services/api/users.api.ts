@@ -1,5 +1,5 @@
 import { api } from 'src/boot/axios';
-import type { ReferralProgramData, UserOut, UserStats } from 'src/types/user.interface';
+import type { ReferralProgramData, UserOut, UserStats, UserUpdate } from 'src/types/user.interface';
 
 /**
  * API пользователей.
@@ -25,7 +25,7 @@ export const usersApi = {
    * Обновить настройки пользователя.
    */
   async updateSettings(
-    data: Partial<Pick<UserOut, 'language_code_app' | 'has_seen_onboarding'>>,
+    data: UserUpdate,
   ): Promise<UserOut> {
     const response = await api.patch<UserOut>('/users/me', data);
     return response.data;

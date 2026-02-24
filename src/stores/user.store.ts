@@ -5,7 +5,7 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { usersApi } from 'src/services/api';
-import type { ReferralProgramData, UserProfile, UserStats } from 'src/types/user.interface';
+import type { ReferralProgramData, UserProfile, UserStats, UserUpdate } from 'src/types/user.interface';
 
 export const useUserStore = defineStore('user', () => {
   // Состояние
@@ -88,7 +88,7 @@ export const useUserStore = defineStore('user', () => {
    * Обновить профиль пользователя
    */
   async function updateProfile(
-    updates: Partial<Pick<UserProfile, 'language_code_app' | 'has_seen_onboarding' | 'dice_mode'>>,
+    updates: UserUpdate,
   ): Promise<boolean> {
     isLoading.value = true;
     error.value = null;

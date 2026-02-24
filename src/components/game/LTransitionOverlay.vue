@@ -67,6 +67,7 @@
         'l-transition-overlay__chip',
         { 'l-transition-overlay__chip--hidden': phase !== 'chip-moving' },
       ]"
+      :style="{ '--chip-color': chipColor }"
     />
   </div>
 </template>
@@ -74,6 +75,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'src/stores/user.store';
 import { getChakraColor } from 'src/data/chakra-colors';
 import type { CellPosition } from 'src/utils/board-geometry';
 import { cellIdToChakraLevel, getCellPixelPosition } from 'src/utils/board-geometry';
@@ -95,6 +97,7 @@ const emit = defineEmits<{
 }>();
 
 const $q = useQuasar();
+const userStore = useUserStore();
 const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 
 const overlayRef = ref<SVGSVGElement | null>(null);
@@ -116,6 +119,7 @@ const endChakraLevel = computed(() => cellIdToChakraLevel(props.endCellId));
 const startColor = computed(() => getChakraColor(startChakraLevel.value, isDarkMode.value));
 const endColor = computed(() => getChakraColor(endChakraLevel.value, isDarkMode.value));
 const strokeWidth = computed(() => (props.type === 'snake' ? 4.5 : 3));
+const chipColor = computed(() => userStore.profile?.settings?.chip_color ?? '#6B46C1');
 
 const startPos = computed<CellPosition | null>(() => {
   if (!props.gridEl) return null;
@@ -248,8 +252,8 @@ onBeforeUnmount(() => {
     height: 26px;
     border-radius: 8px;
     transform: translate(-50%, -50%);
-    background: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
-    box-shadow: 0 0 14px #9333ea99;
+    background: var(--chip-color, #6b46c1);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--chip-color, #6b46c1) 65%, transparent);
     will-change: transform, opacity;
 
     &--hidden {

@@ -22,12 +22,18 @@ export interface UserOut {
   completed_games?: number;
   referral_code?: string | null;
   dice_mode?: 'auto' | 'manual';
+  settings?: UserSettingsOut | null;
+
   created_at?: string;
 
   // Блокировки (ISO datetime string или null)
   blocked_at?: string | null;
   bot_blocked_at?: string | null;
+}
 
+export interface UserSettingsOut {
+  chip_color?: string | null;
+  chip_text_color?: string | null;
 }
 
 export interface UserStats {
@@ -62,3 +68,15 @@ export interface ReferralProgramData {
 }
 
 export type UserProfile = UserOut;
+
+export interface UserUpdate {
+  language_code_app?: string | null;
+  dice_mode?: 'auto' | 'manual';
+  has_seen_onboarding?: boolean;
+  settings?: UserSettingsUpdate | null;
+}
+
+export interface UserSettingsUpdate {
+  chip_color?: string | null;
+  chip_text_color?: string | null;
+}

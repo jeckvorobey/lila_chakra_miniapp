@@ -7,43 +7,20 @@
       'l-chip--snake': transitionType === 'snake',
     }"
   >
-    <!-- SVG кристалла -->
-    <svg class="l-chip__crystal" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" :stop-color="gradientStart" />
-          <stop offset="100%" :stop-color="gradientEnd" />
-        </linearGradient>
-        <filter id="crystalGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      <!-- Форма кристалла -->
-      <polygon
-        class="l-chip__shape"
-        points="16,0 32,12 28,40 4,40 0,12"
-        fill="url(#crystalGradient)"
-        filter="url(#crystalGlow)"
-      />
-
-      <!-- Внутреннее свечение -->
-      <polygon
-        class="l-chip__highlight"
-        points="16,4 26,12 24,32 8,32 6,12"
-        fill="rgba(255,255,255,0.2)"
-      />
-
-      <!-- Точки сверкания -->
-      <circle class="l-chip__sparkle l-chip__sparkle--1" cx="10" cy="15" r="1" fill="white" />
-      <circle class="l-chip__sparkle l-chip__sparkle--2" cx="22" cy="20" r="1.2" fill="white" />
-      <circle class="l-chip__sparkle l-chip__sparkle--3" cx="14" cy="28" r="0.8" fill="white" />
-      <circle class="l-chip__sparkle l-chip__sparkle--4" cx="20" cy="10" r="1" fill="white" />
-    </svg>
+    <!-- Круглая фишка -->
+    <div
+      class="l-chip__circle full-width full-height flex flex-center"
+      :style="{
+        background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
+        color: textColor
+      }"
+    >
+      <div class="l-chip__inner full-width full-height relative-position flex flex-center overflow-hidden">
+        <!-- Внутреннее свечение и блик -->
+        <div class="l-chip__highlight absolute"></div>
+        <span class="l-chip__text text-weight-bold z-top">{{ position }}</span>
+      </div>
+    </div>
 
     <!-- Эффекты частиц во время переходов -->
     <div v-if="isMoving" class="l-chip__particles">
@@ -61,12 +38,14 @@ type TransitionType = 'arrow' | 'snake' | null;
 interface Props {
   position: number;
   color?: string;
+  textColor?: string;
   isMoving?: boolean;
   transitionType?: TransitionType;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  color: '#6B46C1',
+  color: '#6B46C1', // Цвет фишки по умолчанию
+  textColor: '#FFFFFF', // Цвет текста фишки по умолчанию
   isMoving: false,
   transitionType: null,
 });
@@ -112,51 +91,44 @@ function particleStyle(index: number) {
 <style lang="scss" scoped>
 .l-chip {
   position: relative;
-  width: 32px;
+  width: 40px;
   height: 40px;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 
   // Анимация плавающего движения в покое
   animation: chip-float 3s ease-in-out infinite;
 
-  &__crystal {
-    width: 100%;
-    height: 100%;
-  }
-
-  &__shape {
+  &__circle {
+    border-radius: 50%;
+    box-shadow: inset 0 -2px 6px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
   }
 
-  &__highlight {
-    opacity: 0.6;
+  &__inner {
+    border-radius: 50%;
   }
 
-  // Анимации сверкания
-  &__sparkle {
-    opacity: 0;
-    animation: sparkle-twinkle 2s ease-in-out infinite;
+  &__highlight {
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+  }
 
-    &--1 {
-      animation-delay: 0s;
-    }
-    &--2 {
-      animation-delay: 0.5s;
-    }
-    &--3 {
-      animation-delay: 1s;
-    }
-    &--4 {
-      animation-delay: 1.5s;
-    }
+  &__text {
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   }
 
   // Состояние движения
   &--moving {
     animation: chip-move 0.8s ease-out;
 
-    .l-chip__shape {
-      filter: url(#crystalGlow);
+    .l-chip__circle {
+      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.8);
     }
   }
 
@@ -164,7 +136,7 @@ function particleStyle(index: number) {
   &--arrow {
     animation: chip-arrow 1.2s ease-out;
 
-    .l-chip__shape {
+    .l-chip__circle {
       filter: brightness(1.2);
     }
   }
@@ -173,7 +145,7 @@ function particleStyle(index: number) {
   &--snake {
     animation: chip-snake 1.5s ease-out;
 
-    .l-chip__shape {
+    .l-chip__circle {
       filter: saturate(0.8);
     }
   }

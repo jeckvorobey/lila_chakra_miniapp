@@ -1,6 +1,6 @@
 <template>
   <div :class="cellClasses" :style="cellStyle" @click="handleClick" @long-press="handleLongPress">
-    <span class="l-cell__number">{{ cellId }}</span>
+    <span v-if="!shouldRenderPlayer" class="l-cell__number">{{ cellId }}</span>
 
     <q-icon
       v-if="isArrow"
@@ -15,7 +15,9 @@
       size="12px"
     />
 
-    <div v-if="shouldRenderPlayer" class="l-cell__player" />
+    <div v-if="shouldRenderPlayer" class="l-cell__player" :style="playerStyle">
+      <span class="l-cell__player-text">{{ cellId }}</span>
+    </div>
 
     <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
       <div class="text-weight-medium">{{ cellId }}</div>
@@ -33,6 +35,7 @@
 import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 import { useGameStore } from 'src/stores/game.store';
+import { useUserStore } from 'src/stores/user.store';
 import { getChakraColor } from 'src/data/chakra-colors';
 import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 
@@ -59,6 +62,7 @@ const emit = defineEmits<{
 }>();
 const $q = useQuasar();
 const gameStore = useGameStore();
+const userStore = useUserStore();
 const isDarkMode = computed(() => $q.dark?.isActive ?? true);
 
 const chakraLevel = computed(() => cellIdToChakraLevel(props.cellId));
@@ -68,6 +72,8 @@ const isSnake = computed(() => props.cellId in gameStore.snakesMap);
 const arrowTarget = computed(() => gameStore.arrowsMap[props.cellId]);
 const snakeTarget = computed(() => gameStore.snakesMap[props.cellId]);
 const shouldRenderPlayer = computed(() => props.hasPlayer && gameStore.displayCell !== -1);
+const chipColor = computed(() => userStore.profile?.settings?.chip_color ?? '#6B46C1');
+const chipTextColor = computed(() => userStore.profile?.settings?.chip_text_color ?? '#FFFFFF');
 
 const isWinningCell = computed(() => props.cellId === 68);
 const isStartCell = computed(() => props.cellId === 1);
@@ -100,6 +106,11 @@ const cellStyle = computed(() => {
     '--cell-border': 'transparent',
   };
 });
+
+const playerStyle = computed(() => ({
+  '--chip-color': chipColor.value,
+  '--chip-text-color': chipTextColor.value,
+}));
 
 function handleClick() {
   if (!props.disabled) {
@@ -162,9 +173,20 @@ function handleLongPress() {
     height: 76%;
     border-radius: 10px;
     transform: translate(-50%, -50%);
-    background: linear-gradient(180deg, #9333ea 0%, #7c3aed 100%);
-    box-shadow: 0 0 12px #9333ea99;
+    background: var(--chip-color, #6b46c1);
+    color: var(--chip-text-color, #ffffff);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--chip-color, #6b46c1) 65%, transparent);
     animation: chip-step 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__player-text {
+    font-size: clamp(10px, 1.25vw, 16px);
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   }
 
   @keyframes chip-step {
