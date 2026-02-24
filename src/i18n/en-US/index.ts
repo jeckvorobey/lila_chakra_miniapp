@@ -231,6 +231,9 @@ export default {
     rules: 'Game Rules',
     about: 'About',
     invite: 'Invite Friend',
+    chip_settings: 'Chip Settings',
+    chip_color: 'Chip Color',
+    chip_text_color: 'Text Color',
     logout: 'Logout',
   },
 

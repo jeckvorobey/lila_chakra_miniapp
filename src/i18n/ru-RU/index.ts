@@ -235,6 +235,9 @@ export default {
     rules: 'Правила игры',
     about: 'О приложении',
     invite: 'Пригласить друга',
+    chip_settings: 'Настройка фишки',
+    chip_color: 'Цвет фишки',
+    chip_text_color: 'Цвет текста',
     logout: 'Выйти',
   },
 

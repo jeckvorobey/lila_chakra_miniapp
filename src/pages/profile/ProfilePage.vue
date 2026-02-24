@@ -142,11 +142,34 @@
     </q-list>
 
     <!-- Chip Settings -->
-    <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.chip_settings', 'Настройка фишки') }}</div>
+    <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.chip_settings') }}</div>
     <q-card flat bordered class="q-mb-md bg-surface">
-      <q-card-section class="q-gutter-y-md">
-        <!-- Preview -->
-        <div class="row justify-center q-mb-md">
+      <q-card-section class="chip-settings">
+        <div class="chip-settings__controls">
+          <button
+            type="button"
+            class="chip-settings__row"
+            @click="openColorPicker('chip')"
+          >
+            <span class="chip-settings__label">{{ $t('profile.chip_color') }}</span>
+            <span class="chip-settings__value">
+              <span class="profile-color-swatch" :style="{ backgroundColor: localChipColor }" />
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="chip-settings__row"
+            @click="openColorPicker('text')"
+          >
+            <span class="chip-settings__label">{{ $t('profile.chip_text_color') }}</span>
+            <span class="chip-settings__value">
+              <span class="profile-color-swatch" :style="{ backgroundColor: localChipTextColor }" />
+            </span>
+          </button>
+        </div>
+
+        <div class="chip-settings__preview">
           <q-avatar
             size="64px"
             :style="{ backgroundColor: localChipColor, color: localChipTextColor }"
@@ -155,48 +178,32 @@
             36
           </q-avatar>
         </div>
-
-        <!-- Color Pickers -->
-        <div class="row q-col-gutter-sm">
-          <div class="col-12 col-sm-6">
-            <q-input
-              v-model="localChipColor"
-              readonly
-              outlined
-              dense
-              label="Цвет фишки"
-              class="cursor-pointer"
-            >
-              <template #append>
-                <q-icon name="mdi-palette" :style="{ color: localChipColor }">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" @before-hide="onChipColorChange">
-                    <q-color v-model="localChipColor" />
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </div>
-          <div class="col-12 col-sm-6">
-            <q-input
-              v-model="localChipTextColor"
-              readonly
-              outlined
-              dense
-              label="Цвет текста"
-              class="cursor-pointer"
-            >
-              <template #append>
-                <q-icon name="mdi-format-color-text" :style="{ color: localChipTextColor }">
-                  <q-popup-proxy cover transition-show="scale" transition-hide="scale" @before-hide="onChipColorChange">
-                    <q-color v-model="localChipTextColor" />
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </div>
-        </div>
       </q-card-section>
     </q-card>
+
+    <q-dialog
+      v-model="isColorPickerOpen"
+      @hide="onChipColorChange"
+    >
+      <q-card class="profile-color-dialog">
+        <q-card-section class="row items-center justify-between q-pb-sm">
+          <div class="text-subtitle1 text-weight-medium">
+            {{ activeColorPicker === 'chip' ? $t('profile.chip_color') : $t('profile.chip_text_color') }}
+          </div>
+          <q-btn
+            flat
+            round
+            dense
+            icon="mdi-close"
+            :aria-label="$t('actions.close')"
+            @click="isColorPickerOpen = false"
+          />
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-color v-model="selectedColorModel" />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <!-- Support links -->
     <q-list bordered separator class="rounded-borders bg-surface">
@@ -280,6 +287,19 @@ async function onDiceModeChange(newMode: string) {
 
 const localChipColor = ref(userStore.profile?.settings?.chip_color || '#6B46C1');
 const localChipTextColor = ref(userStore.profile?.settings?.chip_text_color || '#FFFFFF');
+const isColorPickerOpen = ref(false);
+const activeColorPicker = ref<'chip' | 'text'>('chip');
+
+const selectedColorModel = computed({
+  get: () => activeColorPicker.value === 'chip' ? localChipColor.value : localChipTextColor.value,
+  set: (value: string) => {
+    if (activeColorPicker.value === 'chip') {
+      localChipColor.value = value;
+      return;
+    }
+    localChipTextColor.value = value;
+  },
+});
 
 watch(() => userStore.profile?.settings?.chip_color, (newVal) => {
   if (newVal) localChipColor.value = newVal;
@@ -302,8 +322,92 @@ async function onChipColorChange() {
   }
 }
 
+function openColorPicker(target: 'chip' | 'text') {
+  activeColorPicker.value = target;
+  isColorPickerOpen.value = true;
+}
+
 onMounted(() => {
   void userStore.fetchProfile();
   void userStore.fetchStats();
 });
 </script>
+
+<style scoped lang="scss">
+.chip-settings {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.chip-settings__controls {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--lila-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chip-settings__row {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--lila-border);
+  background: transparent;
+  color: var(--lila-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.chip-settings__row:last-child {
+  border-bottom: 0;
+}
+
+.chip-settings__label {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.chip-settings__value {
+  display: flex;
+  justify-content: center;
+}
+
+.chip-settings__preview {
+  flex: 0 0 88px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.profile-color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.body--light .profile-color-swatch {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.profile-color-dialog {
+  width: min(360px, 92vw);
+}
+
+@media (max-width: 599px) {
+  .chip-settings {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chip-settings__preview {
+    flex: 0 0 auto;
+    justify-content: center;
+  }
+}
+</style>
