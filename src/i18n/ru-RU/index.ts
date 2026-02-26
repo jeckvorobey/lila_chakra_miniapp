@@ -322,6 +322,7 @@ export default {
 
   // Действия
   actions: {
+    finish_game: 'Завершить игру',
     continue: 'Продолжить',
     cancel: 'Отмена',
     save: 'Сохранить',

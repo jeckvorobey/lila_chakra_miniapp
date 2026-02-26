@@ -317,6 +317,7 @@ export default {
 
   // Действия
   actions: {
+    finish_game: 'Finish Game',
     continue: 'Continue',
     cancel: 'Cancel',
     save: 'Save',

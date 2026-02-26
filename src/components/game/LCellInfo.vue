@@ -78,7 +78,7 @@
         </div>
         <div v-if="isVictoryCell" class="col-12 col-sm-6">
           <q-btn
-            :label="t('actions.continue')"
+            :label="t('actions.finish_game')"
             color="accent"
             unelevated
             class="full-width"
@@ -204,7 +204,7 @@ const reflectionQuestionsList = computed(() => {
   const questions = isRevisit
     ? (props.currentCellInfo.questions_revisit ?? props.currentCellInfo.reflection_questions)
     : (props.currentCellInfo.questions_first ?? props.currentCellInfo.reflection_questions);
-  
+
   if (!questions) {
     return [];
   }
