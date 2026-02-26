@@ -23,6 +23,17 @@
               {{ formatDate(game.created_at) }}
             </span>
             <q-space />
+            <q-btn
+              v-if="game.status === 'completed'"
+              flat
+              dense
+              round
+              color="accent"
+              icon="mdi-text-box-search-outline"
+              @click.stop="openReport(game.id)"
+            >
+              <q-tooltip>{{ $t('diary.report') }}</q-tooltip>
+            </q-btn>
             <!-- Прогресс -->
             <q-chip size="sm" color="primary" text-color="white">
               {{ game.current_cell }}/72
@@ -138,6 +149,10 @@ function formatDate(dateString: string): string {
 
 function openGame(gameId: number) {
   void router.push(`/diary/${gameId}`);
+}
+
+function openReport(gameId: number) {
+  void router.push(`/game/final/${gameId}`);
 }
 
 function formatRemainingTime(isoDate?: string | null): string | undefined {

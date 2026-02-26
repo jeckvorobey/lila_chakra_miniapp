@@ -45,26 +45,24 @@
       </div>
 
       <template v-else-if="finaleState">
-        <div v-if="!summary" class="row items-center q-gutter-sm q-mb-md">
-          <q-btn color="primary" unelevated :label="t('finale.mentor_button')" :loading="isGeneratingSummary"
-            @click="generateSummary" />
+        <div class="row justify-center items-center q-gutter-sm q-mb-md">
+          <q-btn v-if="!hasSummary" color="primary" unelevated :label="t('finale.mentor_button')"
+            :loading="isGeneratingSummary" @click="generateSummary" />
         </div>
 
-        <!-- План на ближайшие 72 часа -->
+        <div v-if="isGeneratingSummary" data-test="mentor-loading"
+          class="row justify-center items-center q-gutter-sm q-mb-md text-secondary">
+          <q-spinner-dots color="primary" size="22px" />
+          <span class="text-body2">{{ t('finale.mentor_generating') }}</span>
+        </div>
+
         <q-card v-if="summary" flat bordered class="q-mb-md bg-surface">
           <q-card-section>
             <div class="text-overline text-secondary">
-              {{ t('finale.plan_block') }}
+              {{ t('finale.mentor_result_block') }}
             </div>
-            <div v-for="window in summary.next_72h_plan" :key="window.window" class="q-mt-md">
-              <div class="text-subtitle2 text-weight-medium">
-                {{ window.window }} · {{ window.title }}
-              </div>
-              <ul class="q-pl-lg q-mt-xs q-mb-none">
-                <li v-for="step in window.steps" :key="step">
-                  {{ step }}
-                </li>
-              </ul>
+            <div class="q-mt-sm text-body1" style="white-space: pre-line;">
+              {{ summary.mentor_text }}
             </div>
           </q-card-section>
         </q-card>
@@ -120,6 +118,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
+import { AxiosError } from 'axios';
 import { gamesApi } from 'src/services/api';
 import type { GameFinaleState, GameFinaleSummary, GameFinaleImageJob, GameDetail } from 'src/types/game.interface';
 
@@ -139,6 +138,7 @@ const previewArtifactId = ref<number | null>(null);
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
+const hasSummary = computed(() => Boolean(summary.value?.mentor_text?.trim()));
 const activeJob = computed<GameFinaleImageJob | null>(() => finaleState.value?.image.active_job ?? null);
 const activeJobStatus = computed(() => activeJob.value?.status ?? null);
 const canGenerateImage = computed(() => {
@@ -147,6 +147,16 @@ const canGenerateImage = computed(() => {
   if (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') return false;
   return finaleState.value.image.free_generations_left > 0;
 });
+
+function resolveBackendErrorMessage(error: unknown): string {
+  const detail = error instanceof AxiosError ? (error.response?.data as { detail?: string } | undefined)?.detail : undefined;
+  if (typeof detail === 'string' && detail.startsWith('errors.')) {
+    const key = detail.slice('errors.'.length);
+    return t(`error.${key}`);
+  }
+  return detail || (error instanceof Error ? error.message : t('error.generic'));
+}
+
 async function loadFinaleState(): Promise<void> {
   if (!gameId.value) return;
   isLoading.value = true;
@@ -161,17 +171,17 @@ async function loadFinaleState(): Promise<void> {
     await refreshArtifactPreview();
     syncPollingState();
   } catch (error) {
-    errorMessage.value = error instanceof Error ? error.message : t('error.generic');
+    errorMessage.value = resolveBackendErrorMessage(error);
   } finally {
     isLoading.value = false;
   }
 }
 
 async function generateSummary(): Promise<void> {
-  if (!gameId.value || isGeneratingSummary.value) return;
+  if (!gameId.value || isGeneratingSummary.value || hasSummary.value) return;
   isGeneratingSummary.value = true;
   try {
-    const generated = await gamesApi.generateFinaleSummary(gameId.value);
+    const generated = await gamesApi.generateFinaleMentor(gameId.value);
     if (finaleState.value) {
       finaleState.value.summary = generated;
     } else {
@@ -180,7 +190,7 @@ async function generateSummary(): Promise<void> {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: error instanceof Error ? error.message : t('error.generic'),
+      message: resolveBackendErrorMessage(error),
     });
   } finally {
     isGeneratingSummary.value = false;
@@ -199,7 +209,7 @@ async function startImageGeneration(): Promise<void> {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: error instanceof Error ? error.message : t('error.generic'),
+      message: resolveBackendErrorMessage(error),
     });
   } finally {
     isStartingImage.value = false;
@@ -293,7 +303,7 @@ async function shareCurrentArtifact(): Promise<void> {
       await navigator.share({
         files: [file],
         title: t('finale.share_title'),
-        text: summary.value?.path_phrase || summary.value?.parting_message || '',
+        text: summary.value?.path_phrase || summary.value?.mentor_text || '',
       });
       return;
     }
@@ -303,7 +313,7 @@ async function shareCurrentArtifact(): Promise<void> {
   } catch (error) {
     $q.notify({
       type: 'negative',
-      message: error instanceof Error ? error.message : t('error.generic'),
+      message: resolveBackendErrorMessage(error),
     });
   }
 }

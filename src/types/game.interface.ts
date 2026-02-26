@@ -127,18 +127,10 @@ export interface GameDetail extends GameOut {
   ai_summary: string | null;
 }
 
-export interface GameFinalePlanWindow {
-  window: string;
-  title: string;
-  steps: string[];
-}
-
 export interface GameFinaleSummary {
-  epic_summary: string;
-  journey_highlights: string[];
-  next_72h_plan: GameFinalePlanWindow[];
-  parting_message: string;
+  mentor_text: string;
   path_phrase: string;
+  source: string;
   generated_at: string;
 }
 

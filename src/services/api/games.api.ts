@@ -169,6 +169,14 @@ export const gamesApi = {
   },
 
   /**
+   * Сгенерировать финальный ответ AI ментора (итог + план 72 часа).
+   * На текущем этапе использует тот же backend endpoint, что и summary.
+   */
+  async generateFinaleMentor(gameId: number): Promise<GameFinaleSummary> {
+    return this.generateFinaleSummary(gameId);
+  },
+
+  /**
    * Запустить async-генерацию AI-арта.
    */
   async generateFinaleImage(gameId: number): Promise<GameFinaleImageJob> {
