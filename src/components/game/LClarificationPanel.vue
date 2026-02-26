@@ -32,24 +32,15 @@
     <q-banner v-else-if="errorMessage" class="bg-negative-light text-negative rounded-borders q-mb-sm">
       <div class="row items-center justify-between q-gutter-sm">
         <span>{{ errorMessage }}</span>
-        <q-btn
-          flat
-          dense
-          color="negative"
-          :label="t('clarification.retry')"
-          @click="openInputDialog"
-        />
+        <q-btn flat dense color="negative" :label="t('clarification.retry')" @click="openInputDialog" />
       </div>
     </q-banner>
 
-    <q-btn
-      v-if="showAskButton"
-      color="primary"
-      outline
-      class="full-width"
-      :label="buttonLabel"
-      @click="openInputDialog"
-    />
+    <q-btn v-if="showAskButton" color="primary" outline class="full-width l-clarification-ask-btn"
+      @click="openInputDialog">
+      <span>{{ isPaid ? t('clarification.button_paid_base') : t('clarification.button_free') }}</span>
+      <span v-if="isPaid" class="text-accent q-ml-xs">({{ t('clarification.button_paid_cost') }})</span>
+    </q-btn>
 
     <q-dialog v-model="showInputDialog" persistent>
       <q-card class="l-clarification-panel__dialog">
@@ -59,26 +50,14 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input
-            v-model="questionDraft"
-            type="textarea"
-            autogrow
-            maxlength="500"
-            counter
-            :hint="t('query.assistant.min_chars_hint')"
-            :placeholder="t('clarification.placeholder')"
-          />
+          <q-input v-model="questionDraft" type="textarea" autogrow maxlength="500" counter
+            :hint="t('query.assistant.min_chars_hint')" :placeholder="t('clarification.placeholder')" />
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat :label="t('actions.close')" @click="closeInputDialog" />
-          <q-btn
-            color="primary"
-            unelevated
-            :label="t('clarification.submit')"
-            :disable="!canSubmitQuestion"
-            @click="submitQuestion"
-          />
+          <q-btn color="primary" unelevated :label="t('clarification.submit')" :disable="!canSubmitQuestion"
+            @click="submitQuestion" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -145,10 +124,8 @@ const canSubmitQuestion = computed(() => {
   return normalized.length >= 5 && normalized.length <= 500 && !isLoading.value;
 });
 
-const buttonLabel = computed(() => {
-  const hasFreeQuestion =
-    props.gameMode !== 'free' && props.freeLeft > 0;
-  return hasFreeQuestion ? t('clarification.button_free') : t('clarification.button_paid');
+const isPaid = computed(() => {
+  return !(props.gameMode !== 'free' && props.freeLeft > 0);
 });
 
 const showAskButton = computed(

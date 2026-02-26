@@ -179,7 +179,8 @@ export default {
 
   clarification: {
     button_free: 'Задать уточняющий вопрос',
-    button_paid: 'Задать уточняющий вопрос за 1 ТКН',
+    button_paid_base: 'Задать уточняющий вопрос',
+    button_paid_cost: '1 ТКН',
     dialog_title: 'Уточняющий вопрос',
     placeholder: 'Что хотите уточнить о своей ситуации?',
     submit: 'Отправить вопрос',
