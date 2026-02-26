@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
-    <q-header v-if="showHeader" class="bg-glass" :class="{ 'bg-transparent': isGamePage }">
+    <q-header v-if="showHeader" :class="{ 'bg-transparent': isGamePage }" class="q-mx-sm q-mb-md">
       <q-toolbar class="safe-area-top row items-center no-wrap">
         <!-- Левая секция -->
         <div class="col row items-center no-wrap text-h3">
@@ -67,13 +67,13 @@
     <q-page-container>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
-          <component :is="Component" />
+          <component  :is="Component" />
         </transition>
       </router-view>
     </q-page-container>
 
     <!-- Bottom Navigation -->
-    <l-bottom-nav v-if="showBottomNav" />
+    <l-bottom-nav v-if="showBottomNav" class="q-mx-sm q-mt-md"/>
   </q-layout>
 </template>
 
@@ -131,7 +131,6 @@ function openFeedback() {
 
 <style lang="scss" scoped>
 .q-header {
-  margin: 0 var(--lila-layout-gap);
   border: 1px solid var(--lila-border);
   border-top: none;
   border-bottom-left-radius: 16px;

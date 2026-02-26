@@ -1,8 +1,8 @@
 <template>
-  <div class="column no-wrap fit justify-evenly overflow-hidden">
-    <q-card flat bordered class="bg-surface col-auto">
+  <div class="column no-wrap justify-between overflow-hidden">
+    <q-card flat bordered>
       <q-card-section>
-        <div class="text-subtitle1 text-weight-medium q-mb-sm">
+        <div class="text-subtitle1 text-weight-medium">
           {{ gameStore.currentGame?.query }}
         </div>
 
@@ -10,13 +10,13 @@
       </q-card-section>
     </q-card>
 
-    <l-game-board-section
-      class="l-game-active__board"
-      :current-cell="gameStore.displayCell"
-    />
+    <q-card-section class="col q-px-none q-py-sm items-center justify-center">
+      <l-game-board-section
+        :current-cell="gameStore.displayCell"
+      />
+    </q-card-section>
 
     <l-game-actions-panel
-      class="col-auto"
       :current-cell="gameStore.currentCell"
       :current-cell-info="gameStore.currentCellInfo"
       :game-mode="gameStore.currentGame?.mode ?? 'free'"

@@ -6,6 +6,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { usersApi } from 'src/services/api';
 import type { ReferralProgramData, UserProfile, UserStats, UserUpdate } from 'src/types/user.interface';
+import type { TransactionOut } from 'src/types/transaction.interface';
 
 export const useUserStore = defineStore('user', () => {
   // Состояние
@@ -13,6 +14,12 @@ export const useUserStore = defineStore('user', () => {
   const stats = ref<UserStats | null>(null);
   const referralData = ref<{ code: string; link: string } | null>(null);
   const referralProgram = ref<ReferralProgramData | null>(null);
+  const transactions = ref<TransactionOut[]>([]);
+  const transactionsTotal = ref(0);
+  const transactionsOffset = ref(0);
+  const transactionsLimit = ref(20);
+  const transactionsHasMore = ref(true);
+  const isTransactionsLoading = ref(false);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
@@ -85,6 +92,55 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
+   * Загрузить историю транзакций пользователя.
+   */
+  async function fetchTransactions(
+    options: { reset?: boolean; limit?: number } = {},
+  ): Promise<void> {
+    const { reset = false, limit } = options;
+    if (isTransactionsLoading.value) {
+      return;
+    }
+
+    if (reset) {
+      transactions.value = [];
+      transactionsOffset.value = 0;
+      transactionsHasMore.value = true;
+    }
+
+    if (!transactionsHasMore.value) {
+      return;
+    }
+
+    if (limit) {
+      transactionsLimit.value = limit;
+    }
+
+    isTransactionsLoading.value = true;
+
+    try {
+      const response = await usersApi.getTransactions(
+        transactionsOffset.value,
+        transactionsLimit.value,
+      );
+
+      if (reset) {
+        transactions.value = response.items;
+      } else {
+        transactions.value = [...transactions.value, ...response.items];
+      }
+
+      transactionsTotal.value = response.total;
+      transactionsOffset.value = response.offset + response.items.length;
+      transactionsHasMore.value = response.has_more;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Ошибка загрузки транзакций';
+    } finally {
+      isTransactionsLoading.value = false;
+    }
+  }
+
+  /**
    * Обновить профиль пользователя
    */
   async function updateProfile(
@@ -134,6 +190,11 @@ export const useUserStore = defineStore('user', () => {
     stats.value = null;
     referralData.value = null;
     referralProgram.value = null;
+    transactions.value = [];
+    transactionsTotal.value = 0;
+    transactionsOffset.value = 0;
+    transactionsHasMore.value = true;
+    isTransactionsLoading.value = false;
     error.value = null;
   }
 
@@ -143,6 +204,10 @@ export const useUserStore = defineStore('user', () => {
     stats,
     referralData,
     referralProgram,
+    transactions,
+    transactionsTotal,
+    transactionsHasMore,
+    isTransactionsLoading,
     isLoading,
     error,
 
@@ -156,6 +221,7 @@ export const useUserStore = defineStore('user', () => {
     fetchStats,
     fetchReferralData,
     fetchReferralProgram,
+    fetchTransactions,
     updateProfile,
     completeOnboarding,
     updateBalance,

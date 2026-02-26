@@ -1,5 +1,6 @@
 import { api } from 'src/boot/axios';
 import type { ReferralProgramData, UserOut, UserStats, UserUpdate } from 'src/types/user.interface';
+import type { TransactionListResponse } from 'src/types/transaction.interface';
 
 /**
  * API пользователей.
@@ -64,6 +65,19 @@ export const usersApi = {
     const response = await api.post<{ key: string; promo_code: string }>(
       `/users/me/referral-program/${tierKey}/generate`,
     );
+    return response.data;
+  },
+
+  /**
+   * Получить историю транзакций текущего пользователя.
+   */
+  async getTransactions(
+    offset = 0,
+    limit = 20,
+  ): Promise<TransactionListResponse> {
+    const response = await api.get<TransactionListResponse>('/users/me/transactions', {
+      params: { offset, limit },
+    });
     return response.data;
   },
 };

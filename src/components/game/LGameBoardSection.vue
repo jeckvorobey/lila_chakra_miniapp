@@ -1,5 +1,5 @@
 <template>
-  <div class="l-game-board-section">
+  <div class="row justify-center items-center">
     <l-board
       :current-cell="currentCell"
       :transition="gameStore.activeTransition"
@@ -103,11 +103,3 @@ defineExpose({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.l-game-board-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

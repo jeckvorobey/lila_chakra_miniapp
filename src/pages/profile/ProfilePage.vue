@@ -30,6 +30,15 @@
       </q-card-section>
     </q-card>
 
+    <TransactionHistory class="q-mb-sm" />
+    <q-btn
+      class="full-width q-mb-md"
+      color="primary"
+      unelevated
+      :label="$t('profile.top_up_balance')"
+      @click="$router.push('/profile/payment')"
+    />
+
     <!-- Stats -->
     <div class="row q-gutter-sm q-mb-md">
       <q-card flat bordered class="col bg-surface">
@@ -252,6 +261,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import TransactionHistory from 'src/components/profile/TransactionHistory.vue';
 import { useUserStore } from 'src/stores/user.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useAuthStore } from 'src/stores/auth.store';

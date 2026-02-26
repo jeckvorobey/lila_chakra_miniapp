@@ -1,10 +1,10 @@
 <template>
-  <q-page class="game-page column no-wrap full-height">
+  <q-page class="column no-wrap full-height q-pa-sm">
     <!-- Нет активной игры -->
     <l-game-empty-state v-if="showEmptyState" />
 
     <!-- Активная игра -->
-    <l-game-active-state v-else class="col" />
+    <l-game-active-state v-else class="col"/>
   </q-page>
 </template>
 
