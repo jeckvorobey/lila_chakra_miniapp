@@ -208,6 +208,8 @@ export default {
     completed: 'Completed',
     abandoned: 'Abandoned',
     magic_time: 'Magic time remaining',
+    meditation: 'Meditation',
+    report: 'Report',
     filter: {
       all: 'All',
       active: 'Active',
@@ -288,9 +290,20 @@ export default {
   },
 
   finale: {
-    title: 'Epic Finale',
-    subtitle: 'Your path is complete. Capture your summary, 72-hour plan, and journey artwork.',
-    summary_block: 'Epic Summary',
+    title: 'Report',
+    summary_title: '🎉 Congratulations! ✨',
+    summary_line1:
+      'Reaching cell 68 means your journey through the space of Lila is complete.',
+    summary_line2:
+      'This is not just a final point — it is a moment of integrating the experiences, insights and inner transformations that revealed themselves to you throughout the game.',
+    summary_line3:
+      'I hope this journey helped you find inner clarity, see yourself more deeply and understand exactly what actions will lead you to the realisation of your intention:',
+    summary_stats_moves: '{count} steps of awareness and choice',
+    summary_stats_arrows: '{count} — moments of support, trust and expansion',
+    summary_stats_snakes: '{count} — important lessons returning you to the true direction',
+    summary_line4:
+      'Every cell was a reflection of your inner state. Every transition — an invitation to awakening. And now you are where you are ready to see more and act consciously.',
+    summary_footer: '🌸 The journey is complete. Awakening has begun.',
     plan_block: 'Magical 72 Hours',
     art_block: 'AI Journey Art',
     generate_summary: 'Generate Summary',

@@ -31,12 +31,8 @@
         </q-btn>
       </div>
       <q-timeline v-if="timelineEntries.length > 0" color="primary">
-        <q-timeline-entry
-          v-for="entry in timelineEntries"
-          :key="entry.key"
-          :icon="getEntryIcon(entry)"
-          :color="getEntryColor(entry)"
-        >
+        <q-timeline-entry v-for="entry in timelineEntries" :key="entry.key" :icon="getEntryIcon(entry)"
+          :color="getEntryColor(entry)">
           <template #title>
             <div class="row items-center">
               <span>{{ getEntryTitle(entry) }}</span>
@@ -68,9 +64,18 @@
 
       <!-- Действия -->
       <div class="diary-detail__actions">
-        <q-btn v-if="isCurrentGameActive" :label="$t('game.continue_game')" color="primary" unelevated
+        <q-btn v-if="isCurrentGameActive" outline :label="$t('game.continue_game')" color="primary" unelevated
           class="full-width q-mb-sm" @click="continueGame" />
-        <q-btn v-if="!isCurrentGameActive && !hasAnyActiveGame" :label="$t('game.new_game')" color="primary" outline
+        <div v-if="game?.status === 'completed'" class="row q-col-gutter-sm q-mb-sm">
+          <div v-if="!game.exit_meditation_completed" class="col">
+            <q-btn :label="$t('diary.meditation')" color="secondary" outline class="full-width"
+              @click="navigateToMeditation" />
+          </div>
+          <div class="col">
+            <q-btn :label="$t('diary.report')" color="accent" class="full-width" outline @click="navigateToReport" />
+          </div>
+        </div>
+        <q-btn v-if="!isCurrentGameActive && !hasAnyActiveGame" outline :label="$t('game.new_game')" color="primary"
           class="full-width" @click="$router.push('/game/new')" />
       </div>
     </template>
@@ -82,6 +87,7 @@ import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { useGameStore } from 'src/stores/game.store';
 import { gamesApi, movesApi } from 'src/services/api';
 import type { GameDetail, MoveOut } from 'src/types/game.interface';
 import { isActiveGameStatus } from 'src/data/game-status';
@@ -97,6 +103,7 @@ const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
 const referenceStore = useReferenceStore();
+const gameStore = useGameStore();
 
 const game = ref<GameDetail | null>(null);
 const moves = ref<MoveOut[]>([]);
@@ -181,6 +188,18 @@ async function ensureCellNamesLoaded(entries: DiaryTimelineEntry[]): Promise<voi
 
 function continueGame() {
   void router.push('/game');
+}
+
+async function navigateToMeditation() {
+  if (!game.value) return;
+  await gameStore.loadGame(game.value.id);
+  void router.push('/game/meditation/exit');
+}
+
+async function navigateToReport() {
+  if (!game.value) return;
+  await gameStore.loadGame(game.value.id);
+  void router.push(`/game/final/${game.value.id}`);
 }
 
 async function toggleSort() {

@@ -140,7 +140,8 @@ function openInsightModal(): void {
   });
 }
 
-function goToExitMeditation(): void {
+async function goToExitMeditation(): Promise<void> {
+  await gameStore.endGame();
   void router.push('/game/meditation/exit');
 }
 

@@ -1,12 +1,34 @@
 <template>
-  <q-page class="q-pa-md finale-page">
-    <div class="finale-container q-mx-auto">
-      <div class="text-h5 text-weight-bold q-mb-sm">
-        {{ t('finale.title') }}
-      </div>
-      <div class="text-body2 text-secondary q-mb-lg">
-        {{ t('finale.subtitle') }}
-      </div>
+  <q-page class="q-pa-sm">
+    <div class="q-mx-auto">
+      <q-card class="q-pa-md q-mb-md" flat bordered>
+        <div class="text-h5 text-weight-bold q-mb-lg">
+          {{ t('finale.summary_title') }}
+        </div>
+        <p class="text-body2 q-mb-sm">{{ t('finale.summary_line1') }}</p>
+        <p class="text-body2 q-mb-md">{{ t('finale.summary_line2') }}</p>
+        <p class="text-body2 q-mb-md">{{ t('finale.summary_line3') }}</p>
+        <p v-if="gameData" class="text-body1 text-weight-bold q-mb-md q-pl-sm"
+          style="border-left: 3px solid var(--q-primary)">
+          {{ gameData.query }}
+        </p>
+        <div v-if="gameData" class="q-mb-md">
+          <div class="row items-center q-mb-xs q-gutter-x-sm no-wrap">
+            <q-icon name="mdi-dice-multiple" color="primary" size="18px" />
+            <span class="text-body2">{{ t('finale.summary_stats_moves', { count: gameData.total_moves }) }}</span>
+          </div>
+          <div class="row items-center q-mb-xs q-gutter-x-sm no-wrap">
+            <q-icon name="mdi-arrow-up-bold" color="positive" size="18px" />
+            <span class="text-body2">{{ t('finale.summary_stats_arrows', { count: gameData.arrows_hit }) }}</span>
+          </div>
+          <div class="row items-center q-gutter-x-sm no-wrap">
+            <q-icon name="mdi-snake" color="negative" size="18px" />
+            <span class="text-body2">{{ t('finale.summary_stats_snakes', { count: gameData.snakes_hit }) }}</span>
+          </div>
+        </div>
+        <p class="text-body2 q-mb-sm">{{ t('finale.summary_line4') }}</p>
+        <p class="text-body2 text-weight-medium">{{ t('finale.summary_footer') }}</p>
+      </q-card>
 
       <div v-if="isLoading" class="row justify-center q-py-xl">
         <q-spinner color="primary" size="42px" />
@@ -22,25 +44,10 @@
       </div>
 
       <template v-else-if="finaleState">
-        <q-card flat bordered class="q-mb-md bg-surface">
-          <q-card-section>
-            <div class="text-overline text-secondary">
-              {{ t('finale.summary_block') }}
-            </div>
-            <div v-if="summary" class="text-body1 q-mt-sm" style="white-space: pre-wrap;">
-              {{ summary.epic_summary }}
-            </div>
-            <div v-else class="row items-center q-gutter-sm q-mt-sm">
-              <q-btn
-                color="primary"
-                unelevated
-                :label="t('finale.generate_summary')"
-                :loading="isGeneratingSummary"
-                @click="generateSummary"
-              />
-            </div>
-          </q-card-section>
-        </q-card>
+        <div v-if="!summary" class="row items-center q-gutter-sm q-mb-md">
+          <q-btn color="primary" unelevated :label="t('finale.generate_summary')" :loading="isGeneratingSummary"
+            @click="generateSummary" />
+        </div>
 
         <q-card v-if="summary" flat bordered class="q-mb-md bg-surface">
           <q-card-section>
@@ -87,35 +94,16 @@
 
             <div class="row q-col-gutter-sm q-mt-md">
               <div class="col-12 col-sm-4">
-                <q-btn
-                  class="full-width"
-                  color="primary"
-                  unelevated
-                  :loading="isStartingImage"
-                  :disable="!canGenerateImage"
-                  :label="t('finale.generate_image')"
-                  @click="startImageGeneration"
-                />
+                <q-btn class="full-width" color="primary" unelevated :loading="isStartingImage"
+                  :disable="!canGenerateImage" :label="t('finale.generate_image')" @click="startImageGeneration" />
               </div>
               <div class="col-12 col-sm-4">
-                <q-btn
-                  class="full-width"
-                  outline
-                  color="primary"
-                  :disable="!finaleState.image.latest_artifact"
-                  :label="t('finale.download')"
-                  @click="downloadCurrentArtifact"
-                />
+                <q-btn class="full-width" outline color="secondary" :disable="!finaleState.image.latest_artifact"
+                  :label="t('finale.download')" @click="downloadCurrentArtifact" />
               </div>
               <div class="col-12 col-sm-4">
-                <q-btn
-                  class="full-width"
-                  outline
-                  color="secondary"
-                  :disable="!finaleState.image.latest_artifact"
-                  :label="t('finale.share')"
-                  @click="shareCurrentArtifact"
-                />
+                <q-btn class="full-width" outline color="accent" :disable="!finaleState.image.latest_artifact"
+                  :label="t('finale.share')" @click="shareCurrentArtifact" />
               </div>
             </div>
           </q-card-section>
@@ -131,13 +119,14 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { gamesApi } from 'src/services/api';
-import type { GameFinaleState, GameFinaleSummary, GameFinaleImageJob } from 'src/types/game.interface';
+import type { GameFinaleState, GameFinaleSummary, GameFinaleImageJob, GameDetail } from 'src/types/game.interface';
 
 const route = useRoute();
 const { t } = useI18n();
 const $q = useQuasar();
 
 const finaleState = ref<GameFinaleState | null>(null);
+const gameData = ref<GameDetail | null>(null);
 const isLoading = ref(false);
 const isGeneratingSummary = ref(false);
 const isStartingImage = ref(false);
@@ -161,7 +150,12 @@ async function loadFinaleState(): Promise<void> {
   isLoading.value = true;
   errorMessage.value = '';
   try {
-    finaleState.value = await gamesApi.getFinaleState(gameId.value);
+    const [state, game] = await Promise.all([
+      gamesApi.getFinaleState(gameId.value),
+      gamesApi.get(gameId.value),
+    ]);
+    finaleState.value = state;
+    gameData.value = game;
     if (!finaleState.value.summary) {
       await generateSummary();
     }
@@ -324,15 +318,3 @@ onUnmounted(() => {
   clearArtifactPreview();
 });
 </script>
-
-<style scoped>
-.finale-page {
-  background: radial-gradient(circle at 10% 10%, rgba(255, 200, 120, 0.1), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(120, 180, 255, 0.1), transparent 45%),
-    var(--lila-bg);
-}
-
-.finale-container {
-  max-width: 760px;
-}
-</style>

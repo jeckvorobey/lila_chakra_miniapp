@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import { useGameStore } from 'src/stores/game.store';
 // import { isInTelegram } from 'src/boot/telegram';
 
 /*
@@ -43,6 +44,21 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   //
   //   return true;
   // });
+
+  // Защита маршрутов: финал и медитация выхода доступны только при завершённой игре.
+  Router.beforeEach((to) => {
+    const isFinale = to.name === 'game-final';
+    const isExitMeditation = to.name === 'meditation' && to.params['type'] === 'exit';
+
+    if (isFinale || isExitMeditation) {
+      const gameStore = useGameStore();
+      if (!gameStore.isGameCompleted) {
+        return { name: 'game' };
+      }
+    }
+
+    return true;
+  });
 
   return Router;
 });
