@@ -49,6 +49,12 @@
                   </q-item-section>
                   <q-item-section>{{ $t('profile.rules') }}</q-item-section>
                 </q-item>
+                <q-item v-close-popup clickable @click="openTransactions">
+                  <q-item-section avatar>
+                    <q-icon name="mdi-history" />
+                  </q-item-section>
+                  <q-item-section>{{ $t('profile.transactions_title') }}</q-item-section>
+                </q-item>
                 <q-separator />
                 <q-item v-close-popup clickable @click="openFeedback">
                   <q-item-section avatar>
@@ -121,7 +127,11 @@ function navigateTo(path: string) {
 }
 
 function openRules() {
-  void router.push('/rules');
+  void router.push('/profile/rules');
+}
+
+function openTransactions() {
+  void router.push('/profile/transactions');
 }
 
 function openFeedback() {

@@ -85,6 +85,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/profile/RulesPage.vue'),
         meta: { title: 'rules.title', showBack: true },
       },
+      {
+        path: 'profile/transactions',
+        name: 'transactions',
+        component: () => import('pages/profile/TransactionsPage.vue'),
+        meta: { title: 'profile.transactions_title', showBack: true },
+      },
 
       // {
       //   path: 'telegram-required',

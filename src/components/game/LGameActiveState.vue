@@ -10,7 +10,7 @@
       </q-card-section>
     </q-card>
 
-    <q-card-section class="col q-px-none q-py-sm items-center justify-center">
+    <q-card-section class="col q-px-none q-py-sm row items-center justify-center">
       <l-game-board-section
         :current-cell="gameStore.displayCell"
       />

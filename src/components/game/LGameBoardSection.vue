@@ -1,5 +1,5 @@
 <template>
-  <div class="row justify-center items-center">
+  <div class="col">
     <l-board
       :current-cell="currentCell"
       :transition="gameStore.activeTransition"
