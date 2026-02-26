@@ -33,7 +33,7 @@
           <span class="text-body2 text-secondary">{{ t('dice.waiting_for_6') }}</span>
         </div>
 
-        <div class="row justify-center q-gutter-sm">
+        <div v-if="currentCell !== 68" class="row justify-center q-gutter-sm">
           <q-btn
             :label="t('dice.roll')"
             color="primary"
@@ -47,7 +47,7 @@
           />
         </div>
 
-        <div class="row justify-center q-mt-md">
+        <div v-if="currentCell !== 68" class="row justify-center q-mt-md">
           <q-btn
             :label="t('game.end_game')"
             color="negative"
