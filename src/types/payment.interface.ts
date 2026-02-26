@@ -3,6 +3,7 @@ export interface PaymentPackage {
   amount_tkn: number;
   bonus_tkn: number;
   label: string;
+  discount?: string;
 }
 
 export interface PaymentCreate {
