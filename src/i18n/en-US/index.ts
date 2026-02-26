@@ -322,6 +322,7 @@ export default {
     save: 'Save',
     close: 'Close',
     write_insight: 'Write Insight',
+    add_insight: 'Add to Insight',
     share: 'Share',
   },
 

@@ -14,21 +14,12 @@
     </template>
 
     <div class="q-pa-md">
-      <template v-if="isVictoryCell">
-        <div class="text-h6 text-center q-mb-sm">
-          {{ t('finale.victory_title') }}
-        </div>
-        <p class="text-body1 text-center text-secondary q-mb-none">
-          {{ t('finale.victory_message') }}
-        </p>
-      </template>
-
-      <template v-else>
+      <template>
         <l-transition-banner v-if="cellId" :cell-id="cellId" />
         <l-cell-keywords v-if="currentCellInfo" :keywords="cellKeywords" />
       </template>
 
-      <div v-if="cellDescription && !isVictoryCell" class="q-mb-md">
+      <div v-if="cellDescription" class="q-mb-md">
         <div class="text-overline text-secondary q-mb-xs">
           {{ t('cell.description') }}
         </div>
@@ -76,7 +67,7 @@
       <div class="row q-col-gutter-sm full-width">
         <div :class="isVictoryCell ? 'col-12 col-sm-6' : 'col-12'">
           <q-btn
-            :label="currentMoveInsight ? 'Дополнить инсайт' : t('actions.write_insight')"
+            :label="currentMoveInsight ? t('actions.add_insight') : t('actions.write_insight')"
             color="primary"
             icon="mdi-pencil"
             unelevated
@@ -88,7 +79,7 @@
         <div v-if="isVictoryCell" class="col-12 col-sm-6">
           <q-btn
             :label="t('actions.continue')"
-            color="secondary"
+            color="accent"
             unelevated
             class="full-width"
             data-testid="victory-continue-btn"
@@ -148,7 +139,7 @@ const isOpen = computed({
 
 const cellId = computed(() => props.currentCellInfo?.id ?? 0);
 const isVictoryCell = computed(
-  () => cellId.value === 68 && gameStore.currentGame?.status === 'completed',
+  () => cellId.value === 68,
 );
 
 const cellName = computed(() => {
