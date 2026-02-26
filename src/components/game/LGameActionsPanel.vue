@@ -3,11 +3,8 @@
     <q-card flat bordered class="bg-surface">
       <q-card-section class="q-pa-md">
         <div class="row items-center q-mb-md">
-          <q-avatar
-            :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]"
-            size="40px"
-            :text-color="currentCellAvatarTextColor"
-          >
+          <q-avatar :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]" size="40px"
+            :text-color="currentCellAvatarTextColor">
             {{ currentCell }}
           </q-avatar>
           <div class="col">
@@ -18,14 +15,8 @@
               {{ currentChakraLabel }}
             </div>
           </div>
-          <q-btn
-            flat
-            round
-            dense
-            icon="mdi-information-outline"
-            data-testid="current-cell-info-btn"
-            @click="showCellInfoModal = true"
-          />
+          <q-btn flat round dense icon="mdi-information-outline" data-testid="current-cell-info-btn"
+            @click="showCellInfoModal = true" />
         </div>
 
         <div v-if="isWaitingForSix" class="text-center q-mb-md">
@@ -34,50 +25,26 @@
         </div>
 
         <div v-if="currentCell !== 68" class="row justify-center q-gutter-sm">
-          <q-btn
-            :label="t('dice.roll')"
-            color="primary"
-            size="lg"
-            unelevated
-            icon="mdi-dice-multiple"
-            class="q-px-xl"
-            :disable="gameStore.isChipAnimating"
-            data-testid="open-dice-modal-btn"
-            @click="showDiceModal = true"
-          />
+          <q-btn :label="t('dice.roll')" color="primary" size="lg" unelevated icon="mdi-dice-multiple" class="q-px-xl"
+            :disable="gameStore.isChipAnimating" data-testid="open-dice-modal-btn" @click="showDiceModal = true" />
         </div>
 
         <div v-if="currentCell !== 68" class="row justify-center q-mt-md">
-          <q-btn
-            :label="t('game.end_game')"
-            color="negative"
-            flat
-            size="sm"
-            :loading="isEndingGame"
-            data-testid="end-game-btn"
-            @click="confirmEndGame"
-          />
+          <q-btn :label="t('game.end_game')" color="negative" flat size="sm" :loading="isEndingGame"
+            data-testid="end-game-btn" @click="confirmEndGame" />
         </div>
       </q-card-section>
     </q-card>
 
-    <l-dice-roll-modal
-      v-model="showDiceModal"
-      @roll-finished="onRollFinished"
-    />
+    <l-dice-roll-modal v-model="showDiceModal" @roll-finished="onRollFinished" />
 
-    <l-cell-info
-      v-model="showCellInfoModal"
-      :current-cell-info="currentCellInfo"
-      :game-mode="gameMode"
-      @write-insight="openInsightModal"
-      @go-next="goToExitMeditation"
-    />
+    <l-cell-info v-model="showCellInfoModal" :current-cell-info="currentCellInfo" :game-mode="gameMode"
+      @write-insight="openInsightModal" @go-next="goToExitMeditation" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
@@ -124,6 +91,12 @@ const currentCellTitle = computed(() => {
 const currentChakraLabel = computed(() =>
   props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
 );
+
+watchEffect(() => {
+  if (props.currentCell === 68) {
+    showCellInfoModal.value = true;
+  }
+});
 
 /**
  * Обработка завершения броска: анимация → уведомление → победа
