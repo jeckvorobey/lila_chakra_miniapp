@@ -306,6 +306,7 @@ export default {
     summary_footer: '🌸 The journey is complete. Awakening has begun.',
     plan_block: 'Magical 72 Hours',
     art_block: 'AI Journey Art',
+    mentor_button: 'AI Mentor',
     generate_summary: 'Generate Summary',
     generate_image: 'Generate AI Art',
     image_generating: 'Image generation is in progress...',

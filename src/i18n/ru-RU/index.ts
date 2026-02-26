@@ -311,6 +311,7 @@ export default {
     summary_footer: '🌸 Путь завершён. Осознание началось.',
     plan_block: 'Магические 72 часа',
     art_block: 'AI-арт пути',
+    mentor_button: 'ИИ ментор',
     generate_summary: 'Сгенерировать итог',
     generate_image: 'Сгенерировать AI-арт',
     image_generating: 'Генерация изображения в процессе...',

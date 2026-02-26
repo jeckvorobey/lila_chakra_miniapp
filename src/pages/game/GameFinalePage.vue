@@ -1,6 +1,7 @@
 <template>
   <q-page class="q-pa-sm">
     <div class="q-mx-auto">
+      <!-- Поздравление -->
       <q-card class="q-pa-md q-mb-md" flat bordered>
         <div class="text-h5 text-weight-bold q-mb-lg">
           {{ t('finale.summary_title') }}
@@ -45,10 +46,11 @@
 
       <template v-else-if="finaleState">
         <div v-if="!summary" class="row items-center q-gutter-sm q-mb-md">
-          <q-btn color="primary" unelevated :label="t('finale.generate_summary')" :loading="isGeneratingSummary"
+          <q-btn color="primary" unelevated :label="t('finale.mentor_button')" :loading="isGeneratingSummary"
             @click="generateSummary" />
         </div>
 
+        <!-- План на ближайшие 72 часа -->
         <q-card v-if="summary" flat bordered class="q-mb-md bg-surface">
           <q-card-section>
             <div class="text-overline text-secondary">
@@ -156,9 +158,6 @@ async function loadFinaleState(): Promise<void> {
     ]);
     finaleState.value = state;
     gameData.value = game;
-    if (!finaleState.value.summary) {
-      await generateSummary();
-    }
     await refreshArtifactPreview();
     syncPollingState();
   } catch (error) {
