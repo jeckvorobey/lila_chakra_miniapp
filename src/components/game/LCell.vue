@@ -193,9 +193,9 @@ function handleLongPress() {
     top: 50%;
     left: 50%;
     z-index: 1;
-    width: 62%;
-    height: 76%;
-    border-radius: 10px;
+    width: 68%;
+    height: 68%;
+    border-radius: 50%;
     transform: translate(-50%, -50%);
     background: var(--chip-color, #6b46c1);
     color: var(--chip-text-color, #ffffff);
