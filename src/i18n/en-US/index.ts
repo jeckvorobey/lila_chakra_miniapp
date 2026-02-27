@@ -305,8 +305,7 @@ export default {
   finale: {
     title: 'Report',
     summary_title: '🎉 Congratulations! ✨',
-    summary_line1:
-      'Reaching cell 68 means your journey through the space of Lila is complete.',
+    summary_line1: 'Reaching cell 68 means your journey through the space of Lila is complete.',
     summary_line2:
       'This is not just a final point — it is a moment of integrating the experiences, insights and inner transformations that revealed themselves to you throughout the game.',
     summary_line3:
@@ -408,7 +407,8 @@ export default {
     status_progress: 'Uses: {uses}/{max}',
     owner_bonus_pending: 'Pending owner bonus: {amount} TKN',
     bonus_earned: 'Bonuses earned',
-    share_message: "👋 Hey! 😊 I want to tell you about an amazing game called Lila 🎲 — it really helps you understand yourself and find your path 🌟 It gave me so much clarity and answers to important questions! I'm sure you'll love it too — join us! ✨🙏",
+    share_message:
+      "👋 Hey! 😊 I want to tell you about an amazing game called Lila 🎲 — it really helps you understand yourself and find your path 🌟 It gave me so much clarity and answers to important questions! I'm sure you'll love it too — join us! ✨🙏",
   },
 
   // Game Rules
@@ -450,10 +450,9 @@ export default {
       'If your token lands on the base of an arrow — it moves up to the tip. ' +
       'For example, landing on "Higher Goal" (№27) sends the player up to "Realization" (№41).',
     general_snake_rule:
-      'If your token lands on a snake\'s head — it slides down to the tail. ' +
+      "If your token lands on a snake's head — it slides down to the tail. " +
       'For example, Ego (№55) drops the player to Anger (№3).',
-    general_six_bonus:
-      'If you roll a six — take another turn.',
+    general_six_bonus: 'If you roll a six — take another turn.',
 
     // Goal
     goal_title: 'Goal and End of Game',
@@ -466,8 +465,7 @@ export default {
     // Analysis
     analysis_title: 'Analysing the Game',
     analysis_text:
-      'After the game, carefully review all the cells you visited. ' +
-      'Pay special attention to:',
+      'After the game, carefully review all the cells you visited. ' + 'Pay special attention to:',
     analysis_snakes: 'Cells with snakes that sent you down',
     analysis_repeat: 'Cells you landed on more than once',
     analysis_emotion: 'Cells that triggered the strongest emotions',
@@ -488,8 +486,7 @@ export default {
     mode_free_desc:
       'Play without AI interpretation. We recommend writing your thoughts and insights in a notebook.',
     mode_ai_title: 'With AI Mentor',
-    mode_ai_desc:
-      'Full AI interpretation of every move. All data is saved in your game diary.',
+    mode_ai_desc: 'Full AI interpretation of every move. All data is saved in your game diary.',
     mode_incognito_title: 'With AI Mentor (Incognito)',
     mode_incognito_desc:
       'AI interpretation without long-term storage. Only moves are saved; ' +
@@ -501,7 +498,6 @@ export default {
       'In any mode, you can ask the AI Mentor an additional question to get clarification on the interpretation.',
     tkn: 'TKN',
   },
-
 
   // About
   about: {

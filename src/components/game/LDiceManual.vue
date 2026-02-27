@@ -4,7 +4,10 @@
       {{ $t('dice.select_value') }}
     </div>
 
-    <div v-if="props.pendingRolls?.length" class="q-mb-md text-center">
+    <div
+      v-if="props.pendingRolls?.length"
+      class="q-mb-md text-center"
+    >
       <q-chip
         v-for="(roll, index) in props.pendingRolls"
         :key="`${roll}-${index}`"
@@ -16,7 +19,10 @@
       </q-chip>
     </div>
 
-    <div v-if="props.pendingMessage" class="q-mb-md text-warning text-center text-body2">
+    <div
+      v-if="props.pendingMessage"
+      class="q-mb-md text-warning text-center text-body2"
+    >
       {{ props.pendingMessage }}
     </div>
 

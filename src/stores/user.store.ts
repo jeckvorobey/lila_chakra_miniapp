@@ -5,7 +5,12 @@
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
 import { usersApi } from 'src/services/api';
-import type { ReferralProgramData, UserProfile, UserStats, UserUpdate } from 'src/types/user.interface';
+import type {
+  ReferralProgramData,
+  UserProfile,
+  UserStats,
+  UserUpdate,
+} from 'src/types/user.interface';
 import type { TransactionOut } from 'src/types/transaction.interface';
 
 export const useUserStore = defineStore('user', () => {
@@ -143,9 +148,7 @@ export const useUserStore = defineStore('user', () => {
   /**
    * Обновить профиль пользователя
    */
-  async function updateProfile(
-    updates: UserUpdate,
-  ): Promise<boolean> {
+  async function updateProfile(updates: UserUpdate): Promise<boolean> {
     isLoading.value = true;
     error.value = null;
 

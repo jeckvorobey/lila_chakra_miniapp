@@ -12,10 +12,12 @@
       class="l-chip__circle full-width full-height flex flex-center"
       :style="{
         background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
-        color: textColor
+        color: textColor,
       }"
     >
-      <div class="l-chip__inner full-width full-height relative-position flex flex-center overflow-hidden">
+      <div
+        class="l-chip__inner full-width full-height relative-position flex flex-center overflow-hidden"
+      >
         <!-- Внутреннее свечение и блик -->
         <div class="l-chip__highlight absolute"></div>
         <span class="l-chip__text text-weight-bold z-top">{{ position }}</span>
@@ -23,8 +25,16 @@
     </div>
 
     <!-- Эффекты частиц во время переходов -->
-    <div v-if="isMoving" class="l-chip__particles">
-      <span v-for="i in 6" :key="i" class="l-chip__particle" :style="particleStyle(i)" />
+    <div
+      v-if="isMoving"
+      class="l-chip__particles"
+    >
+      <span
+        v-for="i in 6"
+        :key="i"
+        class="l-chip__particle"
+        :style="particleStyle(i)"
+      />
     </div>
   </div>
 </template>
@@ -100,7 +110,7 @@ function particleStyle(index: number) {
 
   &__circle {
     border-radius: 50%;
-    box-shadow: inset 0 -2px 6px rgba(0,0,0,0.3);
+    box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
   }
 
@@ -113,14 +123,14 @@ function particleStyle(index: number) {
     left: 20%;
     right: 20%;
     height: 40%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
     border-radius: 50%;
     pointer-events: none;
   }
 
   &__text {
     font-size: 16px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   // Состояние движения
@@ -128,7 +138,9 @@ function particleStyle(index: number) {
     animation: chip-move 0.8s ease-out;
 
     .l-chip__circle {
-      box-shadow: inset 0 -2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(255,255,255,0.8);
+      box-shadow:
+        inset 0 -2px 6px rgba(0, 0, 0, 0.5),
+        0 0 8px rgba(255, 255, 255, 0.8);
     }
   }
 

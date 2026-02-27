@@ -1,10 +1,17 @@
 <template>
   <div class="full-width">
-    <q-card flat bordered class="bg-surface">
+    <q-card
+      flat
+      bordered
+      class="bg-surface"
+    >
       <q-card-section class="q-pa-md">
         <div class="row items-center q-mb-md">
-          <q-avatar :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]" size="40px"
-            :text-color="currentCellAvatarTextColor">
+          <q-avatar
+            :class="['text-weight-bold q-mr-sm', currentCellAvatarBgClass]"
+            size="40px"
+            :text-color="currentCellAvatarTextColor"
+          >
             {{ currentCell }}
           </q-avatar>
           <div class="col">
@@ -15,31 +22,75 @@
               {{ currentChakraLabel }}
             </div>
           </div>
-          <q-btn flat round dense icon="mdi-information-outline" data-testid="current-cell-info-btn"
-            @click="showCellInfoModal = true" />
+          <q-btn
+            flat
+            round
+            dense
+            icon="mdi-information-outline"
+            data-testid="current-cell-info-btn"
+            @click="showCellInfoModal = true"
+          />
         </div>
 
-        <div v-if="isWaitingForSix" class="text-center q-mb-md">
-          <q-icon name="mdi-dice-6" size="24px" color="warning" class="q-mr-sm" />
+        <div
+          v-if="isWaitingForSix"
+          class="text-center q-mb-md"
+        >
+          <q-icon
+            name="mdi-dice-6"
+            size="24px"
+            color="warning"
+            class="q-mr-sm"
+          />
           <span class="text-body2 text-secondary">{{ t('dice.waiting_for_6') }}</span>
         </div>
 
-        <div v-if="currentCell !== 68" class="row justify-center q-gutter-sm">
-          <q-btn :label="t('dice.roll')" color="primary" size="lg" unelevated icon="mdi-dice-multiple" class="q-px-xl"
-            :disable="gameStore.isChipAnimating" data-testid="open-dice-modal-btn" @click="showDiceModal = true" />
+        <div
+          v-if="currentCell !== 68"
+          class="row justify-center q-gutter-sm"
+        >
+          <q-btn
+            :label="t('dice.roll')"
+            color="primary"
+            size="lg"
+            unelevated
+            icon="mdi-dice-multiple"
+            class="q-px-xl"
+            :disable="gameStore.isChipAnimating"
+            data-testid="open-dice-modal-btn"
+            @click="showDiceModal = true"
+          />
         </div>
 
-        <div v-if="currentCell !== 68" class="row justify-center q-mt-md">
-          <q-btn :label="t('game.end_game')" color="negative" flat size="sm" :loading="isEndingGame"
-            data-testid="end-game-btn" @click="confirmEndGame" />
+        <div
+          v-if="currentCell !== 68"
+          class="row justify-center q-mt-md"
+        >
+          <q-btn
+            :label="t('game.end_game')"
+            color="negative"
+            flat
+            size="sm"
+            :loading="isEndingGame"
+            data-testid="end-game-btn"
+            @click="confirmEndGame"
+          />
         </div>
       </q-card-section>
     </q-card>
 
-    <l-dice-roll-modal v-model="showDiceModal" @roll-finished="onRollFinished" />
+    <l-dice-roll-modal
+      v-model="showDiceModal"
+      @roll-finished="onRollFinished"
+    />
 
-    <l-cell-info v-model="showCellInfoModal" :current-cell-info="currentCellInfo" :game-mode="gameMode"
-      @write-insight="openInsightModal" @go-next="goToExitMeditation" />
+    <l-cell-info
+      v-model="showCellInfoModal"
+      :current-cell-info="currentCellInfo"
+      :game-mode="gameMode"
+      @write-insight="openInsightModal"
+      @go-next="goToExitMeditation"
+    />
   </div>
 </template>
 

@@ -1,7 +1,10 @@
 <template>
   <q-page class="diary-page lila-page-nav-offset">
     <!-- Список игр -->
-    <q-list v-if="orderedGames.length > 0" class="q-gutter-sm">
+    <q-list
+      v-if="orderedGames.length > 0"
+      class="q-gutter-sm"
+    >
       <q-card
         v-for="game in orderedGames"
         :key="game.id"
@@ -35,7 +38,11 @@
               <q-tooltip>{{ $t('diary.report') }}</q-tooltip>
             </q-btn>
             <!-- Прогресс -->
-            <q-chip size="sm" color="primary" text-color="white">
+            <q-chip
+              size="sm"
+              color="primary"
+              text-color="white"
+            >
               {{ game.current_cell }}/72
             </q-chip>
           </div>
@@ -46,13 +53,25 @@
           </div>
 
           <!-- Категория -->
-            <q-chip size="sm" outline color="grey">
+          <q-chip
+            size="sm"
+            outline
+            color="grey"
+          >
             {{ $t(`query.category.${game.category}`) }}
           </q-chip>
 
           <!-- Магическое время (для завершённых игр) -->
-          <div v-if="game.status === 'completed' && game.magic_time_remaining" class="q-mt-sm">
-            <q-icon name="mdi-clock-outline" size="14px" color="warning" class="q-mr-xs" />
+          <div
+            v-if="game.status === 'completed' && game.magic_time_remaining"
+            class="q-mt-sm"
+          >
+            <q-icon
+              name="mdi-clock-outline"
+              size="14px"
+              color="warning"
+              class="q-mr-xs"
+            />
             <span class="text-caption text-warning">
               {{ $t('diary.magic_time') }}: {{ game.magic_time_remaining }}
             </span>
@@ -62,8 +81,16 @@
     </q-list>
 
     <!-- Пустое состояние -->
-    <div v-else class="diary-page__empty column items-center justify-center">
-      <q-icon name="mdi-book-open-variant" size="64px" color="grey-5" class="q-mb-md" />
+    <div
+      v-else
+      class="diary-page__empty column items-center justify-center"
+    >
+      <q-icon
+        name="mdi-book-open-variant"
+        size="64px"
+        color="grey-5"
+        class="q-mb-md"
+      />
       <p class="text-body1 text-secondary text-center">
         {{ $t('diary.empty') }}
       </p>

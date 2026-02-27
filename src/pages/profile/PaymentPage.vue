@@ -1,18 +1,38 @@
 <template>
   <q-page class="payment-page lila-page-nav-offset">
-    <q-card flat bordered class="q-mb-md text-center">
+    <q-card
+      flat
+      bordered
+      class="q-mb-md text-center"
+    >
       <q-card-section>
         <div class="text-subtitle2 text-secondary">{{ $t('profile.balance') }}</div>
         <div class="text-h5 text-weight-bold text-primary">{{ userStore.balance }} ТКН</div>
       </q-card-section>
     </q-card>
 
-    <q-card flat bordered class="q-mb-md">
+    <q-card
+      flat
+      bordered
+      class="q-mb-md"
+    >
       <q-card-section>
-        <q-input v-model="promoCode" dense outlined :label="$t('payment.promo_code')" :disable="isApplyingPromo">
+        <q-input
+          v-model="promoCode"
+          dense
+          outlined
+          :label="$t('payment.promo_code')"
+          :disable="isApplyingPromo"
+        >
           <template #append>
-            <q-btn flat color="primary" :label="$t('payment.apply')" :loading="isApplyingPromo"
-              :disable="!promoCode.trim()" @click="applyPromoCode" />
+            <q-btn
+              flat
+              color="primary"
+              :label="$t('payment.apply')"
+              :loading="isApplyingPromo"
+              :disable="!promoCode.trim()"
+              @click="applyPromoCode"
+            />
           </template>
         </q-input>
       </q-card-section>
@@ -20,20 +40,50 @@
 
     <!-- Сетка пакетов -->
     <div class="text-subtitle2 text-weight-medium q-mb-md">Выберите пакет</div>
-    <div v-if="isLoading" class="q-mb-md">
-      <q-skeleton type="rect" height="120px" class="q-mb-sm" />
-      <q-skeleton type="rect" height="120px" />
+    <div
+      v-if="isLoading"
+      class="q-mb-md"
+    >
+      <q-skeleton
+        type="rect"
+        height="120px"
+        class="q-mb-sm"
+      />
+      <q-skeleton
+        type="rect"
+        height="120px"
+      />
     </div>
-    <div v-else class="row q-col-gutter-sm q-mb-md">
-      <div v-for="pkg in packages" :key="pkg.amount_rub" class="col-4">
-        <q-card flat bordered class="payment-page__package full-height"
+    <div
+      v-else
+      class="row q-col-gutter-sm q-mb-md"
+    >
+      <div
+        v-for="pkg in packages"
+        :key="pkg.amount_rub"
+        class="col-4"
+      >
+        <q-card
+          flat
+          bordered
+          class="payment-page__package full-height"
           :class="{ 'payment-page__package--selected': selectedPackage === pkg.amount_rub }"
-          @click="selectedPackage = pkg.amount_rub">
+          @click="selectedPackage = pkg.amount_rub"
+        >
           <q-card-section class="text-center q-pa-sm relative-position">
-            <q-badge v-if="pkg.discount" color="secondary" floating class="payment-page__discount-badge">
+            <q-badge
+              v-if="pkg.discount"
+              color="secondary"
+              floating
+              class="payment-page__discount-badge"
+            >
               {{ pkg.discount }}
             </q-badge>
-            <q-badge v-else-if="pkg.bonus_tkn > 0" color="positive" floating>
+            <q-badge
+              v-else-if="pkg.bonus_tkn > 0"
+              color="positive"
+              floating
+            >
               +{{ pkg.bonus_tkn }}
             </q-badge>
             <div class="text-h6 text-weight-bold text-primary">{{ pkg.amount_tkn }}</div>
@@ -46,7 +96,11 @@
     </div>
 
     <!-- Итоговая информация -->
-    <q-card flat bordered class="q-mb-md">
+    <q-card
+      flat
+      bordered
+      class="q-mb-md"
+    >
       <q-card-section>
         <div class="row justify-between q-mb-sm">
           <span>Пакет</span>
@@ -61,13 +115,25 @@
     </q-card>
 
     <!-- Кнопка оплаты -->
-    <q-btn :label="$t('payment.proceed')" color="primary" size="lg" unelevated class="full-width"
-      :loading="isProcessing" :disable="!selectedPackage" @click="processPayment" />
+    <q-btn
+      :label="$t('payment.proceed')"
+      color="primary"
+      size="lg"
+      unelevated
+      class="full-width"
+      :loading="isProcessing"
+      :disable="!selectedPackage"
+      @click="processPayment"
+    />
 
     <!-- Информация о способах оплаты -->
     <div class="text-center q-mt-lg">
       <div class="text-caption text-secondary q-mb-sm">Безопасная оплата через</div>
-      <q-img src="/icons/yookassa-logo.svg" width="120px" class="q-mx-auto" />
+      <q-img
+        src="/icons/yookassa-logo.svg"
+        width="120px"
+        class="q-mx-auto"
+      />
     </div>
   </q-page>
 </template>

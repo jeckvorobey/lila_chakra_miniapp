@@ -15,7 +15,10 @@
     @click="handleClick"
   >
     <slot />
-    <template v-if="loading" #loading>
+    <template
+      v-if="loading"
+      #loading
+    >
       <q-spinner-dots size="20px" />
     </template>
   </q-btn>
@@ -94,7 +97,7 @@ function handleClick(event: Event) {
 </script>
 
 <style lang="scss" scoped>
-@use "sass:color";
+@use 'sass:color';
 
 .l-btn {
   font-weight: 600;
@@ -124,7 +127,11 @@ function handleClick(event: Event) {
 
   // Варианты
   &--primary {
-    background: linear-gradient(135deg, $primary, color.adjust($primary, $lightness: -10%)) !important;
+    background: linear-gradient(
+      135deg,
+      $primary,
+      color.adjust($primary, $lightness: -10%)
+    ) !important;
 
     &:hover:not(:disabled) {
       filter: brightness(1.1);
@@ -149,7 +156,11 @@ function handleClick(event: Event) {
   }
 
   &--danger {
-    background: linear-gradient(135deg, $negative, color.adjust($negative, $lightness: -10%)) !important;
+    background: linear-gradient(
+      135deg,
+      $negative,
+      color.adjust($negative, $lightness: -10%)
+    ) !important;
 
     &:hover:not(:disabled) {
       filter: brightness(1.1);

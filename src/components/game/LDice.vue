@@ -246,7 +246,9 @@ async function doLanding(face: number): Promise<void> {
     height: 20px;
     background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
     border-radius: 50%;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
 
     &--airborne {
       opacity: 0.3;

@@ -1,5 +1,8 @@
 <template>
-  <q-page class="lila-page-nav-offset" style="padding: var(--lila-layout-gap)">
+  <q-page
+    class="lila-page-nav-offset"
+    style="padding: var(--lila-layout-gap)"
+  >
     <TransactionHistory />
   </q-page>
 </template>

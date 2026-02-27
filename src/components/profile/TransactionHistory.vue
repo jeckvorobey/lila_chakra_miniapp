@@ -4,7 +4,11 @@
       {{ t('profile.transactions_title') }}
     </div>
 
-    <q-card flat bordered class="bg-surface">
+    <q-card
+      flat
+      bordered
+      class="bg-surface"
+    >
       <q-card-section class="q-pa-none">
         <q-infinite-scroll
           :offset="120"
@@ -23,7 +27,9 @@
                   :color="transaction.type === 'accrual' ? 'positive' : 'negative'"
                   text-color="white"
                 >
-                  <q-icon :name="transaction.type === 'accrual' ? 'mdi-arrow-down' : 'mdi-arrow-up'" />
+                  <q-icon
+                    :name="transaction.type === 'accrual' ? 'mdi-arrow-down' : 'mdi-arrow-up'"
+                  />
                 </q-avatar>
               </q-item-section>
 
@@ -46,7 +52,10 @@
 
           <template #loading>
             <div class="row justify-center q-py-md">
-              <q-spinner-dots color="primary" size="24px" />
+              <q-spinner-dots
+                color="primary"
+                size="24px"
+              />
             </div>
           </template>
         </q-infinite-scroll>
@@ -66,7 +75,10 @@
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from 'src/stores/user.store';
-import type { BalanceTransactionSource, BalanceTransactionType } from 'src/types/transaction.interface';
+import type {
+  BalanceTransactionSource,
+  BalanceTransactionType,
+} from 'src/types/transaction.interface';
 
 const userStore = useUserStore();
 const { t, locale } = useI18n();

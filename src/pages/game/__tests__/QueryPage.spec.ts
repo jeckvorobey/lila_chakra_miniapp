@@ -3,12 +3,7 @@ import { mount } from '@vue/test-utils';
 import { defineComponent, ref } from 'vue';
 import QueryPage from '../QueryPage.vue';
 
-const {
-  mockCreateGame,
-  mockRouterPush,
-  mockNotify,
-  mockGenerateSuggestions,
-} = vi.hoisted(() => ({
+const { mockCreateGame, mockRouterPush, mockNotify, mockGenerateSuggestions } = vi.hoisted(() => ({
   mockCreateGame: vi.fn(),
   mockRouterPush: vi.fn(),
   mockNotify: vi.fn(),
@@ -228,7 +223,8 @@ describe('QueryPage', () => {
     await suggestionButton?.trigger('click');
     await flushPromises();
 
-    const mainInput = wrapper.get('[data-testid="query.placeholder"]').element as HTMLTextAreaElement;
+    const mainInput = wrapper.get('[data-testid="query.placeholder"]')
+      .element as HTMLTextAreaElement;
     expect(mainInput.value).toBe('Готовый запрос номер 2');
 
     const startButton = findButtonByLabel(wrapper, 'query.start_game');

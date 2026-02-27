@@ -33,9 +33,7 @@ export const useReferenceStore = defineStore('reference', () => {
 
   const maxCell = computed(() => cellsRef.value.length);
 
-  const boardCellIds = computed(() =>
-    cellsRef.value.map((c) => c.id).sort((a, b) => a - b),
-  );
+  const boardCellIds = computed(() => cellsRef.value.map((c) => c.id).sort((a, b) => a - b));
 
   /**
    * Загрузить список клеток с данными о переходах.

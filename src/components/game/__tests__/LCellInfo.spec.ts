@@ -86,7 +86,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
         'q-icon': true,
         'q-btn': {
           template:
-            "<button :data-testid=\"$attrs['data-testid']\" :disabled=\"$attrs.disable\" @click=\"$emit('click')\"><slot /></button>",
+            '<button :data-testid="$attrs[\'data-testid\']" :disabled="$attrs.disable" @click="$emit(\'click\')"><slot /></button>',
         },
         LModal: {
           template:
@@ -105,7 +105,6 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
 }
 
 describe('LCellInfo', () => {
-
   it('показывает вопросы саморефлексии только в free режиме', () => {
     const wrapper = mountCellInfo({
       currentCellInfo: {

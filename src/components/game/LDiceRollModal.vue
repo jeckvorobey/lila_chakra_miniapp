@@ -1,5 +1,9 @@
 <template>
-  <l-modal v-model="isOpen" position="bottom" data-testid="dice-roll-modal">
+  <l-modal
+    v-model="isOpen"
+    position="bottom"
+    data-testid="dice-roll-modal"
+  >
     <div class="column items-center justify-between l-dice-modal__content">
       <template v-if="showDiceVisual">
         <div class="col column items-center justify-center">
@@ -34,11 +38,17 @@
         />
       </template>
 
-      <div v-if="diceMode === 'auto' && pendingMessage" class="q-mt-md text-warning text-center text-body2">
+      <div
+        v-if="diceMode === 'auto' && pendingMessage"
+        class="q-mt-md text-warning text-center text-body2"
+      >
         {{ pendingMessage }}
       </div>
 
-      <div v-if="displayRolls.length > 1" class="q-mt-md text-center">
+      <div
+        v-if="displayRolls.length > 1"
+        class="q-mt-md text-center"
+      >
         <div class="text-caption text-secondary">
           {{ displayRolls.join(' + ') }} =
           <strong>{{ displayRolls.reduce((a: number, b: number) => a + b, 0) }}</strong>
@@ -46,7 +56,13 @@
       </div>
 
       <div class="q-mt-md text-center text-caption text-secondary">
-        {{ t('dice.change_mode_prefix') }}<router-link to="/profile" class="text-primary" style="text-decoration: underline;">{{ t('dice.change_mode_link') }}</router-link>
+        {{ t('dice.change_mode_prefix')
+        }}<router-link
+          to="/profile"
+          class="text-primary"
+          style="text-decoration: underline"
+          >{{ t('dice.change_mode_link') }}</router-link
+        >
       </div>
     </div>
   </l-modal>
@@ -261,9 +277,8 @@ function handleManualSixSelected(): void {
   pendingManualRolls.value = [...accumulated];
 
   const count = pendingManualRolls.value.length;
-  pendingMessage.value = count >= 3
-    ? t('dice.triple_six_burn_manual')
-    : t('dice.manual_six_roll_again');
+  pendingMessage.value =
+    count >= 3 ? t('dice.triple_six_burn_manual') : t('dice.manual_six_roll_again');
 }
 
 watch(

@@ -173,9 +173,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
       store.token = 'test-jwt-token';
 
       // Mock: API возвращает ошибку
-      vi.mocked(mockApi.post).mockRejectedValueOnce(
-        new Error('Network error'),
-      );
+      vi.mocked(mockApi.post).mockRejectedValueOnce(new Error('Network error'));
 
       // Не должно выбросить исключение
       await expect(store.logout()).resolves.not.toThrow();

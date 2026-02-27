@@ -2,11 +2,24 @@
   <div class="l-board">
     <div class="l-board__shell">
       <div class="l-board__grid-wrap">
-        <div ref="gridRef" class="l-board__grid">
-          <div v-for="chakraLevel in displayRows" :key="chakraLevel" class="l-board__row">
-            <l-cell v-for="cellId in getRowCells(chakraLevel)" :key="cellId" :cell-id="cellId"
-              :is-current-position="cellId === currentCell" :has-player="cellId === currentCell" @click="onCellClick"
-              @long-press="onCellLongPress" />
+        <div
+          ref="gridRef"
+          class="l-board__grid"
+        >
+          <div
+            v-for="chakraLevel in displayRows"
+            :key="chakraLevel"
+            class="l-board__row"
+          >
+            <l-cell
+              v-for="cellId in getRowCells(chakraLevel)"
+              :key="cellId"
+              :cell-id="cellId"
+              :is-current-position="cellId === currentCell"
+              :has-player="cellId === currentCell"
+              @click="onCellClick"
+              @long-press="onCellLongPress"
+            />
           </div>
         </div>
 

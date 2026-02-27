@@ -21,22 +21,12 @@ import type {
 } from 'src/types/game.interface';
 import type { MeditationAudioType } from 'src/types/audio.interface';
 
-import {
-  WINNING_CELL,
-  CHAKRA_ROWS,
-  CELLS_PER_ROW,
-  WAITING_ZONE,
-} from 'src/data/game-constants';
+import { WINNING_CELL, CHAKRA_ROWS, CELLS_PER_ROW, WAITING_ZONE } from 'src/data/game-constants';
 import { cellIdToChakraLevel } from 'src/utils/board-geometry';
 import { isActiveGameStatus } from 'src/data/game-status';
 
 // Повторный экспорт игровых констант для удобства
-export {
-  WINNING_CELL,
-  CHAKRA_ROWS,
-  CELLS_PER_ROW,
-  WAITING_ZONE,
-};
+export { WINNING_CELL, CHAKRA_ROWS, CELLS_PER_ROW, WAITING_ZONE };
 
 export type { GameMode, QueryCategory };
 
@@ -84,13 +74,10 @@ export const useGameStore = defineStore('game', () => {
     if (isActiveGameStatus(currentGame.value.status)) return true;
     // Игра завершена (клетка 68), но выходная медитация ещё не пройдена —
     // держим страницу активной, чтобы показать победный экран в LCellInfo
-    if (
-      currentGame.value.status === 'completed'
-      && !currentGame.value.exit_meditation_completed
-    ) return true;
+    if (currentGame.value.status === 'completed' && !currentGame.value.exit_meditation_completed)
+      return true;
     return false;
   });
-
 
   const isWaitingFor6 = computed(() => currentGame.value?.status === 'waiting_for_6');
 
@@ -131,18 +118,26 @@ export const useGameStore = defineStore('game', () => {
   });
 
   // Синхронизация displayCell с currentCell вне анимации
-  watch(currentCell, (val) => {
-    if (!isChipAnimating.value) {
-      displayCell.value = val;
-    }
-  }, { immediate: true });
+  watch(
+    currentCell,
+    (val) => {
+      if (!isChipAnimating.value) {
+        displayCell.value = val;
+      }
+    },
+    { immediate: true },
+  );
 
   // Прогресс обновляется только после завершения движения фишки.
-  watch([currentCell, isChipAnimating], ([cell, animating]) => {
-    if (!animating) {
-      progressCell.value = cell;
-    }
-  }, { immediate: true });
+  watch(
+    [currentCell, isChipAnimating],
+    ([cell, animating]) => {
+      if (!animating) {
+        progressCell.value = cell;
+      }
+    },
+    { immediate: true },
+  );
 
   // Вспомогательные функции
 
@@ -623,7 +618,9 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => { setTimeout(resolve, ms); });
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
   }
 
   /**

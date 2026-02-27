@@ -70,8 +70,7 @@ const QBtnStub = defineComponent({
     },
   },
   emits: ['click'],
-  template:
-    '<button :data-label="label" @click="$emit(\'click\')">{{ label }}</button>',
+  template: '<button :data-label="label" @click="$emit(\'click\')">{{ label }}</button>',
 });
 
 function mountPage() {

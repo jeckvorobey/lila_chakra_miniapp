@@ -10,11 +10,7 @@ export function createArrowPath(startPos: CellPosition, endPos: CellPosition): s
 /**
  * Треугольный наконечник стрелы.
  */
-export function createArrowHead(
-  endPos: CellPosition,
-  startPos: CellPosition,
-  size = 8,
-): string {
+export function createArrowHead(endPos: CellPosition, startPos: CellPosition, size = 8): string {
   const angle = Math.atan2(endPos.y - startPos.y, endPos.x - startPos.x);
   const leftX = endPos.x - size * Math.cos(angle - Math.PI / 6);
   const leftY = endPos.y - size * Math.sin(angle - Math.PI / 6);

@@ -20,11 +20,7 @@ interface SseMessage {
   data: string;
 }
 
-function readStringField(
-  data: Record<string, unknown>,
-  key: string,
-  fallback = '',
-): string {
+function readStringField(data: Record<string, unknown>, key: string, fallback = ''): string {
   const value = data[key];
   if (typeof value === 'string') return value;
   if (typeof value === 'number' || typeof value === 'boolean') {
@@ -33,11 +29,7 @@ function readStringField(
   return fallback;
 }
 
-function readNumberField(
-  data: Record<string, unknown>,
-  key: string,
-  fallback = 0,
-): number {
+function readNumberField(data: Record<string, unknown>, key: string, fallback = 0): number {
   const value = data[key];
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string') {
@@ -188,7 +180,9 @@ export const gamesApi = {
    * Получить статус async-задачи AI-арта.
    */
   async getFinaleImageJob(gameId: number, jobId: string): Promise<GameFinaleImageJob> {
-    const response = await api.get<GameFinaleImageJob>(`/games/${gameId}/finale/image/jobs/${jobId}`);
+    const response = await api.get<GameFinaleImageJob>(
+      `/games/${gameId}/finale/image/jobs/${jobId}`,
+    );
     return response.data;
   },
 
@@ -277,9 +271,7 @@ export const gamesApi = {
       headers: {
         Accept: 'text/event-stream',
         'Content-Type': 'application/json',
-        ...(typeof authorizationHeader === 'string'
-          ? { Authorization: authorizationHeader }
-          : {}),
+        ...(typeof authorizationHeader === 'string' ? { Authorization: authorizationHeader } : {}),
       },
       body: JSON.stringify({ question }),
       ...(signal ? { signal } : {}),

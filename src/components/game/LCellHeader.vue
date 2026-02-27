@@ -1,5 +1,8 @@
 <template>
-  <div class="l-cell-header" :style="headerGradientStyle">
+  <div
+    class="l-cell-header"
+    :style="headerGradientStyle"
+  >
     <div class="row items-center q-gutter-md q-px-md q-py-sm">
       <q-avatar
         :class="`bg-chakra-${rowChakraLevel}`"
@@ -12,7 +15,10 @@
 
       <div class="col">
         <div class="text-h4 text-weight-bold">{{ name }}</div>
-        <div v-if="nameSanskrit" class="text-caption text-secondary">
+        <div
+          v-if="nameSanskrit"
+          class="text-caption text-secondary"
+        >
           {{ nameSanskrit }}
         </div>
       </div>

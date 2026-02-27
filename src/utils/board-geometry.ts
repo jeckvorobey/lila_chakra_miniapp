@@ -34,9 +34,7 @@ export function cellIdToGridCoords(cellId: number): GridCoords {
   const chakraLevel = cellIdToChakraLevel(cellId);
   const posInRow = (cellId - 1) % CELLS_PER_ROW;
   const row = CHAKRA_ROWS - chakraLevel;
-  const col = chakraLevel % 2 === 0
-    ? CELLS_PER_ROW - 1 - posInRow
-    : posInRow;
+  const col = chakraLevel % 2 === 0 ? CELLS_PER_ROW - 1 - posInRow : posInRow;
 
   return { col, row };
 }

@@ -2,12 +2,20 @@
   <q-page class="referral-page lila-page-nav-offset">
     <div class="column q-gutter-y-md">
       <div class="text-center q-px-md q-pt-md">
-        <q-icon name="mdi-account-plus-outline" size="80px" color="primary" class="q-mb-md" />
+        <q-icon
+          name="mdi-account-plus-outline"
+          size="80px"
+          color="primary"
+          class="q-mb-md"
+        />
         <h1 class="text-h4 text-weight-bold q-mt-none q-mb-sm">{{ $t('referral.title') }}</h1>
         <p class="text-body1 text-secondary">{{ $t('referral.description') }}</p>
       </div>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="text-overline text-secondary q-mb-xs">{{ $t('referral.your_link') }}</div>
           <div class="row items-center no-wrap bg-dark rounded-borders q-pa-sm border-subtle">
@@ -29,7 +37,10 @@
 
         <q-separator dark />
 
-        <q-card-actions align="center" class="q-py-md">
+        <q-card-actions
+          align="center"
+          class="q-py-md"
+        >
           <q-btn
             unelevated
             color="primary"
@@ -41,7 +52,10 @@
         </q-card-actions>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center justify-between q-mb-sm">
             <div class="text-h6">{{ $t('referral.program_table_title') }}</div>
@@ -50,7 +64,11 @@
             </div>
           </div>
 
-          <q-markup-table flat bordered class="referral-program-table">
+          <q-markup-table
+            flat
+            bordered
+            class="referral-program-table"
+          >
             <thead>
               <tr>
                 <th class="text-left">Tier</th>
@@ -60,7 +78,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="program in programs" :key="program.key">
+              <tr
+                v-for="program in programs"
+                :key="program.key"
+              >
                 <td class="text-weight-bold">{{ program.key.toUpperCase() }}</td>
                 <td>
                   {{
@@ -122,9 +143,20 @@
 
       <div class="rules-section q-px-md">
         <h2 class="text-h6 text-weight-medium q-mb-md">{{ $t('referral.rules_title') }}</h2>
-        <q-list dense padding>
-          <q-item v-for="(rule, index) in rules" :key="index" class="q-px-none q-mb-md">
-            <q-item-section avatar side class="q-pr-md">
+        <q-list
+          dense
+          padding
+        >
+          <q-item
+            v-for="(rule, index) in rules"
+            :key="index"
+            class="q-px-none q-mb-md"
+          >
+            <q-item-section
+              avatar
+              side
+              class="q-pr-md"
+            >
               <div class="rule-number bg-primary text-white row flex-center">
                 {{ index + 1 }}
               </div>
@@ -255,11 +287,13 @@ function shareLink() {
   if (openTelegramLink) {
     openTelegramLink(shareUrl);
   } else if (navigator.share) {
-    void navigator.share({
-      title: t('referral.title'),
-      text: text,
-      url: url,
-    }).catch(() => {});
+    void navigator
+      .share({
+        title: t('referral.title'),
+        text: text,
+        url: url,
+      })
+      .catch(() => {});
   } else {
     void copyLink();
   }

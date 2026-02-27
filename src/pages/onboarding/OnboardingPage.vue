@@ -9,22 +9,46 @@
       class="onboarding__carousel"
     >
       <!-- Slide 1: Welcome -->
-      <q-carousel-slide name="welcome" class="onboarding__slide">
+      <q-carousel-slide
+        name="welcome"
+        class="onboarding__slide"
+      >
         <div class="onboarding__content">
-          <q-icon name="mdi-gamepad-variant" size="80px" color="primary" class="q-mb-lg" />
+          <q-icon
+            name="mdi-gamepad-variant"
+            size="80px"
+            color="primary"
+            class="q-mb-lg"
+          />
           <h1 class="text-h4 text-weight-bold q-mb-sm">{{ $t('onboarding.welcome_title') }}</h1>
           <p class="text-body1 text-secondary">{{ $t('onboarding.welcome_desc') }}</p>
         </div>
       </q-carousel-slide>
 
       <!-- Slide 2: How to play -->
-      <q-carousel-slide name="concept" class="onboarding__slide">
+      <q-carousel-slide
+        name="concept"
+        class="onboarding__slide"
+      >
         <div class="onboarding__content">
           <div class="onboarding__demo q-mb-lg">
-            <q-icon name="mdi-dice-multiple" size="60px" color="primary" />
-            <q-icon name="mdi-arrow-right" size="32px" color="grey" class="q-mx-md" />
+            <q-icon
+              name="mdi-dice-multiple"
+              size="60px"
+              color="primary"
+            />
+            <q-icon
+              name="mdi-arrow-right"
+              size="32px"
+              color="grey"
+              class="q-mx-md"
+            />
             <div class="onboarding__board-preview">
-              <div v-for="i in 9" :key="i" class="onboarding__cell" />
+              <div
+                v-for="i in 9"
+                :key="i"
+                class="onboarding__cell"
+              />
             </div>
           </div>
           <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.concept_title') }}</h2>
@@ -33,7 +57,10 @@
           <q-list class="q-mt-md">
             <q-item>
               <q-item-section avatar>
-                <q-icon name="mdi-numeric-6-circle" color="warning" />
+                <q-icon
+                  name="mdi-numeric-6-circle"
+                  color="warning"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label>Вход в игру — выбросите 6</q-item-label>
@@ -41,7 +68,10 @@
             </q-item>
             <q-item>
               <q-item-section avatar>
-                <q-icon name="mdi-dice-multiple" color="primary" />
+                <q-icon
+                  name="mdi-dice-multiple"
+                  color="primary"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label>Выпала 6 — бросайте ещё раз</q-item-label>
@@ -49,7 +79,10 @@
             </q-item>
             <q-item>
               <q-item-section avatar>
-                <q-icon name="mdi-star" color="warning" />
+                <q-icon
+                  name="mdi-star"
+                  color="warning"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label>Цель — клетка 68 (Космическое Сознание)</q-item-label>
@@ -60,16 +93,27 @@
       </q-carousel-slide>
 
       <!-- Slide 3: Arrows & Snakes -->
-      <q-carousel-slide name="portals" class="onboarding__slide">
+      <q-carousel-slide
+        name="portals"
+        class="onboarding__slide"
+      >
         <div class="onboarding__content">
           <div class="row q-gutter-lg q-mb-lg justify-center">
             <div class="text-center">
-              <q-icon name="mdi-arrow-up-bold" size="60px" color="positive" />
+              <q-icon
+                name="mdi-arrow-up-bold"
+                size="60px"
+                color="positive"
+              />
               <div class="text-subtitle2 q-mt-sm">Стрелы</div>
               <div class="text-caption text-secondary">Добродетели</div>
             </div>
             <div class="text-center">
-              <q-icon name="mdi-snake" size="60px" color="negative" />
+              <q-icon
+                name="mdi-snake"
+                size="60px"
+                color="negative"
+              />
               <div class="text-subtitle2 q-mt-sm">Змеи</div>
               <div class="text-caption text-secondary">Пороки</div>
             </div>
@@ -77,9 +121,18 @@
           <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.portals_title') }}</h2>
           <p class="text-body1 text-secondary">{{ $t('onboarding.portals_desc') }}</p>
 
-          <q-card flat bordered class="q-mt-md">
+          <q-card
+            flat
+            bordered
+            class="q-mt-md"
+          >
             <q-card-section class="row items-center">
-              <q-icon name="mdi-arrow-up-bold" color="positive" size="24px" class="q-mr-sm" />
+              <q-icon
+                name="mdi-arrow-up-bold"
+                color="positive"
+                size="24px"
+                class="q-mr-sm"
+              />
               <div class="col">
                 <div class="text-body2">Сострадание (17 → 69)</div>
                 <div class="text-caption text-secondary">Самый мощный подъём</div>
@@ -87,7 +140,12 @@
             </q-card-section>
             <q-separator />
             <q-card-section class="row items-center">
-              <q-icon name="mdi-snake" color="negative" size="24px" class="q-mr-sm" />
+              <q-icon
+                name="mdi-snake"
+                color="negative"
+                size="24px"
+                class="q-mr-sm"
+              />
               <div class="col">
                 <div class="text-body2">Эгоизм (55 → 3)</div>
                 <div class="text-caption text-secondary">Самое большое падение</div>
@@ -98,15 +156,26 @@
       </q-carousel-slide>
 
       <!-- Slide 4: Safety -->
-      <q-carousel-slide name="safety" class="onboarding__slide">
+      <q-carousel-slide
+        name="safety"
+        class="onboarding__slide"
+      >
         <div class="onboarding__content">
-          <q-icon name="mdi-shield-check" size="80px" color="warning" class="q-mb-lg" />
+          <q-icon
+            name="mdi-shield-check"
+            size="80px"
+            color="warning"
+            class="q-mb-lg"
+          />
           <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.safety_title') }}</h2>
           <p class="text-body1 text-secondary q-mb-md">{{ $t('onboarding.safety_desc') }}</p>
 
           <q-banner class="bg-warning-light rounded-borders">
             <template #avatar>
-              <q-icon name="mdi-alert" color="warning" />
+              <q-icon
+                name="mdi-alert"
+                color="warning"
+              />
             </template>
             <div class="text-body2">
               <strong>Важно:</strong> Эта игра работает с подсознанием. Входная и выходная медитации
@@ -115,7 +184,10 @@
           </q-banner>
 
           <div class="q-mt-lg">
-            <q-checkbox v-model="accepted" label="Я понимаю и принимаю правила безопасности" />
+            <q-checkbox
+              v-model="accepted"
+              label="Я понимаю и принимаю правила безопасности"
+            />
           </div>
         </div>
       </q-carousel-slide>

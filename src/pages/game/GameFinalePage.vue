@@ -2,86 +2,165 @@
   <q-page class="q-pa-sm">
     <div class="q-mx-auto">
       <!-- Поздравление -->
-      <q-card class="q-pa-md q-mb-md" flat bordered>
+      <q-card
+        class="q-pa-md q-mb-md"
+        flat
+        bordered
+      >
         <div class="text-h5 text-weight-bold q-mb-lg">
           {{ t('finale.summary_title') }}
         </div>
         <p class="text-body2 q-mb-sm">{{ t('finale.summary_line1') }}</p>
         <p class="text-body2 q-mb-md">{{ t('finale.summary_line2') }}</p>
         <p class="text-body2 q-mb-md">{{ t('finale.summary_line3') }}</p>
-        <p v-if="gameData" class="text-body1 text-weight-bold q-mb-md q-pl-sm"
-          style="border-left: 3px solid var(--q-primary)">
+        <p
+          v-if="gameData"
+          class="text-body1 text-weight-bold q-mb-md q-pl-sm"
+          style="border-left: 3px solid var(--q-primary)"
+        >
           {{ gameData.query }}
         </p>
-        <div v-if="gameData" class="q-mb-md">
+        <div
+          v-if="gameData"
+          class="q-mb-md"
+        >
           <div class="row items-center q-mb-xs q-gutter-x-sm no-wrap">
-            <q-icon name="mdi-dice-multiple" color="primary" size="18px" />
-            <span class="text-body2">{{ t('finale.summary_stats_moves', { count: gameData.total_moves }) }}</span>
+            <q-icon
+              name="mdi-dice-multiple"
+              color="primary"
+              size="18px"
+            />
+            <span class="text-body2">{{
+              t('finale.summary_stats_moves', { count: gameData.total_moves })
+            }}</span>
           </div>
           <div class="row items-center q-mb-xs q-gutter-x-sm no-wrap">
-            <q-icon name="mdi-arrow-up-bold" color="positive" size="18px" />
-            <span class="text-body2">{{ t('finale.summary_stats_arrows', { count: gameData.arrows_hit }) }}</span>
+            <q-icon
+              name="mdi-arrow-up-bold"
+              color="positive"
+              size="18px"
+            />
+            <span class="text-body2">{{
+              t('finale.summary_stats_arrows', { count: gameData.arrows_hit })
+            }}</span>
           </div>
           <div class="row items-center q-gutter-x-sm no-wrap">
-            <q-icon name="mdi-snake" color="negative" size="18px" />
-            <span class="text-body2">{{ t('finale.summary_stats_snakes', { count: gameData.snakes_hit }) }}</span>
+            <q-icon
+              name="mdi-snake"
+              color="negative"
+              size="18px"
+            />
+            <span class="text-body2">{{
+              t('finale.summary_stats_snakes', { count: gameData.snakes_hit })
+            }}</span>
           </div>
         </div>
         <p class="text-body2 q-mb-sm">{{ t('finale.summary_line4') }}</p>
         <p class="text-body2 text-weight-medium">{{ t('finale.summary_footer') }}</p>
       </q-card>
 
-      <div v-if="isLoading" class="row justify-center q-py-xl">
-        <q-spinner color="primary" size="42px" />
+      <div
+        v-if="isLoading"
+        class="row justify-center q-py-xl"
+      >
+        <q-spinner
+          color="primary"
+          size="42px"
+        />
       </div>
 
-      <div v-else-if="errorMessage" class="q-mb-lg">
-        <q-banner rounded class="bg-negative text-white">
+      <div
+        v-else-if="errorMessage"
+        class="q-mb-lg"
+      >
+        <q-banner
+          rounded
+          class="bg-negative text-white"
+        >
           {{ errorMessage }}
           <template #action>
-            <q-btn flat color="white" :label="t('actions.continue')" @click="loadFinaleState" />
+            <q-btn
+              flat
+              color="white"
+              :label="t('actions.continue')"
+              @click="loadFinaleState"
+            />
           </template>
         </q-banner>
       </div>
 
       <template v-else-if="finaleState">
         <div class="row justify-center items-center q-gutter-sm q-mb-md">
-          <q-btn v-if="!hasSummary" color="primary" unelevated :label="t('finale.mentor_button')"
-            :loading="isGeneratingSummary" @click="generateSummary" />
+          <q-btn
+            v-if="!hasSummary"
+            color="primary"
+            unelevated
+            :label="t('finale.mentor_button')"
+            :loading="isGeneratingSummary"
+            @click="generateSummary"
+          />
         </div>
 
-        <div v-if="isGeneratingSummary" data-test="mentor-loading"
-          class="row justify-center items-center q-gutter-sm q-mb-md text-secondary">
-          <q-spinner-dots color="primary" size="22px" />
+        <div
+          v-if="isGeneratingSummary"
+          data-test="mentor-loading"
+          class="row justify-center items-center q-gutter-sm q-mb-md text-secondary"
+        >
+          <q-spinner-dots
+            color="primary"
+            size="22px"
+          />
           <span class="text-body2">{{ t('finale.mentor_generating') }}</span>
         </div>
 
-        <q-card v-if="summary" flat bordered class="q-mb-md bg-surface">
+        <q-card
+          v-if="summary"
+          flat
+          bordered
+          class="q-mb-md bg-surface"
+        >
           <q-card-section>
             <div class="text-overline text-secondary">
               {{ t('finale.mentor_result_block') }}
             </div>
-            <div class="q-mt-sm text-body1" style="white-space: pre-line;">
+            <div
+              class="q-mt-sm text-body1"
+              style="white-space: pre-line"
+            >
               {{ summary.mentor_text }}
             </div>
           </q-card-section>
         </q-card>
 
-        <q-card flat bordered class="q-mb-md bg-surface">
+        <q-card
+          flat
+          bordered
+          class="q-mb-md bg-surface"
+        >
           <q-card-section>
             <div class="text-overline text-secondary">
               {{ t('finale.art_block') }}
             </div>
 
-            <div v-if="artifactPreviewUrl" class="q-mt-sm">
-              <img :src="artifactPreviewUrl" class="full-width rounded-borders" alt="Finale art" />
+            <div
+              v-if="artifactPreviewUrl"
+              class="q-mt-sm"
+            >
+              <img
+                :src="artifactPreviewUrl"
+                class="full-width rounded-borders"
+                alt="Finale art"
+              />
             </div>
 
             <div class="q-mt-md text-body2">
               <span v-if="activeJobStatus === 'queued' || activeJobStatus === 'processing'">
                 {{ t('finale.image_generating') }}
               </span>
-              <span v-else-if="activeJobStatus === 'failed'" class="text-negative">
+              <span
+                v-else-if="activeJobStatus === 'failed'"
+                class="text-negative"
+              >
                 {{ t('finale.image_failed') }}
               </span>
               <span v-else-if="finaleState.image.latest_artifact">
@@ -94,16 +173,35 @@
 
             <div class="row q-col-gutter-sm q-mt-md">
               <div class="col-12 col-sm-4">
-                <q-btn class="full-width" color="primary" unelevated :loading="isStartingImage"
-                  :disable="!canGenerateImage" :label="t('finale.generate_image')" @click="startImageGeneration" />
+                <q-btn
+                  class="full-width"
+                  color="primary"
+                  unelevated
+                  :loading="isStartingImage"
+                  :disable="!canGenerateImage"
+                  :label="t('finale.generate_image')"
+                  @click="startImageGeneration"
+                />
               </div>
               <div class="col-12 col-sm-4">
-                <q-btn class="full-width" outline color="secondary" :disable="!finaleState.image.latest_artifact"
-                  :label="t('finale.download')" @click="downloadCurrentArtifact" />
+                <q-btn
+                  class="full-width"
+                  outline
+                  color="secondary"
+                  :disable="!finaleState.image.latest_artifact"
+                  :label="t('finale.download')"
+                  @click="downloadCurrentArtifact"
+                />
               </div>
               <div class="col-12 col-sm-4">
-                <q-btn class="full-width" outline color="accent" :disable="!finaleState.image.latest_artifact"
-                  :label="t('finale.share')" @click="shareCurrentArtifact" />
+                <q-btn
+                  class="full-width"
+                  outline
+                  color="accent"
+                  :disable="!finaleState.image.latest_artifact"
+                  :label="t('finale.share')"
+                  @click="shareCurrentArtifact"
+                />
               </div>
             </div>
           </q-card-section>
@@ -120,7 +218,12 @@ import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { AxiosError } from 'axios';
 import { gamesApi } from 'src/services/api';
-import type { GameFinaleState, GameFinaleSummary, GameFinaleImageJob, GameDetail } from 'src/types/game.interface';
+import type {
+  GameFinaleState,
+  GameFinaleSummary,
+  GameFinaleImageJob,
+  GameDetail,
+} from 'src/types/game.interface';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -139,7 +242,9 @@ const previewArtifactId = ref<number | null>(null);
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
 const hasSummary = computed(() => Boolean(summary.value?.mentor_text?.trim()));
-const activeJob = computed<GameFinaleImageJob | null>(() => finaleState.value?.image.active_job ?? null);
+const activeJob = computed<GameFinaleImageJob | null>(
+  () => finaleState.value?.image.active_job ?? null,
+);
 const activeJobStatus = computed(() => activeJob.value?.status ?? null);
 const canGenerateImage = computed(() => {
   if (!finaleState.value) return false;
@@ -149,7 +254,10 @@ const canGenerateImage = computed(() => {
 });
 
 function resolveBackendErrorMessage(error: unknown): string {
-  const detail = error instanceof AxiosError ? (error.response?.data as { detail?: string } | undefined)?.detail : undefined;
+  const detail =
+    error instanceof AxiosError
+      ? (error.response?.data as { detail?: string } | undefined)?.detail
+      : undefined;
   if (typeof detail === 'string' && detail.startsWith('errors.')) {
     const key = detail.slice('errors.'.length);
     return t(`error.${key}`);

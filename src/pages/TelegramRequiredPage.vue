@@ -1,7 +1,12 @@
 <template>
   <q-page class="telegram-required-page flex flex-center">
     <div class="telegram-required-page__card bg-glass column items-center q-pa-xl">
-      <q-icon name="fa-brands fa-telegram" size="48px" color="primary" class="q-mb-md" />
+      <q-icon
+        name="fa-brands fa-telegram"
+        size="48px"
+        color="primary"
+        class="q-mb-md"
+      />
       <a
         class="telegram-required-page__link text-h5 text-weight-medium text-center q-mb-xs"
         :href="botUrl"

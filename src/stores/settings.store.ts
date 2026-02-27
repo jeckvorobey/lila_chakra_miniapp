@@ -37,8 +37,7 @@ export const useSettingsStore = defineStore('settings', () => {
   function getTelegramTheme(): 'dark' | 'light' | null {
     if (typeof window === 'undefined') return null;
 
-    const tg = (window as { Telegram?: { WebApp?: { colorScheme?: string } } }).Telegram
-      ?.WebApp;
+    const tg = (window as { Telegram?: { WebApp?: { colorScheme?: string } } }).Telegram?.WebApp;
     if (tg?.colorScheme) {
       return tg.colorScheme === 'dark' ? 'dark' : 'light';
     }
@@ -81,9 +80,11 @@ export const useSettingsStore = defineStore('settings', () => {
 
     telegramTheme.value = getTelegramTheme();
 
-    const tg = (window as {
-      Telegram?: { WebApp?: { onEvent?: (event: string, cb: () => void) => void } };
-    }).Telegram?.WebApp;
+    const tg = (
+      window as {
+        Telegram?: { WebApp?: { onEvent?: (event: string, cb: () => void) => void } };
+      }
+    ).Telegram?.WebApp;
     if (!tg?.onEvent) return;
 
     const themeChangedHandler = () => {

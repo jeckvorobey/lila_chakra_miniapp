@@ -1,11 +1,17 @@
 <template>
   <div class="full-width">
-    <div v-if="showLabel" class="row justify-between items-center q-mb-xs">
+    <div
+      v-if="showLabel"
+      class="row justify-between items-center q-mb-xs"
+    >
       <span class="text-caption text-secondary text-uppercase">{{ t('game.progress') }}</span>
       <span class="text-body2 text-weight-bold">{{ currentCell }}/{{ maxCell }}</span>
     </div>
     <div class="l-progress__track rounded-borders">
-      <div class="l-progress__fill rounded-borders" :style="fillStyle" />
+      <div
+        class="l-progress__fill rounded-borders"
+        :style="fillStyle"
+      />
     </div>
   </div>
 </template>

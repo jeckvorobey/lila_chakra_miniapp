@@ -15,11 +15,26 @@
           :x2="gradientEnd.x"
           :y2="gradientEnd.y"
         >
-          <stop offset="0%" :stop-color="startColor" />
-          <stop offset="100%" :stop-color="endColor" />
+          <stop
+            offset="0%"
+            :stop-color="startColor"
+          />
+          <stop
+            offset="100%"
+            :stop-color="endColor"
+          />
         </linearGradient>
-        <filter :id="glowId" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3.4" result="blur" />
+        <filter
+          :id="glowId"
+          x="-50%"
+          y="-50%"
+          width="200%"
+          height="200%"
+        >
+          <feGaussianBlur
+            stdDeviation="3.4"
+            result="blur"
+          />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -56,8 +71,18 @@
           :fill="endColor"
           :filter="`url(#${glowId})`"
         />
-        <circle :cx="snakeHeadPos.x - 2.2" :cy="snakeHeadPos.y - 1.6" r="1" fill="#ffffff" />
-        <circle :cx="snakeHeadPos.x + 2.2" :cy="snakeHeadPos.y - 1.6" r="1" fill="#ffffff" />
+        <circle
+          :cx="snakeHeadPos.x - 2.2"
+          :cy="snakeHeadPos.y - 1.6"
+          r="1"
+          fill="#ffffff"
+        />
+        <circle
+          :cx="snakeHeadPos.x + 2.2"
+          :cy="snakeHeadPos.y - 1.6"
+          r="1"
+          fill="#ffffff"
+        />
       </g>
     </svg>
 

@@ -96,8 +96,8 @@ describe('useTransitionAnimation', () => {
       chipEl: ref(els.chipEl),
     });
 
-    const [chipKeyframes, chipOptions] =
-      (els.chipEl.animate as ReturnType<typeof vi.fn>).mock.calls[0]!;
+    const [chipKeyframes, chipOptions] = (els.chipEl.animate as ReturnType<typeof vi.fn>).mock
+      .calls[0]!;
     const frames = chipKeyframes as Keyframe[];
 
     expect((chipOptions as KeyframeAnimationOptions).duration).toBe(1000);

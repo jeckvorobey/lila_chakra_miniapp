@@ -25,9 +25,7 @@ export const usersApi = {
   /**
    * Обновить настройки пользователя.
    */
-  async updateSettings(
-    data: UserUpdate,
-  ): Promise<UserOut> {
+  async updateSettings(data: UserUpdate): Promise<UserOut> {
     const response = await api.patch<UserOut>('/users/me', data);
     return response.data;
   },
@@ -71,10 +69,7 @@ export const usersApi = {
   /**
    * Получить историю транзакций текущего пользователя.
    */
-  async getTransactions(
-    offset = 0,
-    limit = 20,
-  ): Promise<TransactionListResponse> {
+  async getTransactions(offset = 0, limit = 20): Promise<TransactionListResponse> {
     const response = await api.get<TransactionListResponse>('/users/me/transactions', {
       params: { offset, limit },
     });

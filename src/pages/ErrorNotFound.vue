@@ -3,7 +3,12 @@
     <div>
       <div style="font-size: 30vh">404</div>
 
-      <div class="text-h2" style="opacity: 0.4">Упс. Здесь ничего нет...</div>
+      <div
+        class="text-h2"
+        style="opacity: 0.4"
+      >
+        Упс. Здесь ничего нет...
+      </div>
 
       <q-btn
         class="q-mt-xl"

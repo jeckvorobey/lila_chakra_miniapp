@@ -9,22 +9,34 @@
     :transition-duration="350"
     @hide="onHide"
   >
-    <q-card :class="modalClasses" class="column">
+    <q-card
+      :class="modalClasses"
+      class="column"
+    >
       <!-- Drag handle -->
-      <div v-if="showHandle" class="row justify-center q-py-sm">
+      <div
+        v-if="showHandle"
+        class="row justify-center q-py-sm"
+      >
         <div class="l-modal__handle-bar" />
       </div>
 
       <!-- Header -->
       <q-card-section
         v-if="title || showClose || $slots.header"
-        :class="$slots.header
-          ? 'no-padding'
-          : 'row items-center justify-between q-pb-sm'"
+        :class="$slots.header ? 'no-padding' : 'row items-center justify-between q-pb-sm'"
       >
         <slot name="header">
           <div class="text-h6 text-weight-bold">{{ title }}</div>
-          <q-btn v-if="showClose" flat round dense icon="close" color="grey" @click="close" />
+          <q-btn
+            v-if="showClose"
+            flat
+            round
+            dense
+            icon="close"
+            color="grey"
+            @click="close"
+          />
         </slot>
       </q-card-section>
 
@@ -34,7 +46,11 @@
       </q-card-section>
 
       <!-- Actions -->
-      <q-card-actions v-if="$slots.actions" align="stretch" class="q-px-md q-pt-md q-pb-lg safe-area-bottom">
+      <q-card-actions
+        v-if="$slots.actions"
+        align="stretch"
+        class="q-px-md q-pt-md q-pb-lg safe-area-bottom"
+      >
         <slot name="actions" />
       </q-card-actions>
     </q-card>

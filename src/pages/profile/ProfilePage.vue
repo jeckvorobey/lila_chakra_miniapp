@@ -1,19 +1,43 @@
 <template>
-  <q-page class="lila-page-nav-offset" style="padding: var(--lila-layout-gap)">
+  <q-page
+    class="lila-page-nav-offset"
+    style="padding: var(--lila-layout-gap)"
+  >
     <!-- User info -->
     <div class="row items-center q-mb-md">
-      <q-avatar size="64px" color="primary" text-color="white" class="q-mr-md">
-        <img v-if="user?.photo_url" :src="user.photo_url" />
-        <span v-else class="text-h5">{{ userInitials }}</span>
+      <q-avatar
+        size="64px"
+        color="primary"
+        text-color="white"
+        class="q-mr-md"
+      >
+        <img
+          v-if="user?.photo_url"
+          :src="user.photo_url"
+        />
+        <span
+          v-else
+          class="text-h5"
+          >{{ userInitials }}</span
+        >
       </q-avatar>
       <div>
         <div class="text-h6 text-weight-medium">{{ displayName }}</div>
-        <div v-if="user?.username" class="text-caption text-secondary">@{{ user.username }}</div>
+        <div
+          v-if="user?.username"
+          class="text-caption text-secondary"
+        >
+          @{{ user.username }}
+        </div>
       </div>
     </div>
 
     <!-- Balance card -->
-    <q-card flat bordered class="q-mb-md bg-surface">
+    <q-card
+      flat
+      bordered
+      class="q-mb-md bg-surface"
+    >
       <q-card-section class="row items-center">
         <div class="col">
           <div class="text-overline text-secondary">{{ $t('profile.balance') }}</div>
@@ -32,12 +56,20 @@
 
     <!-- Stats -->
     <div class="row q-gutter-sm q-mb-md">
-      <q-card flat bordered class="col bg-surface">
+      <q-card
+        flat
+        bordered
+        class="col bg-surface"
+      >
         <q-card-section class="text-center">
           <template v-if="userStore.stats?.has_active_game">
             <div class="text-h5 text-weight-bold text-primary">{{ stats.currentLevel }}</div>
             <div class="text-caption text-secondary">
-              {{ stats.currentLevel === 8 ? $t('profile.highest_level') : $t('profile.current_chakra') }}
+              {{
+                stats.currentLevel === 8
+                  ? $t('profile.highest_level')
+                  : $t('profile.current_chakra')
+              }}
             </div>
           </template>
           <template v-else>
@@ -55,7 +87,11 @@
           </template>
         </q-card-section>
       </q-card>
-      <q-card flat bordered class="col bg-surface">
+      <q-card
+        flat
+        bordered
+        class="col bg-surface"
+      >
         <q-card-section class="text-center">
           <div class="text-h5 text-weight-bold text-positive">{{ stats.gamesCompleted }}</div>
           <div class="text-caption text-secondary">{{ $t('profile.games_completed') }}</div>
@@ -65,7 +101,11 @@
 
     <!-- Settings -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.settings') }}</div>
-    <q-list bordered separator class="rounded-borders q-mb-md bg-surface">
+    <q-list
+      bordered
+      separator
+      class="rounded-borders q-mb-md bg-surface"
+    >
       <!-- Theme -->
       <q-item>
         <q-item-section avatar>
@@ -99,7 +139,10 @@
           <q-item-label>Звук</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-toggle v-model="settingsStore.soundEnabled" color="primary" />
+          <q-toggle
+            v-model="settingsStore.soundEnabled"
+            color="primary"
+          />
         </q-item-section>
       </q-item>
 
@@ -112,7 +155,10 @@
           <q-item-label>Вибрация</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-toggle v-model="settingsStore.vibrationEnabled" color="primary" />
+          <q-toggle
+            v-model="settingsStore.vibrationEnabled"
+            color="primary"
+          />
         </q-item-section>
       </q-item>
 
@@ -143,7 +189,11 @@
 
     <!-- Chip Settings -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.chip_settings') }}</div>
-    <q-card flat bordered class="q-mb-md bg-surface">
+    <q-card
+      flat
+      bordered
+      class="q-mb-md bg-surface"
+    >
       <q-card-section class="chip-settings">
         <div class="chip-settings__controls">
           <button
@@ -153,7 +203,10 @@
           >
             <span class="chip-settings__label">{{ $t('profile.chip_color') }}</span>
             <span class="chip-settings__value">
-              <span class="profile-color-swatch" :style="{ backgroundColor: localChipColor }" />
+              <span
+                class="profile-color-swatch"
+                :style="{ backgroundColor: localChipColor }"
+              />
             </span>
           </button>
 
@@ -164,7 +217,10 @@
           >
             <span class="chip-settings__label">{{ $t('profile.chip_text_color') }}</span>
             <span class="chip-settings__value">
-              <span class="profile-color-swatch" :style="{ backgroundColor: localChipTextColor }" />
+              <span
+                class="profile-color-swatch"
+                :style="{ backgroundColor: localChipTextColor }"
+              />
             </span>
           </button>
         </div>
@@ -188,7 +244,11 @@
       <q-card class="profile-color-dialog">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div class="text-subtitle1 text-weight-medium">
-            {{ activeColorPicker === 'chip' ? $t('profile.chip_color') : $t('profile.chip_text_color') }}
+            {{
+              activeColorPicker === 'chip'
+                ? $t('profile.chip_color')
+                : $t('profile.chip_text_color')
+            }}
           </div>
           <q-btn
             flat
@@ -206,8 +266,15 @@
     </q-dialog>
 
     <!-- Support links -->
-    <q-list bordered separator class="rounded-borders bg-surface">
-      <q-item clickable @click="$router.push('/profile/rules')">
+    <q-list
+      bordered
+      separator
+      class="rounded-borders bg-surface"
+    >
+      <q-item
+        clickable
+        @click="$router.push('/profile/rules')"
+      >
         <q-item-section avatar>
           <q-icon name="mdi-book-open-variant" />
         </q-item-section>
@@ -217,7 +284,10 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="$router.push('/profile/transactions')">
+      <q-item
+        clickable
+        @click="$router.push('/profile/transactions')"
+      >
         <q-item-section avatar>
           <q-icon name="mdi-history" />
         </q-item-section>
@@ -227,7 +297,10 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="$router.push('/profile/feedback')">
+      <q-item
+        clickable
+        @click="$router.push('/profile/feedback')"
+      >
         <q-item-section avatar>
           <q-icon name="mdi-message-outline" />
         </q-item-section>
@@ -237,7 +310,10 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="$router.push('/profile/my-requests')">
+      <q-item
+        clickable
+        @click="$router.push('/profile/my-requests')"
+      >
         <q-item-section avatar>
           <q-icon name="mdi-format-list-bulleted-square" />
         </q-item-section>
@@ -247,7 +323,10 @@
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="$router.push('/profile/referral')">
+      <q-item
+        clickable
+        @click="$router.push('/profile/referral')"
+      >
         <q-item-section avatar>
           <q-icon name="mdi-share-variant" />
         </q-item-section>
@@ -301,7 +380,7 @@ const isColorPickerOpen = ref(false);
 const activeColorPicker = ref<'chip' | 'text'>('chip');
 
 const selectedColorModel = computed({
-  get: () => activeColorPicker.value === 'chip' ? localChipColor.value : localChipTextColor.value,
+  get: () => (activeColorPicker.value === 'chip' ? localChipColor.value : localChipTextColor.value),
   set: (value: string) => {
     if (activeColorPicker.value === 'chip') {
       localChipColor.value = value;
@@ -311,12 +390,18 @@ const selectedColorModel = computed({
   },
 });
 
-watch(() => userStore.profile?.settings?.chip_color, (newVal) => {
-  if (newVal) localChipColor.value = newVal;
-});
-watch(() => userStore.profile?.settings?.chip_text_color, (newVal) => {
-  if (newVal) localChipTextColor.value = newVal;
-});
+watch(
+  () => userStore.profile?.settings?.chip_color,
+  (newVal) => {
+    if (newVal) localChipColor.value = newVal;
+  },
+);
+watch(
+  () => userStore.profile?.settings?.chip_text_color,
+  (newVal) => {
+    if (newVal) localChipTextColor.value = newVal;
+  },
+);
 
 async function onChipColorChange() {
   if (

@@ -3,13 +3,15 @@ import { mount } from '@vue/test-utils';
 import type { CellBrief } from 'src/types/game.interface';
 import LGameActionsPanel from '../LGameActionsPanel.vue';
 
-const { mockEndGame, mockRouterPush, mockDialog, mockNotify, mockStartChipAnimation } = vi.hoisted(() => ({
-  mockEndGame: vi.fn(),
-  mockRouterPush: vi.fn(),
-  mockDialog: vi.fn(),
-  mockNotify: vi.fn(),
-  mockStartChipAnimation: vi.fn(),
-}));
+const { mockEndGame, mockRouterPush, mockDialog, mockNotify, mockStartChipAnimation } = vi.hoisted(
+  () => ({
+    mockEndGame: vi.fn(),
+    mockRouterPush: vi.fn(),
+    mockDialog: vi.fn(),
+    mockNotify: vi.fn(),
+    mockStartChipAnimation: vi.fn(),
+  }),
+);
 
 const mockGameStore = {
   endGame: mockEndGame,
@@ -66,7 +68,7 @@ const globalMountOptions = {
     'q-icon': true,
     'q-btn': {
       template:
-        "<button :data-testid=\"$attrs['data-testid']\" @click=\"$emit('click')\"><slot /></button>",
+        '<button :data-testid="$attrs[\'data-testid\']" @click="$emit(\'click\')"><slot /></button>',
     },
     LDiceRollModal: {
       template:

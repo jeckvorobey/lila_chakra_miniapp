@@ -58,9 +58,7 @@ vi.mock('vue-i18n', () => ({
       };
       const from = toText(params.from);
       const to = toText(params.to);
-      return base
-        .replace('{from}', from)
-        .replace('{to}', to);
+      return base.replace('{from}', from).replace('{to}', to);
     },
   }),
 }));
@@ -115,7 +113,12 @@ describe('LCellCard', () => {
     mockMoves.splice(
       0,
       mockMoves.length,
-      buildMove({ transition_type: 'arrow', transition_from: 10, transition_to: 23, final_cell: 23 }),
+      buildMove({
+        transition_type: 'arrow',
+        transition_from: 10,
+        transition_to: 23,
+        final_cell: 23,
+      }),
     );
 
     const wrapper = mountCard({
@@ -129,9 +132,7 @@ describe('LCellCard', () => {
 
     const text = wrapper.text();
     expect(text).toContain('Вы поднялись по стреле с клетки 10 (Клетка) на клетку 23 (Клетка).');
-    expect(text).toContain(
-      'В Лиле стрела означает поддержку добродетели и рост уровня сознания.',
-    );
+    expect(text).toContain('В Лиле стрела означает поддержку добродетели и рост уровня сознания.');
   });
 
   it('показывает текст спуска и интерпретацию Лилы после змеи', async () => {
@@ -152,8 +153,6 @@ describe('LCellCard', () => {
 
     const text = wrapper.text();
     expect(text).toContain('Вы опустились по змее с клетки 44 (Клетка) на клетку 9 (Клетка).');
-    expect(text).toContain(
-      'В Лиле змея указывает на урок через порок и возвращение к проработке.',
-    );
+    expect(text).toContain('В Лиле змея указывает на урок через порок и возвращение к проработке.');
   });
 });

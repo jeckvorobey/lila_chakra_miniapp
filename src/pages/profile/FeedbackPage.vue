@@ -1,6 +1,10 @@
 <template>
   <q-page class="feedback-page lila-page-nav-offset">
-    <q-card flat bordered class="bg-surface">
+    <q-card
+      flat
+      bordered
+      class="bg-surface"
+    >
       <q-card-section>
         <div class="text-h6 text-weight-medium q-mb-sm">{{ $t('feedback.title') }}</div>
         <p class="text-body2 text-secondary q-mb-md">{{ $t('feedback.subtitle') }}</p>

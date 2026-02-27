@@ -1,6 +1,9 @@
 <template>
   <div class="column no-wrap justify-between overflow-hidden">
-    <q-card flat bordered>
+    <q-card
+      flat
+      bordered
+    >
       <q-card-section>
         <div class="text-subtitle1 text-weight-medium">
           {{ gameStore.currentGame?.query }}
@@ -11,9 +14,7 @@
     </q-card>
 
     <q-card-section class="col q-px-none q-py-sm row items-center justify-center">
-      <l-game-board-section
-        :current-cell="gameStore.displayCell"
-      />
+      <l-game-board-section :current-cell="gameStore.displayCell" />
     </q-card-section>
 
     <l-game-actions-panel

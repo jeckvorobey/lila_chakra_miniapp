@@ -1,5 +1,11 @@
 <template>
-  <l-modal v-model="isOpen" :title="cell.name" position="bottom" max-width="100%" :show-handle="false">
+  <l-modal
+    v-model="isOpen"
+    :title="cell.name"
+    position="bottom"
+    max-width="100%"
+    :show-handle="false"
+  >
     <template #header>
       <l-cell-header
         :id="cell.id"
@@ -7,7 +13,13 @@
         :name-sanskrit="cell.name_sanskrit"
       >
         <template #action>
-          <q-btn flat round dense icon="close" @click="close" />
+          <q-btn
+            flat
+            round
+            dense
+            icon="close"
+            @click="close"
+          />
         </template>
       </l-cell-header>
     </template>
@@ -18,21 +30,30 @@
 
         <l-cell-keywords :keywords="cell.keywords" />
 
-        <div v-if="baseDescription" class="q-mb-md">
+        <div
+          v-if="baseDescription"
+          class="q-mb-md"
+        >
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.description') }}
           </div>
           <p class="text-body1">{{ baseDescription }}</p>
         </div>
 
-        <div v-if="revisitDescription" class="q-mb-md">
+        <div
+          v-if="revisitDescription"
+          class="q-mb-md"
+        >
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.description_revisit') }}
           </div>
           <p class="text-body1">{{ revisitDescription }}</p>
         </div>
 
-        <div v-if="latestAiInterpretation" class="q-mb-md">
+        <div
+          v-if="latestAiInterpretation"
+          class="q-mb-md"
+        >
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.ai_interpretation') }}
           </div>
@@ -40,12 +61,8 @@
             {{ typingAiInterpretation }}
           </p>
         </div>
-
-
       </div>
     </q-scroll-area>
-
-
   </l-modal>
 </template>
 
@@ -97,8 +114,6 @@ function normalizeLocalizedText(value: string | null | undefined): string {
 
 const baseDescription = computed(() => normalizeLocalizedText(props.cell.description));
 const revisitDescription = computed(() => normalizeLocalizedText(props.cell.description_revisit));
-
-
 
 const latestAiInterpretation = computed(() => {
   for (let index = gameStore.moves.length - 1; index >= 0; index -= 1) {

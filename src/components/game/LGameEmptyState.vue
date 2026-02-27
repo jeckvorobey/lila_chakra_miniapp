@@ -1,12 +1,20 @@
 <template>
   <div class="col column items-center justify-center q-pa-xl text-center full-width">
-    <q-icon name="mdi-gamepad-variant" size="64px" color="primary" class="q-mb-md" />
+    <q-icon
+      name="mdi-gamepad-variant"
+      size="64px"
+      color="primary"
+      class="q-mb-md"
+    />
 
     <div class="text-h5 text-weight-medium q-mb-sm">
       {{ t('game.title') }}
     </div>
 
-    <p class="text-body2 text-secondary q-mb-lg" style="max-width: 280px">
+    <p
+      class="text-body2 text-secondary q-mb-lg"
+      style="max-width: 280px"
+    >
       {{ t('onboarding.welcome_desc') }}
     </p>
 

@@ -81,8 +81,7 @@ export default defineBoot(({ app, router }) => {
 
         // Показать уведомление при 403 (заблокированный пользователь)
         if (status === 403) {
-          const detail =
-            (error?.response?.data?.detail as string) || 'Доступ запрещён';
+          const detail = (error?.response?.data?.detail as string) || 'Доступ запрещён';
           Notify.create({
             type: 'negative',
             message: detail,
@@ -95,9 +94,7 @@ export default defineBoot(({ app, router }) => {
           await router.push({ name: 'not-found' });
         }
       }
-      return Promise.reject(
-        error instanceof Error ? error : new Error('Request failed'),
-      );
+      return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
     },
   );
 

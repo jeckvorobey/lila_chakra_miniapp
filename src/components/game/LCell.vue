@@ -1,6 +1,15 @@
 <template>
-  <div :class="cellClasses" :style="cellStyle" @click="handleClick" @long-press="handleLongPress">
-    <span v-if="!shouldRenderPlayer" class="l-cell__number">{{ cellId }}</span>
+  <div
+    :class="cellClasses"
+    :style="cellStyle"
+    @click="handleClick"
+    @long-press="handleLongPress"
+  >
+    <span
+      v-if="!shouldRenderPlayer"
+      class="l-cell__number"
+      >{{ cellId }}</span
+    >
 
     <q-icon
       v-if="isArrow"
@@ -15,16 +24,31 @@
       size="12px"
     />
 
-    <div v-if="shouldRenderPlayer" class="l-cell__player" :style="playerStyle">
+    <div
+      v-if="shouldRenderPlayer"
+      class="l-cell__player"
+      :style="playerStyle"
+    >
       <span class="l-cell__player-text">{{ cellId }}</span>
     </div>
 
-    <q-tooltip v-if="showTooltip" anchor="top middle" self="bottom middle" class="l-cell__tooltip">
+    <q-tooltip
+      v-if="showTooltip"
+      anchor="top middle"
+      self="bottom middle"
+      class="l-cell__tooltip"
+    >
       <div class="text-weight-medium">{{ cellId }}</div>
-      <div v-if="isArrow" class="text-caption text-positive">
+      <div
+        v-if="isArrow"
+        class="text-caption text-positive"
+      >
         {{ $t('transition.arrow_to') }} {{ arrowTarget }}
       </div>
-      <div v-if="isSnake" class="text-caption text-negative">
+      <div
+        v-if="isSnake"
+        class="text-caption text-negative"
+      >
         {{ $t('transition.snake_to') }} {{ snakeTarget }}
       </div>
     </q-tooltip>
@@ -241,7 +265,9 @@ function handleLongPress() {
     --cell-bg: #f5f5f430;
     --cell-text: #f5f5f4;
     --cell-border: #f5f5f4;
-    box-shadow: inset 0 0 0 2px #f5f5f4, 0 0 10px #f5f5f499;
+    box-shadow:
+      inset 0 0 0 2px #f5f5f4,
+      0 0 10px #f5f5f499;
     position: relative;
 
     .l-cell__number {
@@ -252,7 +278,9 @@ function handleLongPress() {
       --cell-bg: #ffffff;
       --cell-text: #1c1917;
       --cell-border: #1c1917;
-      box-shadow: inset 0 0 0 2px #1c1917, 0 0 0 1px #1c191733;
+      box-shadow:
+        inset 0 0 0 2px #1c1917,
+        0 0 0 1px #1c191733;
     }
   }
 

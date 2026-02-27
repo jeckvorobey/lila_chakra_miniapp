@@ -86,9 +86,7 @@ describe('MeditationPage', () => {
     const store = useGameStore();
     store.currentGame = { id: 1 } as never;
 
-    const completeEntrySpy = vi
-      .spyOn(store, 'completeEntryMeditation')
-      .mockResolvedValue(true);
+    const completeEntrySpy = vi.spyOn(store, 'completeEntryMeditation').mockResolvedValue(true);
     vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
 
     const wrapper = mountPage();
@@ -105,9 +103,7 @@ describe('MeditationPage', () => {
     const store = useGameStore();
     store.currentGame = { id: 1 } as never;
 
-    const completeExitSpy = vi
-      .spyOn(store, 'completeExitMeditation')
-      .mockResolvedValue(true);
+    const completeExitSpy = vi.spyOn(store, 'completeExitMeditation').mockResolvedValue(true);
     vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
 
     const wrapper = mountPage();

@@ -1,18 +1,40 @@
 <template>
   <q-page class="my-requests-page lila-page-nav-offset">
-    <div v-if="isLoading" class="q-gutter-y-sm">
-      <q-skeleton type="rect" height="88px" />
-      <q-skeleton type="rect" height="88px" />
-      <q-skeleton type="rect" height="88px" />
+    <div
+      v-if="isLoading"
+      class="q-gutter-y-sm"
+    >
+      <q-skeleton
+        type="rect"
+        height="88px"
+      />
+      <q-skeleton
+        type="rect"
+        height="88px"
+      />
+      <q-skeleton
+        type="rect"
+        height="88px"
+      />
     </div>
 
-    <div v-else-if="requests.length === 0" class="column items-center q-mt-xl text-center q-gutter-y-sm">
-      <q-icon name="mdi-message-badge-outline" size="48px" color="grey-6" />
+    <div
+      v-else-if="requests.length === 0"
+      class="column items-center q-mt-xl text-center q-gutter-y-sm"
+    >
+      <q-icon
+        name="mdi-message-badge-outline"
+        size="48px"
+        color="grey-6"
+      />
       <div class="text-subtitle1 text-weight-medium">{{ $t('feedback.empty_title') }}</div>
       <div class="text-body2 text-secondary">{{ $t('feedback.empty_text') }}</div>
     </div>
 
-    <div v-else class="column q-gutter-y-md">
+    <div
+      v-else
+      class="column q-gutter-y-md"
+    >
       <q-card
         v-for="requestItem in requests"
         :key="requestItem.id"
@@ -22,7 +44,11 @@
       >
         <q-card-section>
           <div class="row items-center justify-between q-mb-sm q-gutter-x-sm">
-            <q-chip dense :color="statusColor(requestItem.status)" text-color="white">
+            <q-chip
+              dense
+              :color="statusColor(requestItem.status)"
+              text-color="white"
+            >
               {{ $t(`feedback.status.${requestItem.status}`) }}
             </q-chip>
             <span class="text-caption text-secondary">
@@ -32,12 +58,18 @@
 
           <div class="text-body2 request-text q-mb-md">{{ requestItem.message }}</div>
 
-          <div v-if="requestItem.admin_comment" class="text-caption q-mb-xs">
+          <div
+            v-if="requestItem.admin_comment"
+            class="text-caption q-mb-xs"
+          >
             <span class="text-weight-medium">{{ $t('feedback.admin_comment') }}:</span>
             {{ requestItem.admin_comment }}
           </div>
 
-          <div v-if="requestItem.eta_at" class="text-caption text-secondary">
+          <div
+            v-if="requestItem.eta_at"
+            class="text-caption text-secondary"
+          >
             {{ $t('feedback.eta_at') }}: {{ formatDate(requestItem.eta_at) }}
           </div>
         </q-card-section>

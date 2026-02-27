@@ -8,8 +8,18 @@
       <q-toolbar class="safe-area-top row items-center no-wrap">
         <!-- Левая секция -->
         <div class="col row items-center no-wrap text-h3">
-          <q-btn v-if="showBack" flat dense round icon="mdi-arrow-left" @click="goBack" />
-          <span v-if="pageTitle" class="text-h3 q-ml-sm">
+          <q-btn
+            v-if="showBack"
+            flat
+            dense
+            round
+            icon="mdi-arrow-left"
+            @click="goBack"
+          />
+          <span
+            v-if="pageTitle"
+            class="text-h3 q-ml-sm"
+          >
             {{ pageTitle }}
           </span>
         </div>
@@ -17,8 +27,12 @@
         <!-- Центральная секция — баланс (только на главной) -->
         <div class="col row items-center justify-center no-wrap">
           <template v-if="isGamePage">
-            <q-icon name="mdi-wallet-outline" size="20px" class="q-mr-xs" />
-            <span >{{ userStore.balance }} {{ $t('rules.tkn')}}</span>
+            <q-icon
+              name="mdi-wallet-outline"
+              size="20px"
+              class="q-mr-xs"
+            />
+            <span>{{ userStore.balance }} {{ $t('rules.tkn') }}</span>
             <q-btn
               flat
               dense
@@ -37,29 +51,55 @@
         <div class="col row items-center justify-end no-wrap">
           <l-theme-toggle />
 
-          <q-btn v-if="showMenu" flat dense round icon="mdi-dots-vertical">
-            <q-menu anchor="bottom right" self="top right" class="bg-surface-translucent bordered">
+          <q-btn
+            v-if="showMenu"
+            flat
+            dense
+            round
+            icon="mdi-dots-vertical"
+          >
+            <q-menu
+              anchor="bottom right"
+              self="top right"
+              class="bg-surface-translucent bordered"
+            >
               <q-list style="min-width: 180px">
-                <q-item v-close-popup clickable @click="navigateTo('/profile')">
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="navigateTo('/profile')"
+                >
                   <q-item-section avatar>
                     <q-icon name="mdi-account" />
                   </q-item-section>
                   <q-item-section>{{ $t('nav.profile') }}</q-item-section>
                 </q-item>
-                <q-item v-close-popup clickable @click="openRules">
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="openRules"
+                >
                   <q-item-section avatar>
                     <q-icon name="mdi-book-open-variant" />
                   </q-item-section>
                   <q-item-section>{{ $t('profile.rules') }}</q-item-section>
                 </q-item>
-                <q-item v-close-popup clickable @click="openTransactions">
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="openTransactions"
+                >
                   <q-item-section avatar>
                     <q-icon name="mdi-history" />
                   </q-item-section>
                   <q-item-section>{{ $t('profile.transactions_title') }}</q-item-section>
                 </q-item>
                 <q-separator />
-                <q-item v-close-popup clickable @click="openFeedback">
+                <q-item
+                  v-close-popup
+                  clickable
+                  @click="openFeedback"
+                >
                   <q-item-section avatar>
                     <q-icon name="mdi-message-outline" />
                   </q-item-section>
@@ -75,14 +115,20 @@
     <!-- Main content -->
     <q-page-container>
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component  :is="Component" />
+        <transition
+          name="fade"
+          mode="out-in"
+        >
+          <component :is="Component" />
         </transition>
       </router-view>
     </q-page-container>
 
     <!-- Bottom Navigation -->
-    <l-bottom-nav v-if="showBottomNav" class="q-mx-sm q-mt-md"/>
+    <l-bottom-nav
+      v-if="showBottomNav"
+      class="q-mx-sm q-mt-md"
+    />
   </q-layout>
 </template>
 

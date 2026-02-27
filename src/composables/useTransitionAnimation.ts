@@ -68,52 +68,33 @@ export function useTransitionAnimation() {
     overlayEl.style.opacity = '1';
 
     try {
-      await playAnimation(
-        pathEl,
-        [
-          { strokeDashoffset: pathLength },
-          { strokeDashoffset: 0 },
-        ],
-        {
-          duration: PATH_GROWING_DURATION_MS[config.type],
-          easing: PATH_EASING[config.type],
-          fill: 'forwards',
-        },
-      );
+      await playAnimation(pathEl, [{ strokeDashoffset: pathLength }, { strokeDashoffset: 0 }], {
+        duration: PATH_GROWING_DURATION_MS[config.type],
+        easing: PATH_EASING[config.type],
+        fill: 'forwards',
+      });
 
       ensureToken(token);
       progress.value = 1;
       phase.value = 'chip-moving';
 
-      const chipKeyframes = createChipKeyframes(
-        pathEl,
-        0,
-        1,
-      );
+      const chipKeyframes = createChipKeyframes(pathEl, 0, 1);
 
-      await playAnimation(
-        chipEl,
-        chipKeyframes,
-        {
-          duration: CHIP_MOVING_DURATION_MS[config.type],
-          easing: 'ease-in-out',
-          fill: 'forwards',
-        },
-      );
+      await playAnimation(chipEl, chipKeyframes, {
+        duration: CHIP_MOVING_DURATION_MS[config.type],
+        easing: 'ease-in-out',
+        fill: 'forwards',
+      });
 
       ensureToken(token);
       progress.value = 1;
       phase.value = 'fading';
 
-      await playAnimation(
-        overlayEl,
-        [{ opacity: 1 }, { opacity: 0 }],
-        {
-          duration: FADE_DURATION_MS,
-          easing: 'ease-out',
-          fill: 'forwards',
-        },
-      );
+      await playAnimation(overlayEl, [{ opacity: 1 }, { opacity: 0 }], {
+        duration: FADE_DURATION_MS,
+        easing: 'ease-out',
+        fill: 'forwards',
+      });
 
       ensureToken(token);
       progress.value = 1;

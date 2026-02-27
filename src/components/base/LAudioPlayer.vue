@@ -5,7 +5,10 @@
     :style="{ border: '1px solid var(--lila-border)' }"
   >
     <q-card-section class="q-pa-sm">
-      <q-item dense class="items-center">
+      <q-item
+        dense
+        class="items-center"
+      >
         <q-item-section avatar>
           <q-btn
             round
@@ -17,10 +20,17 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label v-if="title" class="text-weight-medium">
+          <q-item-label
+            v-if="title"
+            class="text-weight-medium"
+          >
             {{ title }}
           </q-item-label>
-          <q-item-label v-if="subtitle" caption class="text-secondary">
+          <q-item-label
+            v-if="subtitle"
+            caption
+            class="text-secondary"
+          >
             {{ subtitle }}
           </q-item-label>
           <q-linear-progress
@@ -32,7 +42,10 @@
           />
         </q-item-section>
 
-        <q-item-section v-if="showTime" side>
+        <q-item-section
+          v-if="showTime"
+          side
+        >
           <q-item-label class="text-caption text-secondary">
             {{ timeLabel }}
           </q-item-label>

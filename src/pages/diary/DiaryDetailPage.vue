@@ -1,12 +1,26 @@
 <template>
   <q-page class="diary-detail lila-page-nav-offset">
-    <q-skeleton v-if="isLoading" type="rect" height="200px" />
+    <q-skeleton
+      v-if="isLoading"
+      type="rect"
+      height="200px"
+    />
 
     <template v-else-if="game">
       <!-- Раздел запроса -->
-      <q-card flat bordered class="q-mb-md">
+      <q-card
+        flat
+        bordered
+        class="q-mb-md"
+      >
         <q-card-section>
-          <q-chip :label="$t(`query.category.${game.category}`)" size="sm" color="primary" outline class="q-mb-sm" />
+          <q-chip
+            :label="$t(`query.category.${game.category}`)"
+            size="sm"
+            color="primary"
+            outline
+            class="q-mb-sm"
+          />
           <p class="text-body1">{{ game.query }}</p>
           <div class="text-caption text-secondary">
             {{ formatDate(game.created_at) }}
@@ -15,7 +29,11 @@
       </q-card>
 
       <!-- Визуализация путешествия -->
-      <q-card flat bordered class="q-mb-md">
+      <q-card
+        flat
+        bordered
+        class="q-mb-md"
+      >
         <q-card-section>
           <div class="text-subtitle2 text-weight-medium q-mb-md">Путь игры</div>
           <l-progress-bar :current-cell="game.current_cell" />
@@ -25,18 +43,35 @@
       <!-- Временная шкала ходов -->
       <div class="row items-center q-mb-sm">
         <div class="text-subtitle2 text-weight-medium q-mr-sm">История ходов</div>
-        <q-btn flat dense round size="sm" :icon="sortOrder === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-          @click="toggleSort">
+        <q-btn
+          flat
+          dense
+          round
+          size="sm"
+          :icon="sortOrder === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+          @click="toggleSort"
+        >
           <q-tooltip>{{ sortOrder === 'asc' ? 'Сначала старые' : 'Сначала новые' }}</q-tooltip>
         </q-btn>
       </div>
-      <q-timeline v-if="timelineEntries.length > 0" color="primary">
-        <q-timeline-entry v-for="entry in timelineEntries" :key="entry.key" :icon="getEntryIcon(entry)"
-          :color="getEntryColor(entry)">
+      <q-timeline
+        v-if="timelineEntries.length > 0"
+        color="primary"
+      >
+        <q-timeline-entry
+          v-for="entry in timelineEntries"
+          :key="entry.key"
+          :icon="getEntryIcon(entry)"
+          :color="getEntryColor(entry)"
+        >
           <template #title>
             <div class="row items-center">
               <span>{{ getEntryTitle(entry) }}</span>
-              <q-badge v-if="entry.showDice && entry.move.dice_rolls.length > 0" class="q-ml-sm" color="grey-7">
+              <q-badge
+                v-if="entry.showDice && entry.move.dice_rolls.length > 0"
+                class="q-ml-sm"
+                color="grey-7"
+              >
                 🎲 {{ entry.move.dice_rolls.join(', ') }}
               </q-badge>
             </div>
@@ -45,38 +80,96 @@
             <div>{{ getEntrySubtitle(entry) }}</div>
             <div class="text-caption text-secondary">{{ getCellName(entry.toCell) }}</div>
           </template>
-          <div v-if="entry.kind === 'roll' && entry.move.player_insight" class="text-body2 q-mt-sm">
-            <q-icon name="mdi-lightbulb" color="warning" class="q-mr-xs" />
+          <div
+            v-if="entry.kind === 'roll' && entry.move.player_insight"
+            class="text-body2 q-mt-sm"
+          >
+            <q-icon
+              name="mdi-lightbulb"
+              color="warning"
+              class="q-mr-xs"
+            />
             {{ entry.move.player_insight }}
           </div>
-          <div v-if="entry.kind === 'roll' && entry.move.ai_interpretation" class="text-body2 q-mt-sm">
-            <q-icon name="mdi-robot" color="primary" class="q-mr-xs" />
+          <div
+            v-if="entry.kind === 'roll' && entry.move.ai_interpretation"
+            class="text-body2 q-mt-sm"
+          >
+            <q-icon
+              name="mdi-robot"
+              color="primary"
+              class="q-mr-xs"
+            />
             {{ entry.move.ai_interpretation }}
           </div>
-          <div v-if="entry.kind === 'roll'" class="q-mt-sm">
-            <q-btn flat dense size="sm" icon="mdi-pencil" :label="$t('actions.write_insight')"
-              @click="editInsight(entry.move)" />
+          <div
+            v-if="entry.kind === 'roll'"
+            class="q-mt-sm"
+          >
+            <q-btn
+              flat
+              dense
+              size="sm"
+              icon="mdi-pencil"
+              :label="$t('actions.write_insight')"
+              @click="editInsight(entry.move)"
+            />
           </div>
         </q-timeline-entry>
       </q-timeline>
 
-      <div v-else class="text-body2 text-secondary text-center q-py-lg">Ходов пока нет</div>
+      <div
+        v-else
+        class="text-body2 text-secondary text-center q-py-lg"
+      >
+        Ходов пока нет
+      </div>
 
       <!-- Действия -->
       <div class="diary-detail__actions">
-        <q-btn v-if="isCurrentGameActive" outline :label="$t('game.continue_game')" color="primary" unelevated
-          class="full-width q-mb-sm" @click="continueGame" />
-        <div v-if="game?.status === 'completed'" class="row q-col-gutter-sm q-mb-sm">
-          <div v-if="!game.exit_meditation_completed" class="col">
-            <q-btn :label="$t('diary.meditation')" color="secondary" outline class="full-width"
-              @click="navigateToMeditation" />
+        <q-btn
+          v-if="isCurrentGameActive"
+          outline
+          :label="$t('game.continue_game')"
+          color="primary"
+          unelevated
+          class="full-width q-mb-sm"
+          @click="continueGame"
+        />
+        <div
+          v-if="game?.status === 'completed'"
+          class="row q-col-gutter-sm q-mb-sm"
+        >
+          <div
+            v-if="!game.exit_meditation_completed"
+            class="col"
+          >
+            <q-btn
+              :label="$t('diary.meditation')"
+              color="secondary"
+              outline
+              class="full-width"
+              @click="navigateToMeditation"
+            />
           </div>
           <div class="col">
-            <q-btn :label="$t('diary.report')" color="accent" class="full-width" outline @click="navigateToReport" />
+            <q-btn
+              :label="$t('diary.report')"
+              color="accent"
+              class="full-width"
+              outline
+              @click="navigateToReport"
+            />
           </div>
         </div>
-        <q-btn v-if="!isCurrentGameActive && !hasAnyActiveGame" outline :label="$t('game.new_game')" color="primary"
-          class="full-width" @click="$router.push('/game/new')" />
+        <q-btn
+          v-if="!isCurrentGameActive && !hasAnyActiveGame"
+          outline
+          :label="$t('game.new_game')"
+          color="primary"
+          class="full-width"
+          @click="$router.push('/game/new')"
+        />
       </div>
     </template>
   </q-page>
@@ -93,10 +186,7 @@ import type { GameDetail, MoveOut } from 'src/types/game.interface';
 import { isActiveGameStatus } from 'src/data/game-status';
 import { LProgressBar } from 'src/components/base';
 import { useReferenceStore } from 'src/stores/reference.store';
-import {
-  buildDiaryTimelineEntries,
-  type DiaryTimelineEntry,
-} from './diary-timeline';
+import { buildDiaryTimelineEntries, type DiaryTimelineEntry } from './diary-timeline';
 
 const route = useRoute();
 const router = useRouter();
@@ -159,7 +249,9 @@ function getCellName(cellId: number): string {
 }
 
 async function ensureCellNamesLoaded(entries: DiaryTimelineEntry[]): Promise<void> {
-  const targetIds = [...new Set(entries.map((entry) => entry.toCell).filter((cellId) => cellId > 0))];
+  const targetIds = [
+    ...new Set(entries.map((entry) => entry.toCell).filter((cellId) => cellId > 0)),
+  ];
   const missingIds = targetIds.filter((cellId) => !cellNames.value[cellId]);
   if (missingIds.length === 0) {
     return;

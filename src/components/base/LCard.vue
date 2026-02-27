@@ -1,16 +1,40 @@
 <template>
-  <q-card :class="cardClasses" :flat="flat" :bordered="bordered" v-bind="$attrs">
+  <q-card
+    :class="cardClasses"
+    :flat="flat"
+    :bordered="bordered"
+    v-bind="$attrs"
+  >
     <!-- Header -->
-    <q-card-section v-if="$slots.header || title" class="row items-center no-wrap q-gutter-md">
+    <q-card-section
+      v-if="$slots.header || title"
+      class="row items-center no-wrap q-gutter-md"
+    >
       <slot name="header">
-        <div v-if="icon || $slots.icon" class="text-primary">
+        <div
+          v-if="icon || $slots.icon"
+          class="text-primary"
+        >
           <slot name="icon">
-            <q-icon :name="icon" size="24px" />
+            <q-icon
+              :name="icon"
+              size="24px"
+            />
           </slot>
         </div>
         <div class="col">
-          <div v-if="title" class="text-subtitle1 text-weight-bold">{{ title }}</div>
-          <div v-if="subtitle" class="text-caption text-secondary">{{ subtitle }}</div>
+          <div
+            v-if="title"
+            class="text-subtitle1 text-weight-bold"
+          >
+            {{ title }}
+          </div>
+          <div
+            v-if="subtitle"
+            class="text-caption text-secondary"
+          >
+            {{ subtitle }}
+          </div>
         </div>
         <div v-if="$slots.headerAction">
           <slot name="headerAction" />
@@ -24,7 +48,11 @@
     </q-card-section>
 
     <!-- Actions -->
-    <q-card-actions v-if="$slots.actions" align="right" class="q-pt-none">
+    <q-card-actions
+      v-if="$slots.actions"
+      align="right"
+      class="q-pt-none"
+    >
       <slot name="actions" />
     </q-card-actions>
   </q-card>

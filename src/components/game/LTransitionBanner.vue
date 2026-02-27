@@ -13,7 +13,9 @@
     </template>
 
     <div class="text-weight-medium">
-      {{ transitionName || (bannerType === 'arrow' ? t('transition.arrow') : t('transition.snake')) }}
+      {{
+        transitionName || (bannerType === 'arrow' ? t('transition.arrow') : t('transition.snake'))
+      }}
     </div>
     <div class="text-caption">
       <template v-if="isLastMoveTransition">
@@ -28,14 +30,20 @@
         <strong>{{ formattedTarget }}</strong>
       </template>
     </div>
-    <div v-if="isLastMoveTransition" class="text-caption q-mt-xs">
+    <div
+      v-if="isLastMoveTransition"
+      class="text-caption q-mt-xs"
+    >
       {{
         bannerType === 'arrow'
           ? t('transition.arrow_interpretation')
           : t('transition.snake_interpretation')
       }}
     </div>
-    <div v-if="transitionDescription" class="text-caption q-mt-xs">
+    <div
+      v-if="transitionDescription"
+      class="text-caption q-mt-xs"
+    >
       {{ transitionDescription }}
     </div>
   </q-banner>
@@ -118,17 +126,25 @@ const transitionTarget = computed(() => {
 const sourceCell = ref<Cell | null>(null);
 const targetCell = ref<Cell | null>(null);
 
-watch(() => transitionSource.value, async (id) => {
-  if (id) {
-    sourceCell.value = await referenceStore.fetchCellById(id);
-  }
-}, { immediate: true });
+watch(
+  () => transitionSource.value,
+  async (id) => {
+    if (id) {
+      sourceCell.value = await referenceStore.fetchCellById(id);
+    }
+  },
+  { immediate: true },
+);
 
-watch(() => transitionTarget.value, async (id) => {
-  if (id) {
-    targetCell.value = await referenceStore.fetchCellById(id);
-  }
-}, { immediate: true });
+watch(
+  () => transitionTarget.value,
+  async (id) => {
+    if (id) {
+      targetCell.value = await referenceStore.fetchCellById(id);
+    }
+  },
+  { immediate: true },
+);
 
 const transitionName = computed(() => sourceCell.value?.transition?.name || '');
 const transitionDescription = computed(() => sourceCell.value?.transition?.description || '');

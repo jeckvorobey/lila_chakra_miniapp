@@ -80,4 +80,21 @@ export default defineConfigWithVueTs(
   },
 
   prettierSkipFormatting,
+
+  {
+    files: ['**/*.vue'],
+    rules: {
+      'vue/max-attributes-per-line': [
+        'warn',
+        {
+          singleline: {
+            max: 2,
+          },
+          multiline: {
+            max: 1,
+          },
+        },
+      ],
+    },
+  },
 );

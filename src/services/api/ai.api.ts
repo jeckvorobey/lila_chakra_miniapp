@@ -8,7 +8,9 @@ export const aiApi = {
   /**
    * Сгенерировать 10 вариантов формулировки пользовательского запроса.
    */
-  async generateQuerySuggestions(payload: QuerySuggestionsRequest): Promise<QuerySuggestionsResponse> {
+  async generateQuerySuggestions(
+    payload: QuerySuggestionsRequest,
+  ): Promise<QuerySuggestionsResponse> {
     const response = await api.post<QuerySuggestionsResponse>('/ai/query-suggestions', payload);
     return response.data;
   },

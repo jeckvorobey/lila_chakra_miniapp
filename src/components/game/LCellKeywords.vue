@@ -1,5 +1,8 @@
 <template>
-  <div v-if="keywords?.length" class="l-cell-keywords q-mb-md">
+  <div
+    v-if="keywords?.length"
+    class="l-cell-keywords q-mb-md"
+  >
     <div class="text-overline text-secondary q-mb-xs">
       {{ t('cell.keywords') }}
     </div>

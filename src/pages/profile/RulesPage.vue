@@ -2,14 +2,27 @@
   <q-page class="rules-page lila-page-nav-offset">
     <div class="column q-gutter-y-md">
       <div class="text-center q-px-md q-pt-md">
-        <q-icon name="mdi-book-open-variant" size="64px" color="primary" class="q-mb-sm" />
+        <q-icon
+          name="mdi-book-open-variant"
+          size="64px"
+          color="primary"
+          class="q-mb-sm"
+        />
         <h1 class="text-h5 text-weight-bold q-mt-none q-mb-none">{{ $t('rules.title') }}</h1>
       </div>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <q-icon name="mdi-meditation" color="primary" size="22px" class="q-mr-sm" />
+            <q-icon
+              name="mdi-meditation"
+              color="primary"
+              size="22px"
+              class="q-mr-sm"
+            />
             <span class="text-subtitle1 text-weight-bold">
               {{ $t('rules.prep_title') }}
             </span>
@@ -18,10 +31,18 @@
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <q-icon name="mdi-compass-outline" color="primary" size="22px" class="q-mr-sm" />
+            <q-icon
+              name="mdi-compass-outline"
+              color="primary"
+              size="22px"
+              class="q-mr-sm"
+            />
             <span class="text-subtitle1 text-weight-bold">
               {{ $t('rules.intention_title') }}
             </span>
@@ -31,7 +52,10 @@
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="text-subtitle1 text-weight-bold q-mb-sm">
             {{ $t('rules.general_title') }}
@@ -42,25 +66,43 @@
               :key="index"
               class="q-px-none q-mb-xs"
             >
-              <q-item-section avatar side class="q-pr-sm">
-                <q-icon :name="item.icon" color="primary" size="20px" />
+              <q-item-section
+                avatar
+                side
+                class="q-pr-sm"
+              >
+                <q-icon
+                  :name="item.icon"
+                  color="primary"
+                  size="20px"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-body2">{{ item.text }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
-          <div class="text-body2 text-secondary q-mt-sm q-mb-sm">{{ $t('rules.general_move') }}</div>
+          <div class="text-body2 text-secondary q-mt-sm q-mb-sm">
+            {{ $t('rules.general_move') }}
+          </div>
           <div class="text-body2 text-secondary q-mb-sm">{{ $t('rules.general_arrow_rule') }}</div>
           <div class="text-body2 text-secondary q-mb-sm">{{ $t('rules.general_snake_rule') }}</div>
           <div class="text-body2 text-secondary">{{ $t('rules.general_six_bonus') }}</div>
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <q-icon name="mdi-trophy-outline" color="primary" size="22px" class="q-mr-sm" />
+            <q-icon
+              name="mdi-trophy-outline"
+              color="primary"
+              size="22px"
+              class="q-mr-sm"
+            />
             <span class="text-subtitle1 text-weight-bold">
               {{ $t('rules.goal_title') }}
             </span>
@@ -69,10 +111,18 @@
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <q-icon name="mdi-chart-timeline-variant" color="primary" size="22px" class="q-mr-sm" />
+            <q-icon
+              name="mdi-chart-timeline-variant"
+              color="primary"
+              size="22px"
+              class="q-mr-sm"
+            />
             <span class="text-subtitle1 text-weight-bold">
               {{ $t('rules.analysis_title') }}
             </span>
@@ -84,8 +134,16 @@
               :key="index"
               class="q-px-none q-mb-xs"
             >
-              <q-item-section avatar side class="q-pr-sm">
-                <q-icon :name="item.icon" color="primary" size="20px" />
+              <q-item-section
+                avatar
+                side
+                class="q-pr-sm"
+              >
+                <q-icon
+                  :name="item.icon"
+                  color="primary"
+                  size="20px"
+                />
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-body2">{{ item.text }}</q-item-label>
@@ -96,10 +154,18 @@
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
-            <q-icon name="mdi-run-fast" color="primary" size="22px" class="q-mr-sm" />
+            <q-icon
+              name="mdi-run-fast"
+              color="primary"
+              size="22px"
+              class="q-mr-sm"
+            />
             <span class="text-subtitle1 text-weight-bold">
               {{ $t('rules.after_title') }}
             </span>
@@ -108,7 +174,10 @@
         </q-card-section>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="text-subtitle1 text-weight-bold q-mb-sm">
             {{ $t('rules.modes_title') }}
@@ -122,7 +191,12 @@
           <q-separator />
           <q-card-section>
             <div class="row items-center q-mb-xs">
-              <q-icon :name="mode.icon" :color="mode.iconColor" size="20px" class="q-mr-sm" />
+              <q-icon
+                :name="mode.icon"
+                :color="mode.iconColor"
+                size="20px"
+                class="q-mr-sm"
+              />
               <span class="text-subtitle2 text-weight-medium">
                 {{ mode.title }}
               </span>
@@ -139,7 +213,10 @@
         </template>
       </l-card>
 
-      <l-card bordered class="bg-surface">
+      <l-card
+        bordered
+        class="bg-surface"
+      >
         <q-card-section>
           <div class="row items-center q-mb-sm">
             <q-icon
@@ -153,7 +230,11 @@
             </span>
           </div>
           <div class="text-body2 text-secondary">{{ $t('rules.extra_question_desc') }}</div>
-          <q-badge color="primary" outline class="q-mt-sm">
+          <q-badge
+            color="primary"
+            outline
+            class="q-mt-sm"
+          >
             1 {{ $t('rules.tkn') }}
           </q-badge>
         </q-card-section>
