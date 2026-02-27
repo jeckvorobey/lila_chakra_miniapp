@@ -118,6 +118,8 @@ export interface GameOut {
   snakes_hit: number;
   highest_cell: number;
   clarifications_used: number;
+  clarifications_free_left: number;
+  next_clarification_cost: number;
   created_at: string;
   completed_at: string | null;
   magic_time_ends_at: string | null;
@@ -172,6 +174,9 @@ export interface GameBrief {
   status: GameStatus;
   current_cell: number;
   total_moves: number;
+  clarifications_used: number;
+  clarifications_free_left: number;
+  next_clarification_cost: number;
   created_at: string;
   completed_at: string | null;
   magic_time_ends_at: string | null;

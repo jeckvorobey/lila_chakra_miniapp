@@ -128,6 +128,7 @@ import { useI18n } from 'vue-i18n';
 import { gamesApi } from 'src/services/api';
 import { useGameStore } from 'src/stores/game.store';
 import { useUserStore } from 'src/stores/user.store';
+import { useUiStore } from 'src/stores/ui.store';
 import type { ClarificationStreamEvent, GameMode } from 'src/types/game.interface';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import { useTypewriter } from 'src/composables/useTypewriter';
@@ -154,6 +155,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const gameStore = useGameStore();
 const userStore = useUserStore();
+const uiStore = useUiStore();
 
 const {
   isTyping,
@@ -187,7 +189,7 @@ const canSubmitQuestion = computed(() => {
 });
 
 const isPaid = computed(() => {
-  return !(props.gameMode !== 'free' && props.freeLeft > 0);
+  return gameStore.nextClarificationCost > 0;
 });
 
 const showAskButton = computed(() => !isLoading.value && !isTyping.value && !showInputDialog.value);
@@ -221,8 +223,12 @@ function closeInputDialog(): void {
 
 function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): void {
   userStore.updateBalance(event.balance_tkn);
-  if (gameStore.currentGame && props.gameMode !== 'free') {
-    gameStore.currentGame.clarifications_used = Math.max(0, 3 - event.free_left);
+  if (gameStore.currentGame) {
+    gameStore.currentGame.clarifications_used = Math.max(0, 2 - event.free_left);
+    // Обновляем стоимость следующего вопроса из меты стрима, если она там есть
+    if (event.cost_tkn !== undefined) {
+      gameStore.currentGame.next_clarification_cost = event.free_left > 0 ? 0 : 1;
+    }
   }
 }
 
@@ -244,6 +250,21 @@ async function submitQuestion(): Promise<void> {
     return;
   }
 
+  if (isPaid.value) {
+    uiStore.requestTokenConfirm({
+      amount: gameStore.nextClarificationCost,
+      title: t('payment.token_confirm.title'),
+      message: t('payment.token_confirm.message_clarification', {
+        amount: gameStore.nextClarificationCost,
+      }),
+      onConfirm: () => executeSubmit(normalizedQuestion),
+    });
+  } else {
+    await executeSubmit(normalizedQuestion);
+  }
+}
+
+async function executeSubmit(normalizedQuestion: string): Promise<void> {
   showInputDialog.value = false;
   isLoading.value = true;
   errorMessage.value = null;

@@ -129,6 +129,9 @@
       v-if="showBottomNav"
       class="q-mx-sm q-mt-md"
     />
+
+    <!-- Global Modals -->
+    <l-token-confirm-modal />
   </q-layout>
 </template>
 
@@ -138,6 +141,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { LBottomNav } from 'src/components/navigation';
 import { LThemeToggle } from 'src/components/base';
+import LTokenConfirmModal from 'src/components/common/LTokenConfirmModal.vue';
 import { useUserStore } from 'src/stores/user.store';
 
 const route = useRoute();

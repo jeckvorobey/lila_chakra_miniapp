@@ -112,7 +112,7 @@
       </div>
 
       <l-clarification-panel
-        v-else-if="showClarificationPanel && !isVictoryCell"
+        v-if="showClarificationPanel && !isVictoryCell"
         :game-id="gameStore.currentGame?.id ?? 0"
         :game-mode="gameStore.currentGame?.mode ?? 'free'"
         :free-left="gameStore.clarificationsFreeLeft"

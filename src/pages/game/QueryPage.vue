@@ -250,11 +250,13 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuerySuggestions } from 'src/composables/useQuerySuggestions';
 import { useGameStore, type QueryCategory, type GameMode } from 'src/stores/game.store';
+import { useUiStore } from 'src/stores/ui.store';
 
 const $q = useQuasar();
-const i18n = useI18n();
+const { t } = useI18n();
 const router = useRouter();
 const gameStore = useGameStore();
+const uiStore = useUiStore();
 const { generateSuggestions } = useQuerySuggestions();
 
 type SuggestionState = 'idle' | 'loading' | 'success' | 'error';
@@ -280,41 +282,41 @@ const suggestionError = ref('');
 const categories = computed(() => [
   {
     value: 'relationships' as QueryCategory,
-    label: i18n.t('query.category.relationships'),
+    label: t('query.category.relationships'),
     icon: 'mdi-heart',
   },
   {
     value: 'career' as QueryCategory,
-    label: i18n.t('query.category.career'),
+    label: t('query.category.career'),
     icon: 'mdi-briefcase',
   },
   {
     value: 'health' as QueryCategory,
-    label: i18n.t('query.category.health'),
+    label: t('query.category.health'),
     icon: 'mdi-heart-pulse',
   },
   {
     value: 'finance' as QueryCategory,
-    label: i18n.t('query.category.finance'),
+    label: t('query.category.finance'),
     icon: 'mdi-currency-usd',
   },
   {
     value: 'freedom' as QueryCategory,
-    label: i18n.t('query.category.freedom'),
+    label: t('query.category.freedom'),
     icon: 'mdi-map',
   },
   {
     value: 'personality' as QueryCategory,
-    label: i18n.t('query.category.personality'),
+    label: t('query.category.personality'),
     icon: 'mdi-account-circle',
   },
 ]);
 
 // Опции режима игры
-const gameModeOptions: ReadonlyArray<{ value: GameMode; label: string }> = [
-  { value: 'free', label: 'Бесплатный' },
-  { value: 'ai_guide', label: 'ИИ Наставник (15 ТКН)' },
-  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 ТКН)' },
+const gameModeOptions: ReadonlyArray<{ value: GameMode; label: string; cost: number }> = [
+  { value: 'free', label: 'Бесплатный', cost: 0 },
+  { value: 'ai_guide', label: 'ИИ Наставник (10 ТКН)', cost: 10 },
+  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 ТКН)', cost: 20 },
 ];
 
 const inactiveModeColor = computed(() => ($q.dark.isActive ? 'grey-9' : 'grey-2'));
@@ -335,7 +337,7 @@ function isQueryExamplesByCategory(value: unknown): value is QueryExamplesByCate
 }
 
 const examplesByCategory = computed<QueryExamplesByCategory>(() => {
-  const localizedExamples = i18n.tm('query.examples_by_category');
+  const localizedExamples = t('query.examples_by_category');
   return isQueryExamplesByCategory(localizedExamples) ? localizedExamples : {};
 });
 
@@ -398,22 +400,38 @@ async function requestSuggestions() {
 
     suggestionState.value = suggestions.value.length > 0 ? 'success' : 'error';
     if (suggestions.value.length === 0) {
-      suggestionError.value = i18n.t('query.assistant.error');
+      suggestionError.value = t('query.assistant.error');
     }
   } catch (error) {
     suggestionState.value = 'error';
     if (error instanceof Error && error.message.startsWith('errors.')) {
-      suggestionError.value = i18n.t(error.message);
+      suggestionError.value = t(error.message);
       return;
     }
     suggestionError.value =
-      error instanceof Error ? error.message : i18n.t('query.assistant.error');
+      error instanceof Error ? error.message : t('query.assistant.error');
   }
 }
 
 async function startGame() {
   if (!canStart.value) return;
 
+  const modeOption = gameModeOptions.find((o) => o.value === gameMode.value);
+  const cost = modeOption?.cost || 0;
+
+  if (cost > 0) {
+    uiStore.requestTokenConfirm({
+      amount: cost,
+      title: t('payment.token_confirm.title'),
+      message: t('payment.token_confirm.message_game', { amount: cost }),
+      onConfirm: () => executeStartGame(),
+    });
+  } else {
+    await executeStartGame();
+  }
+}
+
+async function executeStartGame() {
   isLoading.value = true;
 
   const success = await gameStore.createGame({
