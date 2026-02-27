@@ -1,7 +1,10 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
-    <q-header v-if="showHeader" class="bg-surface text-primary bordered q-mx-sm q-mb-md">
+    <q-header
+      v-if="showHeader"
+      class="bg-surface-translucent text-primary bordered q-mx-sm q-mb-md"
+    >
       <q-toolbar class="safe-area-top row items-center no-wrap">
         <!-- Левая секция -->
         <div class="col row items-center no-wrap text-h3">
@@ -35,7 +38,7 @@
           <l-theme-toggle />
 
           <q-btn v-if="showMenu" flat dense round icon="mdi-dots-vertical">
-            <q-menu anchor="bottom right" self="top right">
+            <q-menu anchor="bottom right" self="top right" class="bg-surface-translucent bordered">
               <q-list style="min-width: 180px">
                 <q-item v-close-popup clickable @click="navigateTo('/profile')">
                   <q-item-section avatar>

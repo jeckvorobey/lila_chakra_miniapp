@@ -13,6 +13,7 @@
   --lila-bg: #{$dark-page};
   --lila-surface: #{$dark};
   --lila-surface-elevated: #252136;
+  --lila-surface-translucent: rgba(26, 22, 37, 0.82);
   --lila-text-primary: #f5f5f4;
   --lila-text-secondary: #a1a1aa;
   --lila-border: rgba(255, 255, 255, 0.1);
@@ -40,6 +41,7 @@
   --lila-bg: #fafaf9;
   --lila-surface: #ffffff;
   --lila-surface-elevated: #f5f5f4;
+  --lila-surface-translucent: rgba(255, 255, 255, 0.88);
   --lila-text-primary: #1c1917;
   --lila-text-secondary: #57534e;
   --lila-border: rgba(0, 0, 0, 0.08);
@@ -118,6 +120,12 @@ body {
 
 .bg-surface-elevated {
   background-color: var(--lila-surface-elevated) !important;
+}
+
+.bg-surface-translucent {
+  background-color: var(--lila-surface-translucent) !important;
+  backdrop-filter: var(--lila-glass-blur);
+  -webkit-backdrop-filter: var(--lila-glass-blur);
 }
 
 // ================================
