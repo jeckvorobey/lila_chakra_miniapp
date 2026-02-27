@@ -127,7 +127,7 @@
 
       <!-- Действия -->
       <div class="diary-detail__actions row q-col-gutter-sm items-center justify-center">
-        <div class="col-6 row items-center justify-center q-pa-none">
+        <div class="col-12 col-sm-6 row items-center justify-center q-px-sm">
           <q-btn
             v-if="isCurrentGameActive"
             :label="$t('game.continue_game')"
@@ -139,7 +139,7 @@
         </div>
         <div
           v-if="game?.status === 'completed'"
-          class="col-12 row q-gutter-md items-center justify-center"
+          class="col-12 row q-gutter-sm items-center justify-center"
         >
           <div
             v-if="!game.exit_meditation_completed"

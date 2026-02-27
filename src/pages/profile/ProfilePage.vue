@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <!-- Balance card -->
+    <!-- Карточка баланса -->
     <q-card
       flat
       bordered
@@ -54,7 +54,7 @@
       </q-card-section>
     </q-card>
 
-    <!-- Stats -->
+    <!-- Статистика -->
     <div class="row q-gutter-sm q-mb-md">
       <q-card
         flat
@@ -99,14 +99,14 @@
       </q-card>
     </div>
 
-    <!-- Settings -->
+    <!-- Настройки -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.settings') }}</div>
     <q-list
       bordered
       separator
       class="rounded-borders q-mb-md bg-surface"
     >
-      <!-- Theme -->
+      <!-- Тема -->
       <q-item>
         <q-item-section avatar>
           <q-icon name="mdi-theme-light-dark" />
@@ -130,7 +130,7 @@
         </q-item-section>
       </q-item>
 
-      <!-- Sound -->
+      <!-- Звук -->
       <q-item tag="label">
         <q-item-section avatar>
           <q-icon :name="settingsStore.soundEnabled ? 'mdi-volume-high' : 'mdi-volume-off'" />
@@ -146,7 +146,7 @@
         </q-item-section>
       </q-item>
 
-      <!-- Vibration -->
+      <!-- Вибрация -->
       <q-item tag="label">
         <q-item-section avatar>
           <q-icon name="mdi-vibrate" />
@@ -162,7 +162,7 @@
         </q-item-section>
       </q-item>
 
-      <!-- Dice mode -->
+      <!-- Режим кубика -->
       <q-item>
         <q-item-section avatar>
           <q-icon name="mdi-dice-multiple" />
@@ -187,7 +187,7 @@
       </q-item>
     </q-list>
 
-    <!-- Chip Settings -->
+    <!-- Настройки фишек -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.chip_settings') }}</div>
     <q-card
       flat
@@ -265,7 +265,7 @@
       </q-card>
     </q-dialog>
 
-    <!-- Support links -->
+    <!-- Ссылки поддержки -->
     <q-list
       bordered
       separator

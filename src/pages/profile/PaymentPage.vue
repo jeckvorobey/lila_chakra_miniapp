@@ -61,7 +61,7 @@
       <div
         v-for="pkg in packages"
         :key="pkg.amount_rub"
-        class="col-4"
+        class="col-6 col-sm-4"
       >
         <q-card
           flat
@@ -73,7 +73,7 @@
           <q-card-section class="text-center q-pa-sm relative-position">
             <q-badge
               v-if="pkg.discount"
-              color="secondary"
+              color="primary"
               floating
               class="payment-page__discount-badge"
             >
@@ -115,16 +115,20 @@
     </q-card>
 
     <!-- Кнопка оплаты -->
-    <q-btn
-      :label="$t('payment.proceed')"
-      color="primary"
-      size="lg"
-      unelevated
-      class="full-width"
-      :loading="isProcessing"
-      :disable="!selectedPackage"
-      @click="processPayment"
-    />
+    <div class="row justify-center items-center">
+      <div class="col col-sm-6">
+        <q-btn
+          :label="$t('payment.proceed')"
+          color="primary"
+          size="md"
+          unelevated
+          class="full-width"
+          :loading="isProcessing"
+          :disable="!selectedPackage"
+          @click="processPayment"
+        />
+      </div>
+    </div>
 
     <!-- Информация о способах оплаты -->
     <div class="text-center q-mt-lg">
