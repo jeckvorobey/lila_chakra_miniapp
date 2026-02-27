@@ -28,6 +28,8 @@ import { isActiveGameStatus } from 'src/data/game-status';
 // Повторный экспорт игровых констант для удобства
 export { WINNING_CELL, CHAKRA_ROWS, CELLS_PER_ROW, WAITING_ZONE };
 
+export type { GameMode, QueryCategory };
+
 export const useGameStore = defineStore('game', () => {
 
 
