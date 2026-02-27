@@ -270,6 +270,7 @@ export interface ClarificationHistoryItem {
 
 export interface ClarificationHistoryResponse {
   items: ClarificationHistoryItem[];
+  is_next_clarification_paid: boolean;
 }
 
 export interface ClarificationStreamMetaEvent {

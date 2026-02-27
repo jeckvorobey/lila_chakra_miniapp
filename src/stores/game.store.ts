@@ -115,7 +115,10 @@ export const useGameStore = defineStore('game', () => {
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
   const isNextClarificationPaid = computed(() => {
-    return currentGame.value?.is_next_clarification_paid ?? true;
+    const game = currentGame.value;
+    if (!game) return true;
+    if (game.mode === 'free') return true;
+    return game.is_next_clarification_paid;
   });
 
   // Синхронизация displayCell с currentCell вне анимации

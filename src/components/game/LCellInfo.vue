@@ -114,7 +114,7 @@
       <l-clarification-panel
         v-if="showClarificationPanel && !isVictoryCell"
         :game-id="gameStore.currentGame?.id ?? 0"
-        :is-next-clarification-paid="gameStore.isNextClarificationPaid"
+        :is-next-clarification-paid="isNextClarificationPaid"
         :initial-clarifications="clarificationHistory"
         @clarification-added="onClarificationAdded"
       />
@@ -201,6 +201,7 @@ const { t } = useI18n();
 const gameStore = useGameStore();
 const clarificationHistory = ref<ClarificationEntry[]>([]);
 const loadedHistoryGameId = ref<number | null>(null);
+const isNextClarificationPaid = ref<boolean>(true);
 
 const {
   typingAnswer: aiInterpretationText,
@@ -345,11 +346,13 @@ function onClarificationAdded(entry: ClarificationEntry): void {
 async function loadClarificationHistory(gameId: number): Promise<void> {
   if (!cellId.value) return;
   try {
-    const response = await gamesApi.getClarificationHistory(gameId);
+    const response = await gamesApi.getClarificationHistory(gameId, cellId.value);
     clarificationHistory.value = mapHistoryToClarifications(response.items, cellId.value);
+    isNextClarificationPaid.value = response.is_next_clarification_paid ?? true;
     loadedHistoryGameId.value = gameId;
   } catch {
     loadedHistoryGameId.value = gameId;
+    isNextClarificationPaid.value = true;
   }
 }
 

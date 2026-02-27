@@ -240,9 +240,14 @@ export const gamesApi = {
   /**
    * Получить историю уточняющих вопросов AI Ментору.
    */
-  async getClarificationHistory(gameId: number): Promise<ClarificationHistoryResponse> {
+  async getClarificationHistory(
+    gameId: number,
+    cellId?: number,
+  ): Promise<ClarificationHistoryResponse> {
+    const params = cellId !== undefined ? { cell_id: cellId } : undefined;
     const response = await api.get<ClarificationHistoryResponse>(
       `/ai/games/${gameId}/clarify/history`,
+      { params },
     );
     return response.data;
   },

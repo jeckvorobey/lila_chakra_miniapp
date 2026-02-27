@@ -35,9 +35,7 @@
       class="full-width l-clarification-ask-btn"
       @click="openInputDialog"
     >
-      <span>{{
-        isPaid ? t('clarification.button_paid_base') : t('clarification.button_free')
-      }}</span>
+      <span>{{ t('clarification.button_paid_base') }}</span>
       <span
         v-if="isPaid"
         class="text-accent q-ml-xs"
@@ -213,7 +211,8 @@ function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): 
       gameStore.currentGame.is_next_clarification_paid = true;
     } else {
       gameStore.currentGame.clarifications_used += 1;
-      gameStore.currentGame.is_next_clarification_paid = gameStore.currentGame.clarifications_used >= 2;
+      gameStore.currentGame.is_next_clarification_paid =
+        gameStore.currentGame.clarifications_used >= 2;
     }
   }
 }
