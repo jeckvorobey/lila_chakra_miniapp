@@ -88,7 +88,6 @@ function mapClarificationSseEvent(message: SseMessage): ClarificationStreamEvent
       question: readStringField(data, 'question', ''),
       cost_tkn: readNumberField(data, 'cost_tkn', 0),
       balance_tkn: readNumberField(data, 'balance_tkn', 0),
-      free_left: readNumberField(data, 'free_left', 0),
     };
   }
   if (message.event === 'delta') {

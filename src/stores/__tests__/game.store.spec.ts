@@ -185,8 +185,7 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
-      clarifications_free_left: 2,
-      next_clarification_cost: 1,
+      is_next_clarification_paid: true,
     };
 
     await nextTick();
@@ -226,8 +225,7 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
-      clarifications_free_left: 2,
-      next_clarification_cost: 1,
+      is_next_clarification_paid: true,
     };
 
     store.addManualSix();
@@ -295,8 +293,7 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
-      clarifications_free_left: 2,
-      next_clarification_cost: 1,
+      is_next_clarification_paid: true,
     };
 
     mockGamesApi.rollDice.mockResolvedValue({
@@ -320,7 +317,7 @@ describe('game.store rollDice', () => {
     expect(store.currentDiceRolls).toEqual([6]);
   });
 
-  it('корректно возвращает остаток бесплатных уточнений из состояния', () => {
+  it('корректно возвращает флаг платного следующего уточнения из состояния', () => {
     const store = useGameStore();
 
     store.currentGame = {
@@ -341,28 +338,20 @@ describe('game.store rollDice', () => {
       completed_at: null,
       magic_time_ends_at: null,
       ai_summary: null,
-      clarifications_used: 0, // legacy
-      clarifications_free_left: 2, // Значение от API
-      next_clarification_cost: 0,
+      clarifications_used: 1,
+      is_next_clarification_paid: false,
     };
 
-    // 1. Начальное значение от API
-    expect(store.clarificationsFreeLeft).toBe(2);
+    expect(store.isNextClarificationPaid).toBe(false);
 
-    // 2. Имитация обновления от API после использования одной попытки
+    // Имитация обновления от API после достижения лимита бесплатных уточнений
     if (store.currentGame) {
-      store.currentGame.clarifications_free_left = 1;
+      store.currentGame.is_next_clarification_paid = true;
     }
-    expect(store.clarificationsFreeLeft).toBe(1);
-
-    // 3. Имитация обновления, когда попытки кончились
-    if (store.currentGame) {
-      store.currentGame.clarifications_free_left = 0;
-    }
-    expect(store.clarificationsFreeLeft).toBe(0);
+    expect(store.isNextClarificationPaid).toBe(true);
   });
 
-  it('для FREE режима всегда возвращает 0 бесплатных уточнений', () => {
+  it('для FREE режима возвращает платный следующий вопрос', () => {
     const store = useGameStore();
 
     store.currentGame = {
@@ -384,10 +373,9 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
-      clarifications_free_left: 0, // В free-режиме API всегда вернёт 0
-      next_clarification_cost: 1,
+      is_next_clarification_paid: true,
     };
 
-    expect(store.clarificationsFreeLeft).toBe(0);
+    expect(store.isNextClarificationPaid).toBe(true);
   });
 });

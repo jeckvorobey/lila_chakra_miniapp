@@ -178,7 +178,7 @@ export default {
   },
 
   clarification: {
-    button_free: 'Задать уточняющий вопрос',
+    button_free: 'Задать уточняющий вопрос (бесплатно)',
     button_paid_base: 'Задать уточняющий вопрос',
     button_paid_cost: '1 ТКН',
     dialog_title: 'Уточняющий вопрос',

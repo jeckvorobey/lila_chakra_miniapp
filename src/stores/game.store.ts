@@ -114,12 +114,8 @@ export const useGameStore = defineStore('game', () => {
 
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
-  const clarificationsFreeLeft = computed(() => {
-    return currentGame.value?.clarifications_free_left ?? 0;
-  });
-
-  const nextClarificationCost = computed(() => {
-    return currentGame.value?.next_clarification_cost ?? 1;
+  const isNextClarificationPaid = computed(() => {
+    return currentGame.value?.is_next_clarification_paid ?? true;
   });
 
   // Синхронизация displayCell с currentCell вне анимации
@@ -697,8 +693,7 @@ export const useGameStore = defineStore('game', () => {
     arrowsHit,
     snakesHit,
     highestCell,
-    clarificationsFreeLeft,
-    nextClarificationCost,
+    isNextClarificationPaid,
 
     // Вспомогательные функции
     getChakraLevel,

@@ -99,15 +99,14 @@ import { gamesApi } from 'src/services/api';
 import { useGameStore } from 'src/stores/game.store';
 import { useUserStore } from 'src/stores/user.store';
 import { useUiStore } from 'src/stores/ui.store';
-import type { ClarificationStreamEvent, GameMode } from 'src/types/game.interface';
+import type { ClarificationStreamEvent } from 'src/types/game.interface';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import { useTypewriter } from 'src/composables/useTypewriter';
 import LClarificationList from './LClarificationList.vue';
 
 interface Props {
   gameId: number;
-  gameMode: GameMode;
-  freeLeft: number;
+  isNextClarificationPaid: boolean;
   initialClarifications?: ClarificationEntry[];
 }
 
@@ -143,6 +142,7 @@ const clarifications = ref<ClarificationEntry[]>([]);
 const pendingQuestion = ref('');
 const errorMessage = ref<string | null>(null);
 const isLoading = ref(false);
+const CLARIFICATION_COST_TKN = 1;
 
 let streamAbortController: AbortController | null = null;
 
@@ -160,10 +160,7 @@ const canSubmitQuestion = computed(() => {
 });
 
 const isPaid = computed(() => {
-  // В режиме free уточнения всегда платные
-  if (props.gameMode === 'free') return true;
-  // В AI режимах первые 2 бесплатные
-  return props.freeLeft === 0;
+  return props.isNextClarificationPaid;
 });
 
 const showAskButton = computed(() => !isLoading.value && !isTyping.value && !showInputDialog.value);
@@ -191,10 +188,10 @@ function openInputDialog(): void {
 
   if (isPaid.value) {
     uiStore.requestTokenConfirm({
-      amount: gameStore.nextClarificationCost,
+      amount: CLARIFICATION_COST_TKN,
       title: t('payment.token_confirm.title'),
       message: t('payment.token_confirm.message_clarification', {
-        amount: gameStore.nextClarificationCost,
+        amount: CLARIFICATION_COST_TKN,
       }),
       onConfirm: () => {
         showInputDialog.value = true;
@@ -212,12 +209,11 @@ function closeInputDialog(): void {
 function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): void {
   userStore.updateBalance(event.balance_tkn);
   if (gameStore.currentGame) {
-    // Обновляем остаток бесплатных попыток и стоимость из потока
-    if (event.free_left !== undefined) {
-      gameStore.currentGame.clarifications_free_left = event.free_left;
-    }
-    if (event.cost_tkn !== undefined) {
-      gameStore.currentGame.next_clarification_cost = event.cost_tkn;
+    if (gameStore.currentGame.mode === 'free') {
+      gameStore.currentGame.is_next_clarification_paid = true;
+    } else {
+      gameStore.currentGame.clarifications_used += 1;
+      gameStore.currentGame.is_next_clarification_paid = gameStore.currentGame.clarifications_used >= 2;
     }
   }
 }

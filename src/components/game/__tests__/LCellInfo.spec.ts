@@ -10,7 +10,7 @@ const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
       mode: 'free' as 'free' | 'ai_incognito' | 'ai_guide',
       status: 'in_progress' as 'in_progress' | 'completed',
     },
-    clarificationsFreeLeft: 3,
+    isNextClarificationPaid: false,
     moves: [],
   },
   getClarificationHistoryMock: vi.fn(),
@@ -19,7 +19,7 @@ const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
 vi.mock('src/stores/game.store', () => ({
   useGameStore: () => ({
     currentGame: gameStoreState.currentGame,
-    clarificationsFreeLeft: gameStoreState.clarificationsFreeLeft,
+    isNextClarificationPaid: gameStoreState.isNextClarificationPaid,
     moves: gameStoreState.moves,
   }),
 }));
@@ -65,6 +65,7 @@ beforeEach(() => {
   gameStoreState.currentGame.id = 1;
   gameStoreState.currentGame.mode = 'free';
   gameStoreState.currentGame.status = 'in_progress';
+  gameStoreState.isNextClarificationPaid = false;
   gameStoreState.moves = [];
   getClarificationHistoryMock.mockReset();
   getClarificationHistoryMock.mockResolvedValue({ items: [] });
@@ -95,7 +96,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
         },
         LClarificationPanel: {
           name: 'LClarificationPanel',
-          props: ['initialClarifications'],
+          props: ['initialClarifications', 'isNextClarificationPaid'],
           template: '<div data-testid="clarification-panel" />',
         },
         LTransitionBanner: true,

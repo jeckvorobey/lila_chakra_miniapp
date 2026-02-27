@@ -174,7 +174,7 @@ export default {
   },
 
   clarification: {
-    button_free: 'Ask a clarification question',
+    button_free: 'Ask a clarification question (free)',
     button_paid_base: 'Ask a clarification question',
     button_paid_cost: '1 TKN',
     dialog_title: 'Clarifying Question',

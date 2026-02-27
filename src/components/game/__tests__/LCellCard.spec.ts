@@ -11,7 +11,7 @@ vi.mock('src/stores/game.store', () => ({
   useGameStore: () => ({
     moves: mockMoves,
     currentGame: { id: 1, mode: 'free' },
-    clarificationsFreeLeft: 0,
+    isNextClarificationPaid: true,
     isArrowStart: () => false,
     isSnakeHead: () => false,
     getTransition: () => ({ type: 'none', to: null }),

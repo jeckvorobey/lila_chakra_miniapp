@@ -118,8 +118,7 @@ export interface GameOut {
   snakes_hit: number;
   highest_cell: number;
   clarifications_used: number;
-  clarifications_free_left: number;
-  next_clarification_cost: number;
+  is_next_clarification_paid: boolean;
   created_at: string;
   completed_at: string | null;
   magic_time_ends_at: string | null;
@@ -175,8 +174,7 @@ export interface GameBrief {
   current_cell: number;
   total_moves: number;
   clarifications_used: number;
-  clarifications_free_left: number;
-  next_clarification_cost: number;
+  is_next_clarification_paid: boolean;
   created_at: string;
   completed_at: string | null;
   magic_time_ends_at: string | null;
@@ -245,7 +243,6 @@ export interface ClarificationResponse {
   answer: string;
   cost_tkn: number;
   balance_tkn: number;
-  free_left: number;
 }
 
 export interface AIInteractionOut {
@@ -280,7 +277,6 @@ export interface ClarificationStreamMetaEvent {
   question: string;
   cost_tkn: number;
   balance_tkn: number;
-  free_left: number;
 }
 
 export interface ClarificationStreamDeltaEvent {
