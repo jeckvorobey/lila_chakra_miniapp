@@ -67,6 +67,7 @@
 html,
 body {
   background-color: var(--lila-bg);
+  color: var(--lila-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -74,6 +75,10 @@ body {
 // ================================
 // Утилиты цвета текста (с учётом темы)
 // ================================
+.text-primary {
+  color: var(--lila-text-primary) !important;
+}
+
 .text-secondary {
   color: var(--lila-text-secondary) !important;
 }
@@ -195,4 +200,43 @@ body {
 // ================================
 .lila-page-nav-offset {
   padding-bottom: calc(64px + var(--lila-layout-gap) * 3);
+}
+
+// ================================
+// Глобальные стили границ и радиусов
+// ================================
+.q-bordered,
+.bordered,
+.q-separator,
+.q-field--outlined .q-field__control,
+.q-field--outlined .q-field__control:before,
+.q-btn--outline:before {
+  border-color: var(--lila-border) !important;
+}
+
+.q-bordered,
+.bordered {
+  border: 1px solid var(--lila-border) !important;
+}
+
+// Унификация радиуса для всех bordered элементов
+.q-card.q-bordered,
+.q-header.bordered,
+.l-card.bordered,
+.q-list--bordered {
+  border-radius: $generic-border-radius !important;
+}
+
+// Радиус для полей ввода (outlined)
+.q-field--outlined .q-field__control {
+  border-radius: $generic-border-radius !important;
+}
+
+// Специальный случай для хедера (закругление только снизу)
+.q-header.bordered {
+  border-top: none !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: $generic-border-radius !important;
+  border-bottom-right-radius: $generic-border-radius !important;
 }

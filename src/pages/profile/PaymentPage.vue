@@ -9,22 +9,10 @@
 
     <q-card flat bordered class="q-mb-md">
       <q-card-section>
-        <q-input
-          v-model="promoCode"
-          dense
-          outlined
-          :label="$t('payment.promo_code')"
-          :disable="isApplyingPromo"
-        >
+        <q-input v-model="promoCode" dense outlined :label="$t('payment.promo_code')" :disable="isApplyingPromo">
           <template #append>
-            <q-btn
-              flat
-              color="primary"
-              :label="$t('payment.apply')"
-              :loading="isApplyingPromo"
-              :disable="!promoCode.trim()"
-              @click="applyPromoCode"
-            />
+            <q-btn flat color="primary" :label="$t('payment.apply')" :loading="isApplyingPromo"
+              :disable="!promoCode.trim()" @click="applyPromoCode" />
           </template>
         </q-input>
       </q-card-section>
@@ -37,18 +25,10 @@
       <q-skeleton type="rect" height="120px" />
     </div>
     <div v-else class="row q-col-gutter-sm q-mb-md">
-      <div
-        v-for="pkg in packages"
-        :key="pkg.amount_rub"
-        class="col-4"
-      >
-        <q-card
-          flat
-          bordered
-          class="payment-page__package full-height"
+      <div v-for="pkg in packages" :key="pkg.amount_rub" class="col-4">
+        <q-card flat bordered class="payment-page__package full-height"
           :class="{ 'payment-page__package--selected': selectedPackage === pkg.amount_rub }"
-          @click="selectedPackage = pkg.amount_rub"
-        >
+          @click="selectedPackage = pkg.amount_rub">
           <q-card-section class="text-center q-pa-sm relative-position">
             <q-badge v-if="pkg.discount" color="secondary" floating class="payment-page__discount-badge">
               {{ pkg.discount }}
@@ -81,16 +61,8 @@
     </q-card>
 
     <!-- Кнопка оплаты -->
-    <q-btn
-      :label="$t('payment.proceed')"
-      color="primary"
-      size="lg"
-      unelevated
-      class="full-width"
-      :loading="isProcessing"
-      :disable="!selectedPackage"
-      @click="processPayment"
-    />
+    <q-btn :label="$t('payment.proceed')" color="primary" size="lg" unelevated class="full-width"
+      :loading="isProcessing" :disable="!selectedPackage" @click="processPayment" />
 
     <!-- Информация о способах оплаты -->
     <div class="text-center q-mt-lg">
@@ -182,7 +154,7 @@ async function applyPromoCode() {
   }
 }
 
-async function loadPackages() {
+function loadPackages() {
   isLoading.value = true;
   try {
     // Временно хардкодим пакеты согласно новым требованиям
@@ -204,7 +176,7 @@ async function loadPackages() {
 }
 
 onMounted(() => {
-  void loadPackages();
+  loadPackages();
 });
 </script>
 

@@ -324,7 +324,6 @@ async function startGame() {
   &__input {
     :deep(.q-field__control) {
       background: var(--lila-surface);
-      border-radius: 10px;
     }
 
     :deep(textarea) {
@@ -332,29 +331,14 @@ async function startGame() {
     }
   }
 
-  &__mode-card {
-    border-radius: 10px;
-  }
-
-  &__mode-btn {
-    border-radius: 8px;
-  }
-
   &__assistant-card {
-    border-radius: 10px;
     background: var(--lila-surface);
-    border-color: var(--lila-border);
     padding: 16px;
     overflow: hidden;
   }
 
   &__assistant-card :deep(.q-list) {
-    border-radius: 10px;
     overflow: hidden;
-  }
-
-  &__assistant-card :deep(.q-banner) {
-    border-radius: 10px;
   }
 
   &__assistant-loading {
@@ -362,16 +346,6 @@ async function startGame() {
     align-items: center;
     gap: 8px;
     padding: 8px 0;
-  }
-
-  &__assistant-input {
-    :deep(.q-field__control) {
-      border-radius: 10px;
-    }
-  }
-
-  &__assistant-action-btn {
-    border-radius: 10px;
   }
 
   &__assistant-item--selected {

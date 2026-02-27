@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <!-- Header -->
-    <q-header v-if="showHeader" :class="{ 'bg-transparent': isGamePage }" class="q-mx-sm q-mb-md">
+    <q-header v-if="showHeader" class="bg-surface text-primary bordered q-mx-sm q-mb-md">
       <q-toolbar class="safe-area-top row items-center no-wrap">
         <!-- Левая секция -->
         <div class="col row items-center no-wrap text-h3">
@@ -140,19 +140,6 @@ function openFeedback() {
 </script>
 
 <style lang="scss" scoped>
-.q-header {
-  border: 1px solid var(--lila-border);
-  border-top: none;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-  overflow: hidden;
-
-  &.bg-transparent {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-}
-
 .q-toolbar {
   min-height: 56px;
 }

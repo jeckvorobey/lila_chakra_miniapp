@@ -66,7 +66,6 @@ const cardClasses = computed(() => [
 <style lang="scss" scoped>
 .l-card {
   background-color: var(--lila-surface);
-  border: 1px solid var(--lila-border);
   box-shadow: var(--lila-shadow);
   transition: all 0.2s ease;
 
