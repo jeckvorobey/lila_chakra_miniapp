@@ -46,6 +46,7 @@ export interface CellBrief {
   questions_first?: ReflectionQuestions | null;
   questions_revisit?: ReflectionQuestions | null;
   reflection_questions?: ReflectionQuestions | null;
+  ai_reflection_points?: string[] | null;
   visit_count?: number | null;
   is_revisit?: boolean | null;
 }
@@ -223,6 +224,12 @@ export interface MoveResponse {
   game_status?: GameStatus;
   is_entry_move: boolean;
   is_victory: boolean;
+}
+
+export interface MoveMentorResponse {
+  move_id: number;
+  interpretation: string;
+  reflection_points: string[];
 }
 
 export interface DiceRollRequest {

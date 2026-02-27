@@ -12,6 +12,7 @@ import type {
   GameListResponse,
   GameOut,
   MoveOut,
+  MoveMentorResponse,
   MoveResponse,
 } from 'src/types/game.interface';
 
@@ -226,6 +227,14 @@ export const gamesApi = {
    */
   async getMoves(gameId: number, sort: 'asc' | 'desc' = 'desc'): Promise<MoveOut[]> {
     const response = await api.get<MoveOut[]>(`/games/${gameId}/moves`, { params: { sort } });
+    return response.data;
+  },
+
+  /**
+   * Сгенерировать (или получить сохранённую) интерпретацию AI-ментора для хода.
+   */
+  async generateMoveMentor(gameId: number, moveId: number): Promise<MoveMentorResponse> {
+    const response = await api.post<MoveMentorResponse>(`/games/${gameId}/moves/${moveId}/mentor`);
     return response.data;
   },
 

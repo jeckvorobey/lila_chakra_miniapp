@@ -57,6 +57,12 @@
             :text="t('cell.ai_mentor_loading', 'Ментор размышляет над вашим ходом...')"
           />
         </div>
+        <div
+          v-else-if="aiMentorError"
+          class="text-negative text-body2"
+        >
+          {{ aiMentorError }}
+        </div>
         <div v-else-if="aiInterpretationText">
           <div class="text-overline text-secondary q-mb-xs">
             {{ t('cell.ai_mentor_interpretation', 'Интерпретация хода') }}
@@ -167,6 +173,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { AxiosError } from 'axios';
 import { gamesApi } from 'src/services/api';
 import type { CellBrief, Cell, ClarificationHistoryItem, GameMode } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
@@ -200,8 +207,12 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const gameStore = useGameStore();
 const clarificationHistory = ref<ClarificationEntry[]>([]);
-const loadedHistoryGameId = ref<number | null>(null);
+const loadedHistoryKey = ref<string | null>(null);
 const isNextClarificationPaid = ref<boolean>(true);
+const isAiMentorLoading = ref(false);
+const aiMentorError = ref('');
+const loadingMentorMoveId = ref<number | null>(null);
+const aiReflectionPointsLocal = ref<string[]>([]);
 
 const {
   typingAnswer: aiInterpretationText,
@@ -227,24 +238,10 @@ const lastMove = computed(() => {
   const moves = gameStore.moves;
   return moves && moves.length > 0 ? moves[moves.length - 1] : null;
 });
-
-const isAiMentorLoading = computed(() => {
-  return (
-    isPaidGame.value &&
-    lastMove.value?.final_cell === cellId.value &&
-    !lastMove.value?.ai_interpretation
-  );
-});
+const lastMoveId = computed(() => lastMove.value?.id ?? null);
 
 const aiReflectionPoints = computed(() => {
-  if (
-    isPaidGame.value &&
-    props.currentCellInfo &&
-    'ai_reflection_points' in props.currentCellInfo
-  ) {
-    return props.currentCellInfo.ai_reflection_points || [];
-  }
-  return [];
+  return aiReflectionPointsLocal.value;
 });
 
 const cellName = computed(() => {
@@ -341,18 +338,98 @@ function onClarificationAdded(entry: ClarificationEntry): void {
   if (!exists) {
     clarificationHistory.value.push(entry);
   }
+  if (gameStore.currentGame?.id) {
+    void loadClarificationHistory(gameStore.currentGame.id);
+  }
+}
+
+function buildHistoryKey(gameId: number, targetCellId: number): string {
+  return `${gameId}:${targetCellId}`;
 }
 
 async function loadClarificationHistory(gameId: number): Promise<void> {
   if (!cellId.value) return;
+  const historyKey = buildHistoryKey(gameId, cellId.value);
   try {
     const response = await gamesApi.getClarificationHistory(gameId, cellId.value);
     clarificationHistory.value = mapHistoryToClarifications(response.items, cellId.value);
     isNextClarificationPaid.value = response.is_next_clarification_paid ?? true;
-    loadedHistoryGameId.value = gameId;
+    loadedHistoryKey.value = historyKey;
   } catch {
-    loadedHistoryGameId.value = gameId;
+    loadedHistoryKey.value = historyKey;
     isNextClarificationPaid.value = true;
+  }
+}
+
+function resolveBackendErrorMessage(error: unknown): string {
+  const detail =
+    error instanceof AxiosError
+      ? (error.response?.data as { detail?: string } | undefined)?.detail
+      : undefined;
+  if (typeof detail === 'string' && detail.startsWith('errors.')) {
+    const key = detail.slice('errors.'.length);
+    return t(`error.${key}`);
+  }
+  return detail || (error instanceof Error ? error.message : t('error.generic'));
+}
+
+function syncReflectionPointsFromCellInfo(): void {
+  if (
+    props.currentCellInfo &&
+    'ai_reflection_points' in props.currentCellInfo &&
+    Array.isArray(props.currentCellInfo.ai_reflection_points)
+  ) {
+    aiReflectionPointsLocal.value = props.currentCellInfo.ai_reflection_points
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    return;
+  }
+  aiReflectionPointsLocal.value = [];
+}
+
+async function generateMoveMentorForCurrentMove(gameId: number, moveId: number): Promise<void> {
+  if (
+    isAiMentorLoading.value &&
+    loadingMentorMoveId.value === moveId
+  ) {
+    return;
+  }
+
+  isAiMentorLoading.value = true;
+  loadingMentorMoveId.value = moveId;
+  aiMentorError.value = '';
+  aiReflectionPointsLocal.value = [];
+  resetTypewriter();
+
+  try {
+    const response = await gamesApi.generateMoveMentor(gameId, moveId);
+    const interpretation = response.interpretation?.trim() || '';
+    const points = Array.isArray(response.reflection_points)
+      ? response.reflection_points
+          .filter((item): item is string => typeof item === 'string')
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : [];
+
+    aiReflectionPointsLocal.value = points;
+    const targetMove = gameStore.moves.find((move) => move.id === moveId);
+    if (targetMove) {
+      targetMove.ai_interpretation = interpretation;
+    }
+
+    if (interpretation && lastMove.value?.id === moveId && lastMove.value.final_cell === cellId.value) {
+      void nextTick(() => {
+        enqueueTypewriterText(interpretation);
+      });
+    }
+  } catch (error) {
+    aiMentorError.value = resolveBackendErrorMessage(error);
+  } finally {
+    if (loadingMentorMoveId.value === moveId) {
+      loadingMentorMoveId.value = null;
+      isAiMentorLoading.value = false;
+    }
   }
 }
 
@@ -360,6 +437,8 @@ watch(
   () => lastMove.value?.ai_interpretation,
   (newInterpretation) => {
     if (newInterpretation && lastMove.value?.final_cell === cellId.value) {
+      aiMentorError.value = '';
+      isAiMentorLoading.value = false;
       resetTypewriter();
       void nextTick(() => {
         enqueueTypewriterText(newInterpretation);
@@ -370,17 +449,55 @@ watch(
 );
 
 watch(
+  () => props.currentCellInfo,
+  () => {
+    syncReflectionPointsFromCellInfo();
+  },
+  { immediate: true },
+);
+
+watch(
+  () =>
+    [
+      isOpen.value,
+      gameStore.currentGame?.id,
+      cellId.value,
+      lastMoveId.value,
+      lastMove.value?.final_cell,
+      lastMove.value?.ai_interpretation,
+      isPaidGame.value,
+    ] as const,
+  ([open, gameId, currentCellId, moveId, finalCell, interpretation, paid]) => {
+    if (!open || !gameId || !currentCellId || !moveId || !paid) {
+      isAiMentorLoading.value = false;
+      loadingMentorMoveId.value = null;
+      aiMentorError.value = '';
+      return;
+    }
+    if (finalCell !== currentCellId || interpretation) {
+      return;
+    }
+    void generateMoveMentorForCurrentMove(gameId, moveId);
+  },
+  { immediate: true },
+);
+
+watch(
   () => [isOpen.value, gameStore.currentGame?.id, cellId.value] as const,
-  ([open, gameId, currentCellId]) => {
+  ([open, gameId, currentCellId], previousValue) => {
+    const prevOpen = previousValue?.[0] ?? false;
+    const justOpened = open && !prevOpen;
     if (!open || !gameId) {
       clarificationHistory.value = [];
+      loadedHistoryKey.value = null;
       return;
     }
     if (!currentCellId) {
       clarificationHistory.value = [];
+      loadedHistoryKey.value = null;
       return;
     }
-    if (loadedHistoryGameId.value !== gameId) {
+    if (justOpened || loadedHistoryKey.value !== buildHistoryKey(gameId, currentCellId)) {
       void loadClarificationHistory(gameId);
     }
   },
@@ -388,11 +505,21 @@ watch(
 );
 
 watch(
+  () => lastMoveId.value,
+  (nextMoveId, prevMoveId) => {
+    if (nextMoveId === prevMoveId || !isOpen.value || !cellId.value || !gameStore.currentGame?.id) {
+      return;
+    }
+    void loadClarificationHistory(gameStore.currentGame.id);
+  },
+);
+
+watch(
   () => gameStore.currentGame?.id,
   (nextGameId, prevGameId) => {
     if (nextGameId !== prevGameId) {
       clarificationHistory.value = [];
-      loadedHistoryGameId.value = null;
+      loadedHistoryKey.value = null;
     }
   },
 );

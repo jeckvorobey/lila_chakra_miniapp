@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
-import type { CellBrief } from 'src/types/game.interface';
+import type { CellBrief, MoveOut } from 'src/types/game.interface';
 import LCellInfo from '../LCellInfo.vue';
 
-const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
+const { gameStoreState, getClarificationHistoryMock, generateMoveMentorMock } = vi.hoisted(() => ({
   gameStoreState: {
     currentGame: {
       id: 1,
@@ -11,9 +11,10 @@ const { gameStoreState, getClarificationHistoryMock } = vi.hoisted(() => ({
       status: 'in_progress' as 'in_progress' | 'completed',
     },
     isNextClarificationPaid: false,
-    moves: [],
+    moves: [] as MoveOut[],
   },
   getClarificationHistoryMock: vi.fn(),
+  generateMoveMentorMock: vi.fn(),
 }));
 
 vi.mock('src/stores/game.store', () => ({
@@ -27,6 +28,7 @@ vi.mock('src/stores/game.store', () => ({
 vi.mock('src/services/api', () => ({
   gamesApi: {
     getClarificationHistory: getClarificationHistoryMock,
+    generateMoveMentor: generateMoveMentorMock,
   },
 }));
 
@@ -68,7 +70,16 @@ beforeEach(() => {
   gameStoreState.isNextClarificationPaid = false;
   gameStoreState.moves = [];
   getClarificationHistoryMock.mockReset();
-  getClarificationHistoryMock.mockResolvedValue({ items: [] });
+  getClarificationHistoryMock.mockResolvedValue({
+    items: [],
+    is_next_clarification_paid: false,
+  });
+  generateMoveMentorMock.mockReset();
+  generateMoveMentorMock.mockResolvedValue({
+    move_id: 1,
+    interpretation: 'Тестовая интерпретация',
+    reflection_points: ['Вопрос 1'],
+  });
 });
 
 function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
@@ -178,5 +189,95 @@ describe('LCellInfo', () => {
 
     expect(wrapper.emitted('go-next')).toBeTruthy();
     expect(wrapper.find('[data-testid="clarification-panel"]').exists()).toBe(false);
+  });
+
+  it('после добавления уточнения перезагружает историю и обновляет флаг платности', async () => {
+    getClarificationHistoryMock
+      .mockResolvedValueOnce({
+        items: [],
+        is_next_clarification_paid: false,
+      })
+      .mockResolvedValueOnce({
+        items: [
+          {
+            id: 2,
+            cell_id: 5,
+            answer: 'Сконцентрируйся на одном действии сегодня.',
+            question: 'На чём сфокусироваться?',
+            created_at: '2026-02-27T18:00:00Z',
+          },
+        ],
+        is_next_clarification_paid: true,
+      });
+
+    const wrapper = mountCellInfo({ gameMode: 'ai_guide' });
+    await flushPromises();
+
+    const panel = wrapper.getComponent({ name: 'LClarificationPanel' });
+    panel.vm.$emit('clarification-added', {
+      question: 'На чём сфокусироваться?',
+      answer: 'Сконцентрируйся на одном действии сегодня.',
+    });
+    await flushPromises();
+
+    expect(getClarificationHistoryMock).toHaveBeenNthCalledWith(1, 1, 5);
+    expect(getClarificationHistoryMock).toHaveBeenNthCalledWith(2, 1, 5);
+    expect(panel.props('isNextClarificationPaid')).toBe(true);
+    expect(panel.props('initialClarifications')).toEqual([
+      {
+        question: 'На чём сфокусироваться?',
+        answer: 'Сконцентрируйся на одном действии сегодня.',
+      },
+    ]);
+  });
+
+  it('при повторном открытии модалки заново подгружает историю уточнений', async () => {
+    const wrapper = mountCellInfo({ gameMode: 'ai_guide' });
+    await flushPromises();
+
+    expect(getClarificationHistoryMock).toHaveBeenCalledTimes(1);
+    expect(getClarificationHistoryMock).toHaveBeenNthCalledWith(1, 1, 5);
+
+    await wrapper.setProps({ modelValue: false });
+    await flushPromises();
+    await wrapper.setProps({ modelValue: true });
+    await flushPromises();
+
+    expect(getClarificationHistoryMock).toHaveBeenCalledTimes(2);
+    expect(getClarificationHistoryMock).toHaveBeenNthCalledWith(2, 1, 5);
+  });
+
+  it('в платном режиме догружает ответ move_mentor для последнего хода без интерпретации', async () => {
+    gameStoreState.currentGame.mode = 'ai_guide';
+    gameStoreState.moves = [
+      {
+        id: 77,
+        game_id: 1,
+        move_number: 1,
+        dice_rolls: [5],
+        is_triple_six: false,
+        is_pending: false,
+        start_cell: 0,
+        end_cell: 5,
+        final_cell: 5,
+        transition_type: 'none',
+        transition_from: null,
+        transition_to: null,
+        ai_interpretation: null,
+        player_insight: null,
+        created_at: '2026-02-27T18:00:00Z',
+      },
+    ];
+    generateMoveMentorMock.mockResolvedValue({
+      move_id: 77,
+      interpretation: 'Интерпретация из endpoint',
+      reflection_points: ['Что стоит осознать прямо сейчас?'],
+    });
+
+    mountCellInfo({ gameMode: 'ai_guide' });
+    await flushPromises();
+
+    expect(generateMoveMentorMock).toHaveBeenCalledWith(1, 77);
+    expect(gameStoreState.moves[0]?.ai_interpretation).toBe('Интерпретация из endpoint');
   });
 });

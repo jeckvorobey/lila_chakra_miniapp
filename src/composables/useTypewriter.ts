@@ -37,7 +37,7 @@ export function useTypewriter() {
       return;
     }
     pendingTypewriterText.value += text;
-    if (!isTyping.value) {
+    if (typewriterInterval === null) {
       startTypewriter();
     }
   }
