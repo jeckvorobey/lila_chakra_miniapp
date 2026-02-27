@@ -61,6 +61,13 @@
             {{ typingAiInterpretation }}
           </p>
         </div>
+
+        <!-- Clarification History -->
+        <LClarificationList
+          v-if="clarificationHistory.length > 0"
+          :items="clarificationHistory"
+        />
+
       </div>
     </q-scroll-area>
   </l-modal>
@@ -69,12 +76,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type { Cell } from 'src/types/game.interface';
+import type { Cell, ClarificationHistoryItem } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
+import { gamesApi } from 'src/services/api';
 import LModal from '../base/LModal.vue';
 import LCellHeader from './LCellHeader.vue';
 import LCellKeywords from './LCellKeywords.vue';
 import LTransitionBanner from './LTransitionBanner.vue';
+import LClarificationList from './LClarificationList.vue';
 
 interface Props {
   modelValue: boolean;
@@ -169,6 +178,69 @@ watch(
 onBeforeUnmount(() => {
   clearTypingTimer();
 });
+
+// Clarification history logic
+interface ClarificationEntry {
+  question: string;
+  answer: string;
+}
+
+const clarificationHistory = ref<ClarificationEntry[]>([]);
+const loadedHistoryGameId = ref<number | null>(null);
+
+function mapHistoryToClarifications(
+  items: ClarificationHistoryItem[],
+  targetCellId: number,
+): ClarificationEntry[] {
+  return items
+    .filter((item) => item.cell_id === targetCellId)
+    .map((item) => ({
+      question: item.question.trim(),
+      answer: item.answer.trim(),
+    }))
+    .filter((item) => item.question.length > 0 && item.answer.length > 0);
+}
+
+async function loadClarificationHistory(gameId: number): Promise<void> {
+  if (!props.cell.id) return;
+  try {
+    const response = await gamesApi.getClarificationHistory(gameId);
+    clarificationHistory.value = mapHistoryToClarifications(response.items, props.cell.id);
+    loadedHistoryGameId.value = gameId;
+  } catch {
+    loadedHistoryGameId.value = gameId;
+  }
+}
+
+watch(
+  () => [isOpen.value, gameStore.currentGame?.id, props.cell.id] as const,
+  ([open, gameId, currentCellId]) => {
+    if (!open || !gameId) {
+      clarificationHistory.value = [];
+      return;
+    }
+    if (!currentCellId) {
+      clarificationHistory.value = [];
+      return;
+    }
+    // Only load if the game or cell has changed since last load
+    if (loadedHistoryGameId.value !== gameId || clarificationHistory.value.length === 0) {
+      void loadClarificationHistory(gameId);
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => gameStore.currentGame?.id,
+  (nextGameId, prevGameId) => {
+    if (nextGameId !== prevGameId) {
+      clarificationHistory.value = [];
+      loadedHistoryGameId.value = null;
+    }
+  },
+);
+
 </script>
 
 <style lang="scss" scoped>

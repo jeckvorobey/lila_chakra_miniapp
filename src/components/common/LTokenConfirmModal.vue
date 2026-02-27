@@ -16,20 +16,20 @@
             size="48px"
           />
         </div>
-        <div class="text-h6 text-center">{{ options?.title || t('token_confirm.title') }}</div>
+        <div class="text-h6 text-center">
+          {{ options?.title || t('payment.token_confirm.title') }}
+        </div>
       </div>
     </template>
 
     <div class="column items-center q-px-md">
       <p class="text-body1 text-center text-secondary q-mb-lg">
-        {{ options?.message || t('token_confirm.message', { amount: options?.amount }) }}
+        {{ options?.message || t('payment.token_confirm.message', { amount: options?.amount }) }}
       </p>
 
       <div class="row items-center justify-center q-mb-md">
-        <div class="text-h4 text-weight-bold text-accent q-mr-sm">
-          -{{ options?.amount }}
-        </div>
-        <div class="text-h6 text-secondary">ТКН</div>
+        <div class="text-h4 text-weight-bold text-accent q-mr-sm">-{{ options?.amount }}</div>
+        <div class="text-h6 text-secondary">{{ t('rules.tkn') }}</div>
       </div>
 
       <q-banner
@@ -43,7 +43,7 @@
     <template #actions>
       <div class="column full-width q-gutter-y-sm">
         <q-btn
-          :label="t('actions.confirm')"
+          :label="t('payment.token_confirm.confirm_button')"
           color="accent"
           unelevated
           class="full-width q-py-sm"
@@ -51,7 +51,7 @@
           @click="confirm"
         />
         <q-btn
-          :label="t('actions.cancel')"
+          :label="t('payment.token_confirm.cancel_button')"
           flat
           color="grey-7"
           class="full-width"
@@ -80,8 +80,8 @@ const hasInsufficientBalance = computed(() => {
   return userStore.balance < options.value.amount;
 });
 
-function confirm() {
-  uiStore.resolveConfirm();
+async function confirm() {
+  await uiStore.resolveConfirm();
 }
 
 function cancel() {

@@ -3,11 +3,18 @@ import { mount } from '@vue/test-utils';
 import { defineComponent, ref } from 'vue';
 import QueryPage from '../QueryPage.vue';
 
-const { mockCreateGame, mockRouterPush, mockNotify, mockGenerateSuggestions } = vi.hoisted(() => ({
+const {
+  mockCreateGame,
+  mockRouterPush,
+  mockNotify,
+  mockGenerateSuggestions,
+  mockRequestTokenConfirm,
+} = vi.hoisted(() => ({
   mockCreateGame: vi.fn(),
   mockRouterPush: vi.fn(),
   mockNotify: vi.fn(),
   mockGenerateSuggestions: vi.fn(),
+  mockRequestTokenConfirm: vi.fn(),
 }));
 
 const mockGameStore = {
@@ -16,6 +23,12 @@ const mockGameStore = {
 
 vi.mock('src/stores/game.store', () => ({
   useGameStore: () => mockGameStore,
+}));
+
+vi.mock('src/stores/ui.store', () => ({
+  useUiStore: () => ({
+    requestTokenConfirm: mockRequestTokenConfirm,
+  }),
 }));
 
 vi.mock('src/composables/useQuerySuggestions', () => ({
@@ -154,6 +167,7 @@ describe('QueryPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockCreateGame.mockResolvedValue(true);
+    mockRequestTokenConfirm.mockReset();
   });
 
   it('не дает отправить ситуацию при вводе менее 5 символов', async () => {

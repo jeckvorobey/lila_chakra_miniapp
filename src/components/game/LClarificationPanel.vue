@@ -1,41 +1,11 @@
 <template>
   <div class="l-clarification-panel q-mt-md">
-    <div
-      v-for="(entry, index) in clarifications"
-      :key="`${index}-${entry.question}`"
-      class="q-mb-sm"
-    >
-      <q-card
-        flat
-        bordered
-        class="bg-surface"
-      >
-        <q-card-section class="q-pa-sm">
-          <div class="text-caption text-secondary q-mb-xs">
-            {{ entry.question }}
-          </div>
-          <div class="text-body2">
-            {{ entry.answer }}
-          </div>
-        </q-card-section>
-      </q-card>
-    </div>
-
-    <q-card
-      v-if="isTyping && pendingQuestion"
-      flat
-      bordered
-      class="bg-surface q-mb-sm"
-    >
-      <q-card-section class="q-pa-sm">
-        <div class="text-caption text-secondary q-mb-xs">
-          {{ pendingQuestion }}
-        </div>
-        <div class="text-body2">
-          {{ typingAnswer }}
-        </div>
-      </q-card-section>
-    </q-card>
+    <LClarificationList
+      :items="clarifications"
+      :is-typing="isTyping"
+      :pending-question="pendingQuestion"
+      :typing-answer="typingAnswer"
+    />
 
     <LAiLoader
       v-if="isLoading"
@@ -53,7 +23,7 @@
           dense
           color="negative"
           :label="t('clarification.retry')"
-          @click="openInputDialog"
+          @click="executeSubmit(questionDraft)"
         />
       </div>
     </q-banner>
@@ -132,6 +102,7 @@ import { useUiStore } from 'src/stores/ui.store';
 import type { ClarificationStreamEvent, GameMode } from 'src/types/game.interface';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import { useTypewriter } from 'src/composables/useTypewriter';
+import LClarificationList from './LClarificationList.vue';
 
 interface Props {
   gameId: number;
@@ -189,7 +160,10 @@ const canSubmitQuestion = computed(() => {
 });
 
 const isPaid = computed(() => {
-  return gameStore.nextClarificationCost > 0;
+  // В режиме free уточнения всегда платные
+  if (props.gameMode === 'free') return true;
+  // В AI режимах первые 2 бесплатные
+  return props.freeLeft === 0;
 });
 
 const showAskButton = computed(() => !isLoading.value && !isTyping.value && !showInputDialog.value);
@@ -214,7 +188,21 @@ function appendClarification(entry: ClarificationEntry): void {
 
 function openInputDialog(): void {
   errorMessage.value = null;
-  showInputDialog.value = true;
+
+  if (isPaid.value) {
+    uiStore.requestTokenConfirm({
+      amount: gameStore.nextClarificationCost,
+      title: t('payment.token_confirm.title'),
+      message: t('payment.token_confirm.message_clarification', {
+        amount: gameStore.nextClarificationCost,
+      }),
+      onConfirm: () => {
+        showInputDialog.value = true;
+      },
+    });
+  } else {
+    showInputDialog.value = true;
+  }
 }
 
 function closeInputDialog(): void {
@@ -227,7 +215,7 @@ function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): 
     gameStore.currentGame.clarifications_used = Math.max(0, 2 - event.free_left);
     // Обновляем стоимость следующего вопроса из меты стрима, если она там есть
     if (event.cost_tkn !== undefined) {
-      gameStore.currentGame.next_clarification_cost = event.free_left > 0 ? 0 : 1;
+      gameStore.currentGame.next_clarification_cost = event.free_left > 0 ? 0 : event.cost_tkn || 1;
     }
   }
 }
@@ -250,21 +238,12 @@ async function submitQuestion(): Promise<void> {
     return;
   }
 
-  if (isPaid.value) {
-    uiStore.requestTokenConfirm({
-      amount: gameStore.nextClarificationCost,
-      title: t('payment.token_confirm.title'),
-      message: t('payment.token_confirm.message_clarification', {
-        amount: gameStore.nextClarificationCost,
-      }),
-      onConfirm: () => executeSubmit(normalizedQuestion),
-    });
-  } else {
-    await executeSubmit(normalizedQuestion);
-  }
+  await executeSubmit(normalizedQuestion);
 }
 
 async function executeSubmit(normalizedQuestion: string): Promise<void> {
+  if (!normalizedQuestion) return;
+
   showInputDialog.value = false;
   isLoading.value = true;
   errorMessage.value = null;

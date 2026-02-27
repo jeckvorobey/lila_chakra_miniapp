@@ -185,6 +185,8 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
+      clarifications_free_left: 2,
+      next_clarification_cost: 1,
     };
 
     await nextTick();
@@ -224,6 +226,8 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
+      clarifications_free_left: 2,
+      next_clarification_cost: 1,
     };
 
     store.addManualSix();
@@ -291,6 +295,8 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
+      clarifications_free_left: 2,
+      next_clarification_cost: 1,
     };
 
     mockGamesApi.rollDice.mockResolvedValue({
@@ -336,11 +342,15 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 1,
+      clarifications_free_left: 2,
+      next_clarification_cost: 1,
     };
 
     expect(store.clarificationsFreeLeft).toBe(2);
 
-    store.currentGame.clarifications_used = 4;
+    if (store.currentGame) {
+      store.currentGame.clarifications_used = 4;
+    }
     expect(store.clarificationsFreeLeft).toBe(0);
   });
 
@@ -366,6 +376,8 @@ describe('game.store rollDice', () => {
       magic_time_ends_at: null,
       ai_summary: null,
       clarifications_used: 0,
+      clarifications_free_left: 2,
+      next_clarification_cost: 1,
     };
 
     expect(store.clarificationsFreeLeft).toBe(0);

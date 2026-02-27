@@ -18,9 +18,9 @@ export const useUiStore = defineStore('ui', () => {
     isTokenConfirmOpen.value = true;
   }
 
-  function resolveConfirm() {
+  async function resolveConfirm() {
     if (confirmOptions.value?.onConfirm) {
-      confirmOptions.value.onConfirm();
+      await confirmOptions.value.onConfirm();
     }
     isTokenConfirmOpen.value = false;
     confirmOptions.value = null;

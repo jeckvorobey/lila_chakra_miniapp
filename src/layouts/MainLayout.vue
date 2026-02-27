@@ -5,9 +5,9 @@
       v-if="showHeader"
       class="bg-surface-translucent text-primary bordered q-mx-sm q-mb-md"
     >
-      <q-toolbar class="safe-area-top row items-center no-wrap">
+      <q-toolbar class="safe-area-top row">
         <!-- Левая секция -->
-        <div class="col row items-center no-wrap text-h3">
+        <div class="col-auto row items-center no-wrap text-h3">
           <q-btn
             v-if="showBack"
             flat
@@ -18,7 +18,7 @@
           />
           <span
             v-if="pageTitle"
-            class="text-h3 q-ml-sm"
+            class="text-h3 q-ml-sm no-wrap"
           >
             {{ pageTitle }}
           </span>
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Правая секция -->
-        <div class="col row items-center justify-end no-wrap">
+        <div class="col-auto row items-center justify-end no-wrap">
           <l-theme-toggle />
 
           <q-btn

@@ -292,6 +292,14 @@ export default {
       large: '20 TKN (+5%)',
       xl: '50 TKN (+10%)',
     },
+    token_confirm: {
+      title: 'Confirm deduction',
+      message: '{amount} TKN will be deducted from your balance to continue.',
+      message_game: 'The selected mode costs {amount} TKN. Start the game?',
+      message_clarification: '{amount} TKN will be deducted to receive a mentor clarification.',
+      confirm_button: 'Confirm',
+      cancel_button: 'Cancel',
+    },
   },
 
   // Победа
