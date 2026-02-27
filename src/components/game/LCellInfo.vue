@@ -359,7 +359,7 @@ watch(
   (newInterpretation) => {
     if (newInterpretation && lastMove.value?.final_cell === cellId.value) {
       resetTypewriter();
-      nextTick(() => {
+      void nextTick(() => {
         enqueueTypewriterText(newInterpretation);
       });
     }

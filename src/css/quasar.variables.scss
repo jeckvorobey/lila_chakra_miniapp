@@ -114,7 +114,7 @@ $overline: (
 // Радиус границы
 // ================================
 $generic-border-radius: 16px;
-$button-border-radius: 16px;
+$button-border-radius: 8px;
 $card-border-radius: 16px;
 // Отступы (используются классами Quasar q-pa-*, q-ma-*)
 // ================================
@@ -131,7 +131,7 @@ $flex-gutter-xl: 32px;
 // Кнопка
 $button-font-weight: 600;
 $button-push-min-height: 52px;
-$button-padding: 0 24px;
+$button-padding: 0 1.5rem;
 
 // Карточка
 $card-border-radius: 16px;
@@ -146,3 +146,8 @@ $tabs-height: 64px;
 // Цвета границ
 // ================================
 $border-color: var(--lila-border);
+
+// ================================
+// Цвета фона
+// ================================
+$background-color: var(--lila-background);

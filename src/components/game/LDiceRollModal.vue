@@ -19,10 +19,10 @@
           v-if="diceMode === 'auto'"
           :label="pendingAutoRolls.length > 0 ? t('dice.roll_again') : t('dice.roll')"
           color="primary"
-          size="lg"
+          size="md"
           unelevated
           :loading="isSubmitting"
-          class="q-mt-md full-width"
+          class="q-mt-md"
           data-testid="dice-auto-roll-btn"
           @click="performAutoRoll"
         />

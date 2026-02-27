@@ -70,7 +70,7 @@
               <q-badge
                 v-if="entry.showDice && entry.move.dice_rolls.length > 0"
                 class="q-ml-sm"
-                color="grey-7"
+                fcolor="grey-7"
               >
                 🎲 {{ entry.move.dice_rolls.join(', ') }}
               </q-badge>
@@ -126,19 +126,20 @@
       </div>
 
       <!-- Действия -->
-      <div class="diary-detail__actions">
-        <q-btn
-          v-if="isCurrentGameActive"
-          outline
-          :label="$t('game.continue_game')"
-          color="primary"
-          unelevated
-          class="full-width q-mb-sm"
-          @click="continueGame"
-        />
+      <div class="diary-detail__actions row q-col-gutter-sm items-center justify-center">
+        <div class="col-6 row items-center justify-center q-pa-none">
+          <q-btn
+            v-if="isCurrentGameActive"
+            :label="$t('game.continue_game')"
+            color="primary"
+            unelevated
+            class="full-width"
+            @click="continueGame"
+          />
+        </div>
         <div
           v-if="game?.status === 'completed'"
-          class="row q-col-gutter-sm q-mb-sm"
+          class="col-12 row q-gutter-md items-center justify-center"
         >
           <div
             v-if="!game.exit_meditation_completed"
@@ -147,7 +148,6 @@
             <q-btn
               :label="$t('diary.meditation')"
               color="secondary"
-              outline
               class="full-width"
               @click="navigateToMeditation"
             />
@@ -157,7 +157,6 @@
               :label="$t('diary.report')"
               color="accent"
               class="full-width"
-              outline
               @click="navigateToReport"
             />
           </div>
@@ -362,12 +361,8 @@ onMounted(() => {
 
   &__actions {
     position: fixed;
+    width: 100%;
     bottom: calc(64px + var(--lila-layout-gap) * 2);
-    left: var(--lila-layout-gap);
-    right: var(--lila-layout-gap);
-    padding: var(--lila-layout-gap) 0;
-    background: var(--lila-bg);
-    border-top: 1px solid var(--lila-border);
   }
 }
 </style>
