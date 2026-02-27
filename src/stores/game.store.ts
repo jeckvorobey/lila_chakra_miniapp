@@ -28,10 +28,9 @@ import { isActiveGameStatus } from 'src/data/game-status';
 // Повторный экспорт игровых констант для удобства
 export { WINNING_CELL, CHAKRA_ROWS, CELLS_PER_ROW, WAITING_ZONE };
 
-export type { GameMode, QueryCategory };
-
 export const useGameStore = defineStore('game', () => {
-  const AI_CLARIFICATIONS_FREE_LIMIT = 3;
+
+
 
   // Состояние
   const currentGame = ref<GameDetail | null>(null);
@@ -114,23 +113,7 @@ export const useGameStore = defineStore('game', () => {
   const highestCell = computed(() => currentGame.value?.highest_cell ?? 0);
 
   const clarificationsFreeLeft = computed(() => {
-    const game = currentGame.value;
-    if (!game) return 0;
-
-    if (game.mode === 'free') {
-      return 0;
-    }
-
-    const used = Number(game.clarifications_used ?? 0);
-    const normalizedUsed = Number.isFinite(used) ? Math.max(0, Math.floor(used)) : 0;
-    const derived = Math.max(0, AI_CLARIFICATIONS_FREE_LIMIT - normalizedUsed);
-
-    const apiValue = Number(game.clarifications_free_left);
-    if (!Number.isFinite(apiValue)) {
-      return derived;
-    }
-
-    return Math.max(0, Math.min(Math.floor(apiValue), derived));
+    return currentGame.value?.clarifications_free_left ?? 0;
   });
 
   const nextClarificationCost = computed(() => {

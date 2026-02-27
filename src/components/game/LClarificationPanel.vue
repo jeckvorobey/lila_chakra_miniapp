@@ -212,10 +212,12 @@ function closeInputDialog(): void {
 function applyMeta(event: Extract<ClarificationStreamEvent, { type: 'meta' }>): void {
   userStore.updateBalance(event.balance_tkn);
   if (gameStore.currentGame) {
-    gameStore.currentGame.clarifications_used = Math.max(0, 2 - event.free_left);
-    // Обновляем стоимость следующего вопроса из меты стрима, если она там есть
+    // Обновляем остаток бесплатных попыток и стоимость из потока
+    if (event.free_left !== undefined) {
+      gameStore.currentGame.clarifications_free_left = event.free_left;
+    }
     if (event.cost_tkn !== undefined) {
-      gameStore.currentGame.next_clarification_cost = event.free_left > 0 ? 0 : event.cost_tkn || 1;
+      gameStore.currentGame.next_clarification_cost = event.cost_tkn;
     }
   }
 }
