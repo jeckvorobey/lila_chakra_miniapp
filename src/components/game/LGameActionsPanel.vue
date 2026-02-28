@@ -52,7 +52,7 @@
           <q-btn
             :label="t('dice.roll')"
             color="primary"
-            size="lg"
+            :size="$q.screen.lt.sm ? 'md' : 'lg'"
             unelevated
             icon="mdi-dice-multiple"
             class="q-px-xl"
