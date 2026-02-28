@@ -63,6 +63,7 @@
           <q-input
             v-model="questionDraft"
             type="textarea"
+            autofocus
             autogrow
             maxlength="500"
             counter
