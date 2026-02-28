@@ -399,21 +399,10 @@ export default {
     rules_title: 'How it works?',
     rules: [
       'Send your unique link to a friend.',
-      'When your friend registers by your link, you instantly get 2 TKN.',
-      'After 20 referrals you can generate x2 code: invited user gets +5 TKN instantly.',
-      'x2 owner bonus (+2 per use) is credited only after 20 valid code uses.',
-      'After 50 referrals, x5 tier is unlocked with the same threshold logic.',
+      'When your friend registers using your link, they instantly get 5 TKN (base bonus) + 5 TKN (for your link).',
+      'You can share your link an unlimited number of times.'
     ],
     total_referrals: 'Total referrals',
-    program_table_title: 'Referral Program Tiers',
-    program_condition_header: 'Condition',
-    program_status_header: 'Status',
-    program_code_header: 'Promo Code',
-    program_condition: 'x{ownerReward} / {referrals} invited / {uses} uses',
-    generate_code: 'Generate',
-    status_not_generated: 'Code not generated',
-    status_progress: 'Uses: {uses}/{max}',
-    owner_bonus_pending: 'Pending owner bonus: {amount} TKN',
     bonus_earned: 'Bonuses earned',
     share_message:
       "👋 Hey! 😊 I want to tell you about an amazing game called Lila 🎲 — it really helps you understand yourself and find your path 🌟 It gave me so much clarity and answers to important questions! I'm sure you'll love it too — join us! ✨🙏",

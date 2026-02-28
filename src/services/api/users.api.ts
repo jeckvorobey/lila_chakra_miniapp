@@ -55,18 +55,6 @@ export const usersApi = {
   },
 
   /**
-   * Сгенерировать промокод по тарифу x2/x5.
-   */
-  async generateReferralTierCode(
-    tierKey: 'x2' | 'x5',
-  ): Promise<{ key: string; promo_code: string }> {
-    const response = await api.post<{ key: string; promo_code: string }>(
-      `/users/me/referral-program/${tierKey}/generate`,
-    );
-    return response.data;
-  },
-
-  /**
    * Получить историю транзакций текущего пользователя.
    */
   async getTransactions(offset = 0, limit = 20): Promise<TransactionListResponse> {

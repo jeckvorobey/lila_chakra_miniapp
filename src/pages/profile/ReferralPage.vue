@@ -57,87 +57,12 @@
         class="bg-surface"
       >
         <q-card-section>
-          <div class="row items-center justify-between q-mb-sm">
-            <div class="text-h6">{{ $t('referral.program_table_title') }}</div>
-            <div class="text-caption text-secondary">
-              {{ $t('referral.total_referrals') }}: {{ totalReferrals }}
+          <div class="row items-center justify-between">
+            <div class="text-h6">{{ $t('referral.total_referrals') }}</div>
+            <div class="text-h6 text-primary">
+              {{ totalReferrals }}
             </div>
           </div>
-
-          <q-markup-table
-            flat
-            bordered
-            class="referral-program-table"
-          >
-            <thead>
-              <tr>
-                <th class="text-left">Tier</th>
-                <th class="text-left">{{ $t('referral.program_condition_header') }}</th>
-                <th class="text-left">{{ $t('referral.program_status_header') }}</th>
-                <th class="text-left">{{ $t('referral.program_code_header') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="program in programs"
-                :key="program.key"
-              >
-                <td class="text-weight-bold">{{ program.key.toUpperCase() }}</td>
-                <td>
-                  {{
-                    $t('referral.program_condition', {
-                      ownerReward: program.owner_reward_tkn,
-                      referrals: program.required_referrals,
-                      uses: program.required_uses,
-                    })
-                  }}
-                </td>
-                <td>
-                  <div>{{ getProgramStatusLabel(program) }}</div>
-                  <div
-                    v-if="program.owner_bonus_pending_tkn > 0"
-                    class="text-caption text-secondary"
-                  >
-                    {{
-                      $t('referral.owner_bonus_pending', {
-                        amount: program.owner_bonus_pending_tkn,
-                      })
-                    }}
-                  </div>
-                </td>
-                <td>
-                  <div class="row items-center no-wrap q-gutter-xs">
-                    <q-input
-                      v-if="program.promo_code"
-                      :model-value="program.promo_code"
-                      dense
-                      outlined
-                      readonly
-                      class="col"
-                    />
-                    <q-btn
-                      v-if="program.promo_code"
-                      flat
-                      round
-                      color="primary"
-                      icon="mdi-content-copy"
-                      @click="copyPromoCode(program.promo_code)"
-                    />
-                    <q-btn
-                      v-else
-                      color="primary"
-                      unelevated
-                      size="sm"
-                      :label="$t('referral.generate_code')"
-                      :disable="!program.can_generate || generatingTier === program.key"
-                      :loading="generatingTier === program.key"
-                      @click="generateTierCode(program.key)"
-                    />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </q-markup-table>
         </q-card-section>
       </l-card>
 
@@ -172,26 +97,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useUserStore } from 'src/stores/user.store';
 import { copyToClipboard, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { LCard } from 'src/components/base';
 import { useTelegram } from 'src/composables/useTelegram';
-import { usersApi } from 'src/services/api';
-import type { ReferralProgramTier } from 'src/types/user.interface';
 
 const $q = useQuasar();
 const i18n = useI18n();
 const t = i18n.t;
 const userStore = useUserStore();
 const { openTelegramLink } = useTelegram();
-const generatingTier = ref<string | null>(null);
 
 const referralProgram = computed(() => userStore.referralProgram);
 const referralLink = computed(() => referralProgram.value?.link || userStore.referralData?.link);
 const totalReferrals = computed(() => referralProgram.value?.total_referrals ?? 0);
-const programs = computed(() => referralProgram.value?.programs ?? []);
 const rules = computed<string[]>(() => {
   const list = i18n.tm('referral.rules');
   if (!Array.isArray(list)) {
@@ -218,61 +139,6 @@ async function copyLink() {
       color: 'negative',
       icon: 'mdi-alert',
     });
-  }
-}
-
-function getProgramStatusLabel(program: ReferralProgramTier): string {
-  if (program.promo_status === 'not_generated') {
-    return t('referral.status_not_generated');
-  }
-
-  return t('referral.status_progress', {
-    uses: program.promo_uses,
-    max: program.promo_max_uses,
-  });
-}
-
-async function copyPromoCode(code: string): Promise<void> {
-  try {
-    await copyToClipboard(code);
-    $q.notify({
-      message: t('referral.copied'),
-      color: 'positive',
-      icon: 'mdi-check',
-      position: 'top',
-      timeout: 2000,
-    });
-  } catch {
-    $q.notify({
-      message: t('error.generic'),
-      color: 'negative',
-      icon: 'mdi-alert',
-    });
-  }
-}
-
-async function generateTierCode(tier: string): Promise<void> {
-  generatingTier.value = tier;
-  try {
-    const response = await usersApi.generateReferralTierCode(tier as 'x2' | 'x5');
-    await userStore.fetchReferralProgram();
-    await copyPromoCode(response.promo_code);
-    $q.notify({
-      message: t('referral.code_generated'),
-      color: 'positive',
-      icon: 'mdi-check-circle-outline',
-      position: 'top',
-      timeout: 2500,
-    });
-  } catch (error) {
-    const detail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-    $q.notify({
-      message: detail || t('error.generic'),
-      color: 'negative',
-      icon: 'mdi-alert',
-    });
-  } finally {
-    generatingTier.value = null;
   }
 }
 
@@ -326,14 +192,6 @@ onMounted(() => {
 .rules-section {
   :deep(.q-item__section--avatar) {
     min-width: 32px;
-  }
-}
-
-.referral-program-table {
-  :deep(th),
-  :deep(td) {
-    white-space: normal;
-    vertical-align: middle;
   }
 }
 

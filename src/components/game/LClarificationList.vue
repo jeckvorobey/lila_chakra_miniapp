@@ -14,7 +14,7 @@
           <div class="text-caption text-secondary q-mb-xs">
             {{ entry.question }}
           </div>
-          <div class="text-body2">
+          <div class="text-body2 l-clarification-answer">
             {{ entry.answer }}
           </div>
         </q-card-section>
@@ -31,7 +31,7 @@
         <div class="text-caption text-secondary q-mb-xs">
           {{ pendingQuestion }}
         </div>
-        <div class="text-body2">
+        <div class="text-body2 l-clarification-answer">
           {{ typingAnswer }}
         </div>
       </q-card-section>
@@ -63,5 +63,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <style lang="scss" scoped>
-/* No specific styles here, will be inherited or provided by Quasar */
+.l-clarification-answer {
+  white-space: pre-line;
+}
 </style>

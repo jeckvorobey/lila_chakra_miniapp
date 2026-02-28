@@ -46,25 +46,10 @@ export interface UserStats {
   total_snakes_hit?: number;
 }
 
-export interface ReferralProgramTier {
-  key: 'x2' | 'x5';
-  required_referrals: number;
-  required_uses: number;
-  owner_reward_tkn: number;
-  user_reward_tkn: number;
-  can_generate: boolean;
-  promo_code?: string | null;
-  promo_status: 'not_generated' | 'active' | 'completed';
-  promo_uses: number;
-  promo_max_uses: number;
-  owner_bonus_pending_tkn: number;
-}
-
 export interface ReferralProgramData {
   code?: string | null;
   link: string;
   total_referrals: number;
-  programs: ReferralProgramTier[];
 }
 
 export type UserProfile = UserOut;
