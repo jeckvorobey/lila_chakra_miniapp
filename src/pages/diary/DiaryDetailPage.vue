@@ -313,8 +313,13 @@ function editInsight(move: MoveOut) {
       const updated = await movesApi.saveInsight(move.id, { insight: insight.trim() });
       const idx = moves.value.findIndex((m) => m.id === move.id);
       if (idx >= 0) {
-        const currentClarifications = moves.value[idx].clarifications;
-        moves.value[idx] = { ...updated, clarifications: currentClarifications };
+        const currentMove = moves.value[idx];
+        if (currentMove) {
+          moves.value[idx] = {
+            ...updated,
+            ...(currentMove.clarifications ? { clarifications: currentMove.clarifications } : {}),
+          };
+        }
       }
     })();
   });
