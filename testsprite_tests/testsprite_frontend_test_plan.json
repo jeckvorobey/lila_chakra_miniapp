@@ -1,0 +1,858 @@
+[
+  {
+    "id": "TC001",
+    "title": "View diary list and open a diary entry from the list",
+    "description": "Verifies an authenticated user can view the played games list and open a specific diary entry from it.",
+    "category": "Game Diary List",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Played games list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the first game item in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary/\""
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Diary list shows multiple game entries when available",
+    "description": "Verifies the diary page renders a list of game items (not an empty container) for an authenticated user.",
+    "category": "Game Diary List",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Played games list\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Game list item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Diary list supports scrolling to reveal additional items",
+    "description": "Verifies the user can scroll the diary list and still see game items rendered correctly.",
+    "category": "Game Diary List",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the played games list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Game list item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Retry after diary list load failure re-attempts loading and recovers",
+    "description": "Verifies that when the diary list shows an error banner, clicking Retry triggers another load and the list becomes visible.",
+    "category": "Game Diary List",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Error banner\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Retry\" button in the error banner"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Played games list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Diary list error state is visible and provides a Retry option",
+    "description": "Verifies the diary page displays a visible error message and a Retry control when loading the game list fails.",
+    "category": "Game Diary List",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Error banner\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Retry\" button is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Clicking a diary item opens the diary detail view with visible content",
+    "description": "Verifies that selecting a game in the diary list opens a detail page that shows diary content sections.",
+    "category": "Game Diary List",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click a game item in the played games list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Diary detail content\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "View diary details with timeline, moves, and AI interpretations",
+    "description": "Verifies a user can open a played game diary details page and see timeline/aggregated info plus the move list with AI interpretations.",
+    "category": "Game Diary Details",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first game/diary entry in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Game timeline\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Moves\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Toggle move sorting between newest and oldest",
+    "description": "Verifies the move list can be reordered by toggling the sort control.",
+    "category": "Game Diary Details",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first game/diary entry in the list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Sort\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Newest\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Expand a clarification accordion to view questions and answers",
+    "description": "Verifies clarification items can be expanded to reveal their content.",
+    "category": "Game Diary Details",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first game/diary entry in the list"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the \"Clarifications\" section"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first clarification accordion header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Clarification answer\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Edit and save a player insight for a move",
+    "description": "Verifies a user can edit an insight on a move and see it saved inline after saving.",
+    "category": "Game Diary Details",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first game/diary entry in the list"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Edit insight\" on the first move"
+      },
+      {
+        "type": "action",
+        "description": "Type \"This move felt like choosing courage over comfort.\" into the insight input field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save insight\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"This move felt like choosing courage over comfort.\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Validate insight is required when saving an empty insight",
+    "description": "Verifies client-side validation blocks saving when the insight input is empty and shows a required-field message.",
+    "category": "Game Diary Details",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first game/diary entry in the list"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Edit insight\" on the first move"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save insight\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Required\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Navigate to meditation or report when the game is completed",
+    "description": "Verifies that when a completed game diary is viewed, the user can access the meditation or report entry points.",
+    "category": "Game Diary Details",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click on a diary entry that indicates the game is completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Meditation\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Report\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Create a new game successfully from the New Game page",
+    "description": "Verifies a user can start a new game by completing required fields and is redirected to the game board with a newly initialized game.",
+    "category": "Create New Game",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Game\" entry point (button or menu item) to open the new game setup page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      },
+      {
+        "type": "action",
+        "description": "Fill valid values into all required game setup fields"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game\""
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Required-field validation prevents creating a new game when a required field is blank",
+    "description": "Verifies that leaving a required field empty blocks creation and displays an inline validation message on the New Game page.",
+    "category": "Create New Game",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Game\" entry point (button or menu item) to open the new game setup page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      },
+      {
+        "type": "action",
+        "description": "Fill valid values into all required game setup fields except one required field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Required\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Create button remains disabled until all required fields are completed (if applicable)",
+    "description": "Verifies that the UI prevents submission by disabling the Create button until required inputs are provided.",
+    "category": "Create New Game",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Game\" entry point (button or menu item) to open the new game setup page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Create\" button is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "New game page shows required setup inputs before creation",
+    "description": "Verifies the New Game page loads correctly and presents the required fields and Create action.",
+    "category": "Create New Game",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Login\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/diary\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"New Game\" entry point (button or menu item) to open the new game setup page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game/new\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Create\" button is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"New Game\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Load game board and verify core controls are visible",
+    "description": "Verifies an authenticated user can open the game board and see the main board UI and controls.",
+    "category": "Play Game (Game Board)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Game\" navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/game\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Game board\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Perform a move and see it reflected on the board and move list",
+    "description": "Verifies a user can perform a standard move and the UI updates to show the new move in the game state.",
+    "category": "Play Game (Game Board)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Game\" navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Move list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Roll\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Move\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Perform multiple moves and verify move history grows",
+    "description": "Verifies multiple moves can be made sequentially and the move list reflects continued gameplay.",
+    "category": "Play Game (Game Board)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Game\" navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Roll\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Roll\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Move\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Complete a game and verify completion state is shown",
+    "description": "Verifies the UI shows a clear completion state when the game finishes and presents next-step options.",
+    "category": "Play Game (Game Board)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the username/email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Log in\" button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Game\" navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Roll\" button"
+      },
+      {
+        "type": "action",
+        "description": "Wait for element \"Game completed\" to appear"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"View Diary\" is visible"
+      }
+    ]
+  }
+]
