@@ -173,7 +173,7 @@ export default {
     question: 'Вопрос для размышления',
     sanskrit_name: 'Санскритское название',
     keywords: 'Ключевые слова',
-    ai_interpretation: 'AI Интерпретация',
+    ai_interpretation: 'Интерпретация ИИ ментора',
     reflection_questions: 'Вопросы для саморефлексии',
   },
 

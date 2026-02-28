@@ -171,13 +171,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { AxiosError } from 'axios';
 import { gamesApi } from 'src/services/api';
 import type { CellBrief, Cell, ClarificationHistoryItem, GameMode } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
-import { useTypewriter } from 'src/composables/useTypewriter';
 import LModal from 'src/components/base/LModal.vue';
 import LCellHeader from './LCellHeader.vue';
 import LCellKeywords from './LCellKeywords.vue';
@@ -214,18 +213,16 @@ const aiMentorError = ref('');
 const loadingMentorMoveId = ref<number | null>(null);
 const aiReflectionPointsLocal = ref<string[]>([]);
 
-const {
-  typingAnswer: aiInterpretationText,
-  enqueueTypewriterText,
-  resetTypewriter,
-} = useTypewriter();
+const lastMove = computed(() => {
+  const moves = gameStore.moves;
+  return moves && moves.length > 0 ? moves[moves.length - 1] : null;
+});
+
+const aiInterpretationText = computed(() => lastMove.value?.ai_interpretation || '');
 
 const isOpen = computed({
   get: () => props.modelValue,
   set: (value) => {
-    if (!value) {
-      resetTypewriter();
-    }
     emit('update:modelValue', value);
   },
 });
@@ -234,10 +231,6 @@ const cellId = computed(() => props.currentCellInfo?.id ?? 0);
 const isVictoryCell = computed(() => cellId.value === 68);
 const isPaidGame = computed(() => props.gameMode !== 'free');
 
-const lastMove = computed(() => {
-  const moves = gameStore.moves;
-  return moves && moves.length > 0 ? moves[moves.length - 1] : null;
-});
 const lastMoveId = computed(() => lastMove.value?.id ?? null);
 
 const aiReflectionPoints = computed(() => {
@@ -400,7 +393,6 @@ async function generateMoveMentorForCurrentMove(gameId: number, moveId: number):
   loadingMentorMoveId.value = moveId;
   aiMentorError.value = '';
   aiReflectionPointsLocal.value = [];
-  resetTypewriter();
 
   try {
     const response = await gamesApi.generateMoveMentor(gameId, moveId);
@@ -416,12 +408,6 @@ async function generateMoveMentorForCurrentMove(gameId: number, moveId: number):
     const targetMove = gameStore.moves.find((move) => move.id === moveId);
     if (targetMove) {
       targetMove.ai_interpretation = interpretation;
-    }
-
-    if (interpretation && lastMove.value?.id === moveId && lastMove.value.final_cell === cellId.value) {
-      void nextTick(() => {
-        enqueueTypewriterText(interpretation);
-      });
     }
   } catch (error) {
     aiMentorError.value = resolveBackendErrorMessage(error);
@@ -439,10 +425,6 @@ watch(
     if (newInterpretation && lastMove.value?.final_cell === cellId.value) {
       aiMentorError.value = '';
       isAiMentorLoading.value = false;
-      resetTypewriter();
-      void nextTick(() => {
-        enqueueTypewriterText(newInterpretation);
-      });
     }
   },
   { immediate: true },

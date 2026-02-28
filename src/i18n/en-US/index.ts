@@ -169,7 +169,7 @@ export default {
     question: 'Reflection Question',
     sanskrit_name: 'Sanskrit Name',
     keywords: 'Keywords',
-    ai_interpretation: 'AI Interpretation',
+    ai_interpretation: 'Interpretation of the AI ​​mentor',
     reflection_questions: 'Self-reflection questions',
   },
 

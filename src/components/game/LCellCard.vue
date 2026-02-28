@@ -58,7 +58,7 @@
             {{ t('cell.ai_interpretation') }}
           </div>
           <p class="text-body1 q-mb-none">
-            {{ typingAiInterpretation }}
+            {{ latestAiInterpretation }}
           </p>
         </div>
 
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Cell, ClarificationHistoryItem } from 'src/types/game.interface';
 import { useGameStore } from 'src/stores/game.store';
@@ -90,8 +90,6 @@ interface Props {
   cell: Cell;
 }
 
-const TYPING_DELAY_MS = 30;
-
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
@@ -100,8 +98,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const gameStore = useGameStore();
-const typingAiInterpretation = ref('');
-let typingTimer: ReturnType<typeof setInterval> | null = null;
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -138,46 +134,9 @@ const latestAiInterpretation = computed(() => {
   return '';
 });
 
-function clearTypingTimer(): void {
-  if (typingTimer) {
-    clearInterval(typingTimer);
-    typingTimer = null;
-  }
-}
-
-function startTypingInterpretation(value: string): void {
-  clearTypingTimer();
-  typingAiInterpretation.value = '';
-
-  if (!value) {
-    return;
-  }
-
-  let charIndex = 0;
-  typingTimer = setInterval(() => {
-    charIndex += 1;
-    typingAiInterpretation.value = value.slice(0, charIndex);
-    if (charIndex >= value.length) {
-      clearTypingTimer();
-    }
-  }, TYPING_DELAY_MS);
-}
-
 function close(): void {
   isOpen.value = false;
 }
-
-watch(
-  () => latestAiInterpretation.value,
-  (value) => {
-    startTypingInterpretation(value);
-  },
-  { immediate: true },
-);
-
-onBeforeUnmount(() => {
-  clearTypingTimer();
-});
 
 // Clarification history logic
 interface ClarificationEntry {
