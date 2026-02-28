@@ -80,17 +80,7 @@
             <div>{{ getEntrySubtitle(entry) }}</div>
             <div class="text-caption text-secondary">{{ getCellName(entry.toCell) }}</div>
           </template>
-          <div
-            v-if="entry.kind === 'roll' && entry.move.player_insight"
-            class="text-body2 q-mt-sm"
-          >
-            <q-icon
-              name="mdi-lightbulb"
-              color="warning"
-              class="q-mr-xs"
-            />
-            {{ entry.move.player_insight }}
-          </div>
+
           <div
             v-if="entry.kind === 'roll' && entry.move.ai_interpretation"
             class="text-body2 q-mt-sm"
@@ -102,6 +92,42 @@
             />
             {{ entry.move.ai_interpretation }}
           </div>
+
+          <div
+            v-if="entry.kind === 'roll' && entry.move.clarifications && entry.move.clarifications.length > 0"
+            class="q-mt-sm"
+          >
+            <q-list bordered
+separator
+class="rounded-borders q-mt-sm bg-surface">
+              <q-expansion-item
+                v-for="clarification in entry.move.clarifications"
+                :key="clarification.id"
+                icon="mdi-help-circle-outline"
+                :label="clarification.question"
+                header-class="text-caption text-secondary"
+              >
+                <q-card>
+                  <q-card-section class="text-body2 l-clarification-answer">
+                    {{ clarification.answer }}
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+            </q-list>
+          </div>
+
+          <div
+            v-if="entry.kind === 'roll' && entry.move.player_insight"
+            class="text-body2 q-mt-sm"
+          >
+            <q-icon
+              name="mdi-lightbulb"
+              color="warning"
+              class="q-mr-xs"
+            />
+            {{ entry.move.player_insight }}
+          </div>
+
           <div
             v-if="entry.kind === 'roll'"
             class="q-mt-sm"
@@ -184,14 +210,12 @@ import { gamesApi, movesApi } from 'src/services/api';
 import type { GameDetail, MoveOut } from 'src/types/game.interface';
 import { isActiveGameStatus } from 'src/data/game-status';
 import { LProgressBar } from 'src/components/base';
-import { useReferenceStore } from 'src/stores/reference.store';
 import { buildDiaryTimelineEntries, type DiaryTimelineEntry } from './diary-timeline';
 
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
 const { t } = useI18n();
-const referenceStore = useReferenceStore();
 const gameStore = useGameStore();
 
 const game = ref<GameDetail | null>(null);
@@ -247,36 +271,6 @@ function getCellName(cellId: number): string {
   return cellNames.value[cellId] || `Клетка ${cellId}`;
 }
 
-async function ensureCellNamesLoaded(entries: DiaryTimelineEntry[]): Promise<void> {
-  const targetIds = [
-    ...new Set(entries.map((entry) => entry.toCell).filter((cellId) => cellId > 0)),
-  ];
-  const missingIds = targetIds.filter((cellId) => !cellNames.value[cellId]);
-  if (missingIds.length === 0) {
-    return;
-  }
-
-  const loadedCells = await Promise.all(
-    missingIds.map(async (cellId) => {
-      const cachedCell = referenceStore.getCell(cellId);
-      if (cachedCell?.name) {
-        return [cellId, cachedCell.name] as const;
-      }
-
-      const cell = await referenceStore.fetchCellById(cellId);
-      return [cellId, cell?.name || ''] as const;
-    }),
-  );
-
-  const updatedMap = { ...cellNames.value };
-  for (const [cellId, name] of loadedCells) {
-    if (name) {
-      updatedMap[cellId] = name;
-    }
-  }
-  cellNames.value = updatedMap;
-}
-
 function continueGame() {
   void router.push('/game');
 }
@@ -296,9 +290,9 @@ async function navigateToReport() {
 async function toggleSort() {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
   if (game.value) {
-    const movesData = await gamesApi.getMoves(game.value.id, sortOrder.value);
-    moves.value = movesData;
-    void ensureCellNamesLoaded(buildDiaryTimelineEntries(movesData, sortOrder.value));
+    const diaryData = await gamesApi.getDiary(game.value.id, sortOrder.value);
+    moves.value = diaryData.moves;
+    cellNames.value = { ...cellNames.value, ...diaryData.cell_names };
   }
 }
 
@@ -319,7 +313,8 @@ function editInsight(move: MoveOut) {
       const updated = await movesApi.saveInsight(move.id, { insight: insight.trim() });
       const idx = moves.value.findIndex((m) => m.id === move.id);
       if (idx >= 0) {
-        moves.value[idx] = updated;
+        const currentClarifications = moves.value[idx].clarifications;
+        moves.value[idx] = { ...updated, clarifications: currentClarifications };
       }
     })();
   });
@@ -331,15 +326,15 @@ async function loadGameDetails() {
   const gameId = route.params.id as string;
 
   try {
-    const [gameData, movesData, gamesList] = await Promise.all([
-      gamesApi.get(Number(gameId)),
-      gamesApi.getMoves(Number(gameId), sortOrder.value),
+    const [diaryData, gamesList] = await Promise.all([
+      gamesApi.getDiary(Number(gameId), sortOrder.value),
       gamesApi.list({ limit: 20, offset: 0 }).catch(() => null),
     ]);
-    game.value = gameData;
-    moves.value = movesData;
-    void ensureCellNamesLoaded(buildDiaryTimelineEntries(movesData, sortOrder.value));
-    isCurrentGameActive.value = isActiveGameStatus(gameData.status);
+    game.value = diaryData.game;
+    moves.value = diaryData.moves;
+    cellNames.value = diaryData.cell_names;
+
+    isCurrentGameActive.value = isActiveGameStatus(diaryData.game.status);
     route.meta.title = isCurrentGameActive.value ? 'diary.active' : 'diary.completed';
     hasAnyActiveGame.value = gamesList
       ? gamesList.items.some((item) => isActiveGameStatus(item.status))
@@ -364,5 +359,9 @@ onMounted(() => {
     width: 100%;
     bottom: calc(64px + var(--lila-layout-gap) * 2);
   }
+}
+
+.l-clarification-answer {
+  white-space: pre-line;
 }
 </style>

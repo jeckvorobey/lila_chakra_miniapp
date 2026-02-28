@@ -6,6 +6,7 @@ import type {
   DiceRollRequest,
   GameCreate,
   GameDetail,
+  GameDiaryResponse,
   GameFinaleImageJob,
   GameFinaleState,
   GameFinaleSummary,
@@ -141,6 +142,14 @@ export const gamesApi = {
    */
   async get(gameId: number): Promise<GameDetail> {
     const response = await api.get<GameDetail>(`/games/${gameId}`);
+    return response.data;
+  },
+
+  /**
+   * Получить агрегированные данные для дневника игры.
+   */
+  async getDiary(gameId: number, sort: 'asc' | 'desc' = 'desc'): Promise<GameDiaryResponse> {
+    const response = await api.get<GameDiaryResponse>(`/games/${gameId}/diary`, { params: { sort } });
     return response.data;
   },
 

@@ -206,6 +206,13 @@ export interface MoveOut {
   ai_reflection_points?: string[] | null;
   player_insight: string | null;
   created_at: string;
+  clarifications?: ClarificationHistoryItem[];
+}
+
+export interface GameDiaryResponse {
+  game: GameDetail;
+  moves: MoveOut[];
+  cell_names: Record<number, string>;
 }
 
 export interface IntermediateRollResponse {
@@ -273,6 +280,7 @@ export interface ClarificationHistoryItem {
   question: string;
   answer: string;
   cell_id: number | null;
+  move_id: number | null;
   created_at: string;
 }
 
