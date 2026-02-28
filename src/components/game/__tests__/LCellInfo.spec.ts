@@ -281,4 +281,56 @@ describe('LCellInfo', () => {
     expect(generateMoveMentorMock).toHaveBeenCalledWith(1, 77);
     expect(gameStoreState.moves[0]?.ai_interpretation).toBe('Интерпретация из endpoint');
   });
+
+  it('показывает интерпретацию для конкретной клетки, даже если это не последний ход в игре', async () => {
+    gameStoreState.currentGame.mode = 'ai_guide';
+    gameStoreState.moves = [
+      {
+        id: 10,
+        game_id: 1,
+        move_number: 1,
+        dice_rolls: [3],
+        is_triple_six: false,
+        is_pending: false,
+        start_cell: 0,
+        end_cell: 3,
+        final_cell: 3,
+        transition_type: 'none',
+        transition_from: null,
+        transition_to: null,
+        ai_interpretation: 'Интерпретация для клетки 3',
+        player_insight: null,
+        created_at: '2026-02-27T18:00:00Z',
+      },
+      {
+        id: 11,
+        game_id: 1,
+        move_number: 2,
+        dice_rolls: [2],
+        is_triple_six: false,
+        is_pending: false,
+        start_cell: 3,
+        end_cell: 5,
+        final_cell: 5,
+        transition_type: 'none',
+        transition_from: null,
+        transition_to: null,
+        ai_interpretation: 'Интерпретация для клетки 5',
+        player_insight: null,
+        created_at: '2026-02-27T18:10:00Z',
+      },
+    ];
+
+    // Просматриваем клетку 3
+    const wrapper = mountCellInfo({
+      currentCellInfo: { ...currentCellInfo, id: 3 },
+      gameMode: 'ai_guide',
+    });
+    await flushPromises();
+
+    // Проверяем пропсы компонента интерпретации
+    const mentorComp = wrapper.findComponent({ name: 'LAiMentorInterpretation' });
+    expect(mentorComp.exists()).toBe(true);
+    expect(mentorComp.props('interpretation')).toBe('Интерпретация для клетки 3');
+  });
 });

@@ -177,12 +177,18 @@ const aiMentorError = ref('');
 const loadingMentorMoveId = ref<number | null>(null);
 const aiReflectionPointsLocal = ref<string[]>([]);
 
-const lastMove = computed(() => {
+const viewedCellMove = computed(() => {
   const moves = gameStore.moves;
-  return moves && moves.length > 0 ? moves[moves.length - 1] : null;
+  if (!moves || moves.length === 0) return null;
+  for (let i = moves.length - 1; i >= 0; i--) {
+    if (moves[i]?.final_cell === cellId.value) {
+      return moves[i];
+    }
+  }
+  return null;
 });
 
-const aiInterpretationText = computed(() => lastMove.value?.ai_interpretation || '');
+const aiInterpretationText = computed(() => viewedCellMove.value?.ai_interpretation || '');
 
 const isOpen = computed({
   get: () => props.modelValue,
@@ -195,11 +201,9 @@ const cellId = computed(() => props.currentCellInfo?.id ?? 0);
 const isVictoryCell = computed(() => cellId.value === 68);
 const isPaidGame = computed(() => props.gameMode !== 'free');
 
-const lastMoveId = computed(() => lastMove.value?.id ?? null);
-
 const aiReflectionPoints = computed(() => {
-  if (lastMove.value?.ai_reflection_points) {
-    return lastMove.value.ai_reflection_points;
+  if (viewedCellMove.value?.ai_reflection_points) {
+    return viewedCellMove.value.ai_reflection_points;
   }
   return aiReflectionPointsLocal.value;
 });
@@ -388,9 +392,9 @@ async function generateMoveMentorForCurrentMove(gameId: number, moveId: number):
 }
 
 watch(
-  () => lastMove.value?.ai_interpretation,
+  () => viewedCellMove.value?.ai_interpretation,
   (newInterpretation) => {
-    if (newInterpretation && lastMove.value?.final_cell === cellId.value) {
+    if (newInterpretation && viewedCellMove.value?.final_cell === cellId.value) {
       aiMentorError.value = '';
       isAiMentorLoading.value = false;
     }
@@ -412,19 +416,18 @@ watch(
       isOpen.value,
       gameStore.currentGame?.id,
       cellId.value,
-      lastMoveId.value,
-      lastMove.value?.final_cell,
-      lastMove.value?.ai_interpretation,
+      viewedCellMove.value?.id,
+      viewedCellMove.value?.ai_interpretation,
       isPaidGame.value,
     ] as const,
-  ([open, gameId, currentCellId, moveId, finalCell, interpretation, paid]) => {
+  ([open, gameId, currentCellId, moveId, interpretation, paid]) => {
     if (!open || !gameId || !currentCellId || !moveId || !paid) {
       isAiMentorLoading.value = false;
       loadingMentorMoveId.value = null;
       aiMentorError.value = '';
       return;
     }
-    if (finalCell !== currentCellId || interpretation) {
+    if (interpretation) {
       return;
     }
     void generateMoveMentorForCurrentMove(gameId, moveId);
@@ -455,7 +458,7 @@ watch(
 );
 
 watch(
-  () => lastMoveId.value,
+  () => viewedCellMove.value?.id,
   (nextMoveId, prevMoveId) => {
     if (nextMoveId === prevMoveId || !isOpen.value || !cellId.value || !gameStore.currentGame?.id) {
       return;
@@ -474,7 +477,7 @@ watch(
   },
 );
 
-const currentMoveInsight = computed(() => lastMove.value?.player_insight || '');
+const currentMoveInsight = computed(() => viewedCellMove.value?.player_insight || '');
 </script>
 
 <style scoped>
