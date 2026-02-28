@@ -203,6 +203,7 @@ export interface MoveOut {
   transition_from: number | null;
   transition_to: number | null;
   ai_interpretation: string | null;
+  ai_reflection_points?: string[] | null;
   player_insight: string | null;
   created_at: string;
 }

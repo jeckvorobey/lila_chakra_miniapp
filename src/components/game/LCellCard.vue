@@ -54,12 +54,10 @@
           v-if="latestAiInterpretation"
           class="q-mb-md"
         >
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.ai_interpretation') }}
-          </div>
-          <p class="text-body1 q-mb-none">
-            {{ latestAiInterpretation }}
-          </p>
+          <l-ai-mentor-interpretation
+            :interpretation="latestAiInterpretation"
+            :reflection-points="latestAiReflectionPoints"
+          />
         </div>
 
         <!-- Clarification History -->
@@ -84,6 +82,7 @@ import LCellHeader from './LCellHeader.vue';
 import LCellKeywords from './LCellKeywords.vue';
 import LTransitionBanner from './LTransitionBanner.vue';
 import LClarificationList from './LClarificationList.vue';
+import LAiMentorInterpretation from './LAiMentorInterpretation.vue';
 
 interface Props {
   modelValue: boolean;
@@ -120,19 +119,18 @@ function normalizeLocalizedText(value: string | null | undefined): string {
 const baseDescription = computed(() => normalizeLocalizedText(props.cell.description));
 const revisitDescription = computed(() => normalizeLocalizedText(props.cell.description_revisit));
 
-const latestAiInterpretation = computed(() => {
+const latestMoveForCell = computed(() => {
   for (let index = gameStore.moves.length - 1; index >= 0; index -= 1) {
     const move = gameStore.moves[index];
-    if (!move) {
-      continue;
+    if (move && move.final_cell === props.cell.id) {
+      return move;
     }
-    if (move.final_cell !== props.cell.id) {
-      continue;
-    }
-    return move.ai_interpretation?.trim() || '';
   }
-  return '';
+  return null;
 });
+
+const latestAiInterpretation = computed(() => latestMoveForCell.value?.ai_interpretation?.trim() || '');
+const latestAiReflectionPoints = computed(() => latestMoveForCell.value?.ai_reflection_points || []);
 
 function close(): void {
   isOpen.value = false;

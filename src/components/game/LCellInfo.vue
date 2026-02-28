@@ -52,48 +52,12 @@
         v-if="isPaidGame"
         class="q-mb-md"
       >
-        <div v-if="isAiMentorLoading">
-          <l-ai-loader
-            :text="t('cell.ai_mentor_loading', 'Ментор размышляет над вашим ходом...')"
-          />
-        </div>
-        <div
-          v-else-if="aiMentorError"
-          class="text-negative text-body2"
-        >
-          {{ aiMentorError }}
-        </div>
-        <div v-else-if="aiInterpretationText">
-          <div class="text-overline text-secondary q-mb-xs">
-            {{ t('cell.ai_mentor_interpretation', 'Интерпретация хода') }}
-          </div>
-          <p
-            class="text-body1"
-            style="white-space: pre-wrap"
-          >
-            {{ aiInterpretationText }}
-          </p>
-
-          <div
-            v-if="aiReflectionPoints"
-            class="q-mt-md"
-          >
-            <div class="text-overline text-secondary q-mb-xs">
-              {{ t('cell.reflection_questions', 'Вопросы для размышления') }}
-            </div>
-            <ol class="q-pl-lg q-mb-none">
-              <li
-                v-for="(question, index) in aiReflectionPoints"
-                :key="index"
-                class="q-mb-xs"
-              >
-                <div class="text-body2">
-                  {{ question }}
-                </div>
-              </li>
-            </ol>
-          </div>
-        </div>
+        <l-ai-mentor-interpretation
+          :interpretation="aiInterpretationText"
+          :reflection-points="aiReflectionPoints"
+          :is-loading="isAiMentorLoading"
+          :error="aiMentorError"
+        />
       </div>
 
       <!-- Free Game Reflection Questions -->
@@ -182,7 +146,7 @@ import LCellHeader from './LCellHeader.vue';
 import LCellKeywords from './LCellKeywords.vue';
 import LClarificationPanel from './LClarificationPanel.vue';
 import LTransitionBanner from './LTransitionBanner.vue';
-import LAiLoader from 'src/components/common/LAiLoader.vue';
+import LAiMentorInterpretation from './LAiMentorInterpretation.vue';
 
 interface Props {
   modelValue: boolean;
@@ -234,6 +198,9 @@ const isPaidGame = computed(() => props.gameMode !== 'free');
 const lastMoveId = computed(() => lastMove.value?.id ?? null);
 
 const aiReflectionPoints = computed(() => {
+  if (lastMove.value?.ai_reflection_points) {
+    return lastMove.value.ai_reflection_points;
+  }
   return aiReflectionPointsLocal.value;
 });
 
@@ -408,6 +375,7 @@ async function generateMoveMentorForCurrentMove(gameId: number, moveId: number):
     const targetMove = gameStore.moves.find((move) => move.id === moveId);
     if (targetMove) {
       targetMove.ai_interpretation = interpretation;
+      targetMove.ai_reflection_points = points;
     }
   } catch (error) {
     aiMentorError.value = resolveBackendErrorMessage(error);

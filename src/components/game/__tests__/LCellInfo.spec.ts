@@ -111,6 +111,7 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
           template: '<div data-testid="clarification-panel" />',
         },
         LTransitionBanner: true,
+        LAiMentorInterpretation: true,
       },
     },
   });
