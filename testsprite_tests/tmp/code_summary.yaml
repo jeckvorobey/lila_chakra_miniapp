@@ -1,0 +1,49 @@
+version: "2"
+type: frontend
+tech_stack:
+  - vue3
+  - quasar
+  - typescript
+  - axios
+routes:
+  - path: /diary
+    file: src/pages/diary/DiaryPage.vue
+    auth_required: true
+    description: List of played games
+  - path: /diary/:id
+    file: src/pages/diary/DiaryDetailPage.vue
+    auth_required: true
+    description: Detailed game diary with timeline, clarifications and insights
+  - path: /game
+    file: src/pages/game/GamePage.vue
+    auth_required: true
+    description: Main game board
+  - path: /game/new
+    file: src/pages/game/NewGamePage.vue
+    auth_required: true
+    description: Create a new game
+  - path: /login
+    file: src/pages/auth/LoginPage.vue
+    auth_required: false
+    description: Login page
+features:
+  - name: Game Diary Details
+    description: View game details, moves, ai interpretations, clarification questions (accordion), and player insights
+    files:
+      - src/pages/diary/DiaryDetailPage.vue
+      - src/components/game/LClarificationPanel.vue
+      - src/services/api/games.api.ts
+    entry_route: /diary/:id
+    user_interactions:
+      - View game timeline and aggregated data
+      - Toggle sort order (oldest/newest)
+      - Expand clarification questions to see answers
+      - Edit player insight for a move
+      - Navigate to meditation or report if game is completed
+    api_calls:
+      - method: GET
+        endpoint: /api/v1/games/{game_id}/diary
+      - method: POST
+        endpoint: /api/v1/games/{game_id}/moves/{move_id}/insight
+    auth_required: true
+known_limitations: []
