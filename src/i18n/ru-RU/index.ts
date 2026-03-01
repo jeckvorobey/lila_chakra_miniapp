@@ -364,6 +364,7 @@ export default {
     save: 'Сохранить',
     close: 'Закрыть',
     write_insight: 'Записать инсайт',
+    edit_insight: 'Изменить инсайт',
     add_insight: 'Дополнить инсайт',
     share: 'Поделиться',
   },

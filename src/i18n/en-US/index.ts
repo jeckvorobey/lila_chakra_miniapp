@@ -360,6 +360,7 @@ export default {
     save: 'Save',
     close: 'Close',
     write_insight: 'Write Insight',
+    edit_insight: 'Edit Insight',
     add_insight: 'Add to Insight',
     share: 'Share',
   },

@@ -81,25 +81,36 @@
             <div class="text-caption text-secondary">{{ getCellName(entry.toCell) }}</div>
           </template>
 
-          <div
+          <!-- Ответ ИИ ментора -->
+          <q-card
             v-if="entry.kind === 'roll' && entry.move.ai_interpretation"
-            class="text-body2 q-mt-sm"
+            flat
+            bordered
+            class="q-mt-sm q-mb-sm bg-surface"
           >
-            <q-icon
-              name="mdi-robot"
-              color="primary"
-              class="q-mr-xs"
-            />
-            {{ entry.move.ai_interpretation }}
-          </div>
+            <q-card-section class="q-pa-sm text-body2">
+              <div class="row items-start no-wrap">
+                <q-icon
+                  name="mdi-robot"
+                  color="primary"
+                  size="xs"
+                  class="q-mr-xs q-mt-xs"
+                />
+                <div class="col">{{ entry.move.ai_interpretation }}</div>
+              </div>
+            </q-card-section>
+          </q-card>
 
+          <!-- Уточняющие вопросы -->
           <div
             v-if="entry.kind === 'roll' && entry.move.clarifications && entry.move.clarifications.length > 0"
-            class="q-mt-sm"
+            class="q-mb-sm"
           >
-            <q-list bordered
-separator
-class="rounded-borders q-mt-sm bg-surface">
+            <q-list
+              bordered
+              separator
+              class="rounded-borders bg-surface"
+            >
               <q-expansion-item
                 v-for="clarification in entry.move.clarifications"
                 :key="clarification.id"
@@ -116,31 +127,42 @@ class="rounded-borders q-mt-sm bg-surface">
             </q-list>
           </div>
 
-          <div
-            v-if="entry.kind === 'roll' && entry.move.player_insight"
-            class="text-body2 q-mt-sm"
-          >
-            <q-icon
-              name="mdi-lightbulb"
-              color="warning"
-              class="q-mr-xs"
-            />
-            {{ entry.move.player_insight }}
-          </div>
-
-          <div
+          <!-- Инсайт игрока -->
+          <q-card
             v-if="entry.kind === 'roll'"
-            class="q-mt-sm"
+            flat
+            bordered
+            class="bg-surface q-mb-md"
           >
-            <q-btn
-              flat
-              dense
-              size="sm"
-              icon="mdi-pencil"
-              :label="$t('actions.write_insight')"
-              @click="editInsight(entry.move)"
-            />
-          </div>
+            <q-card-section class="q-pa-sm">
+              <div
+                v-if="entry.move.player_insight"
+                class="text-body2 q-mb-sm"
+              >
+                <div class="row items-start no-wrap">
+                  <q-icon
+                    name="mdi-lightbulb"
+                    color="warning"
+                    size="xs"
+                    class="q-mr-xs q-mt-xs"
+                  />
+                  <div class="col">{{ entry.move.player_insight }}</div>
+                </div>
+              </div>
+
+              <div class="row justify-end">
+                <q-btn
+                  flat
+                  dense
+                  size="sm"
+                  color="primary"
+                  :icon="entry.move.player_insight ? 'mdi-pencil' : 'mdi-plus'"
+                  :label="entry.move.player_insight ? $t('actions.edit_insight') : $t('actions.write_insight')"
+                  @click="editInsight(entry.move)"
+                />
+              </div>
+            </q-card-section>
+          </q-card>
         </q-timeline-entry>
       </q-timeline>
 

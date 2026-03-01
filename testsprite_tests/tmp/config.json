@@ -2,17 +2,17 @@
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:5173/diary",
+  "localEndpoint": "http://localhost:5173",
   "executionArgs": {
     "projectName": "miniapp",
     "projectPath": "/home/serg/Develop/lila_chakra/miniapp",
     "testIds": [],
-    "additionalInstruction": "Test the Diary Details page features, specifically checking if the clarification questions display properly in an accordion under the AI mentor answer, and the player insight is at the bottom. Also test toggling sort.",
+    "additionalInstruction": "Use 'lila-auth-token' with value 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InVzZXIiLCJqdGkiOiJlZWQzMGUwYi1iZTBlLTRkNTQtOTQyMS02OWJmNDYzMGM2ODQiLCJpYXQiOjE3NzIzNzEyODIsImV4cCI6MTc3MjQ1NzY4Mn0.xnEp8NbMj88_Lry74ELggiDuxtk0IVEhpIL7L97871s' for all API requests to the backend. Set it in localStorage as 'lila-auth-token' before navigating to any protected route. Target route for testing is '/diary/1' (or any valid game ID). Verify that AI interpretation, clarifications, and insights are displayed in bordered cards as per the new UI.",
     "serverMode": "development",
     "envs": {
       "API_KEY": "sk-user-tWRF0evP6rJaXT2uFJsjYxlBL08m19a8Yghq8EElhgJrGTJa7d4hHH-dpj_qaS1WOugEi1wTDFy9edjzBpaPc6c31u9y77laye10DuGhDdCMu_G0K0WpnAcChUenWXvvW5o"
     }
   },
-  "serverPort": 45473,
-  "proxy": "http://46e720f9-0dd3-464d-80d0-21eef3a997b6:bOuJpmRIU1P6bxxwGhRNtFQ1EC8IvWd9@tun.testsprite.com:8080"
+  "serverPort": 34847,
+  "proxy": "http://de0c7009-5837-4d7b-bf2a-621e95dc9569:cp5PkcVMK8ogoluZoZ4yotKDQgncws1c@tun.testsprite.com:8080"
 }
