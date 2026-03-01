@@ -215,6 +215,8 @@ export default {
     magic_time: 'Осталось магического времени',
     meditation: 'Медитация',
     report: 'Отчёт',
+    ai_mentor_response: 'Ответ ИИ Ментора',
+    insight_notes: 'Заметки (выводы)',
     filter: {
       all: 'Все',
       active: 'Активные',

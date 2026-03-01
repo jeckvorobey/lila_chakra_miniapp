@@ -419,15 +419,18 @@ watch(
       viewedCellMove.value?.id,
       viewedCellMove.value?.ai_interpretation,
       isPaidGame.value,
+      viewedCellMove.value?.start_cell,
+      viewedCellMove.value?.final_cell,
     ] as const,
-  ([open, gameId, currentCellId, moveId, interpretation, paid]) => {
+  ([open, gameId, currentCellId, moveId, interpretation, paid, start, final]) => {
     if (!open || !gameId || !currentCellId || !moveId || !paid) {
       isAiMentorLoading.value = false;
       loadingMentorMoveId.value = null;
       aiMentorError.value = '';
       return;
     }
-    if (interpretation) {
+    // Не запрашивать ИИ если интерпретация уже есть или хода фактически не было
+    if (interpretation || (start !== undefined && final !== undefined && start === final)) {
       return;
     }
     void generateMoveMentorForCurrentMove(gameId, moveId);

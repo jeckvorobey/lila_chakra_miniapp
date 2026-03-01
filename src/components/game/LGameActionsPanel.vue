@@ -157,8 +157,11 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
     return;
   }
 
-  await gameStore.startChipAnimation();
-  showCellInfoModal.value = true;
+  // Если фишка переместилась - запускаем анимацию и открываем инфо
+  if (result.move.final_cell !== result.move.start_cell) {
+    await gameStore.startChipAnimation();
+    showCellInfoModal.value = true;
+  }
 }
 
 const lastMoveId = computed(() => {

@@ -310,13 +310,16 @@ export const useGameStore = defineStore('game', () => {
     requiresAnotherRoll.value = response.requires_another_roll;
 
     // Сохранить данные анимации ДО обновления current_cell
-    isChipAnimating.value = true;
-    pendingAnimation = {
-      startCell: response.move.start_cell,
-      endCell: response.move.end_cell,
-      finalCell: response.move.final_cell,
-      transitionType: response.move.transition_type,
-    };
+    const hasMoved = response.move.final_cell !== response.move.start_cell;
+    if (hasMoved) {
+      isChipAnimating.value = true;
+      pendingAnimation = {
+        startCell: response.move.start_cell,
+        endCell: response.move.end_cell,
+        finalCell: response.move.final_cell,
+        transitionType: response.move.transition_type,
+      };
+    }
 
     // Обновить состояние игры
     currentGame.value.status = response.game_status;

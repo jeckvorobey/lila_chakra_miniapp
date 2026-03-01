@@ -88,16 +88,19 @@
             bordered
             class="q-mt-sm q-mb-sm bg-surface"
           >
-            <q-card-section class="q-pa-sm text-body2">
-              <div class="row items-start no-wrap">
+            <q-card-section class="q-pa-sm">
+              <div class="row items-center q-mb-xs">
                 <q-icon
                   name="mdi-robot"
                   color="primary"
                   size="xs"
-                  class="q-mr-xs q-mt-xs"
+                  class="q-mr-xs"
                 />
-                <div class="col">{{ entry.move.ai_interpretation }}</div>
+                <span class="text-subtitle2 text-weight-medium">
+                  {{ $t('diary.ai_mentor_response') }}
+                </span>
               </div>
+              <div class="text-body2">{{ entry.move.ai_interpretation }}</div>
             </q-card-section>
           </q-card>
 
@@ -137,17 +140,20 @@
             <q-card-section class="q-pa-sm">
               <div
                 v-if="entry.move.player_insight"
-                class="text-body2 q-mb-sm"
+                class="q-mb-sm"
               >
-                <div class="row items-start no-wrap">
+                <div class="row items-center q-mb-xs">
                   <q-icon
                     name="mdi-lightbulb"
                     color="warning"
                     size="xs"
-                    class="q-mr-xs q-mt-xs"
+                    class="q-mr-xs"
                   />
-                  <div class="col">{{ entry.move.player_insight }}</div>
+                  <span class="text-subtitle2 text-weight-medium">
+                    {{ $t('diary.insight_notes') }}
+                  </span>
                 </div>
+                <div class="text-body2">{{ entry.move.player_insight }}</div>
               </div>
 
               <div class="row justify-end">

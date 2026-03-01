@@ -211,6 +211,8 @@ export default {
     magic_time: 'Magic time remaining',
     meditation: 'Meditation',
     report: 'Report',
+    ai_mentor_response: 'AI Mentor Response',
+    insight_notes: 'Notes (Takeaways)',
     filter: {
       all: 'All',
       active: 'Active',

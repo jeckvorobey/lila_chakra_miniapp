@@ -6,38 +6,24 @@
       :style="{ '--dice-size': `${size}px` }"
     >
       <!-- 6 граней кубика -->
-      <div class="l-dice__face l-dice__face--1">
-        <span class="l-dice__dot l-dice__dot--center" />
-      </div>
-      <div class="l-dice__face l-dice__face--2">
-        <span class="l-dice__dot l-dice__dot--top-right" />
-        <span class="l-dice__dot l-dice__dot--bottom-left" />
-      </div>
-      <div class="l-dice__face l-dice__face--3">
-        <span class="l-dice__dot l-dice__dot--top-right" />
-        <span class="l-dice__dot l-dice__dot--center" />
-        <span class="l-dice__dot l-dice__dot--bottom-left" />
-      </div>
-      <div class="l-dice__face l-dice__face--4">
-        <span class="l-dice__dot l-dice__dot--top-left" />
-        <span class="l-dice__dot l-dice__dot--top-right" />
-        <span class="l-dice__dot l-dice__dot--bottom-left" />
-        <span class="l-dice__dot l-dice__dot--bottom-right" />
-      </div>
-      <div class="l-dice__face l-dice__face--5">
-        <span class="l-dice__dot l-dice__dot--top-left" />
-        <span class="l-dice__dot l-dice__dot--top-right" />
-        <span class="l-dice__dot l-dice__dot--center" />
-        <span class="l-dice__dot l-dice__dot--bottom-left" />
-        <span class="l-dice__dot l-dice__dot--bottom-right" />
-      </div>
-      <div class="l-dice__face l-dice__face--6">
-        <span class="l-dice__dot l-dice__dot--top-left" />
-        <span class="l-dice__dot l-dice__dot--top-right" />
-        <span class="l-dice__dot l-dice__dot--middle-left" />
-        <span class="l-dice__dot l-dice__dot--middle-right" />
-        <span class="l-dice__dot l-dice__dot--bottom-left" />
-        <span class="l-dice__dot l-dice__dot--bottom-right" />
+      <div
+        v-for="n in 6"
+        :key="n"
+        class="l-dice__face"
+        :class="[
+          `l-dice__face--${n}`,
+          {
+            'is-rolling': isRollingState,
+            'is-result': isResultState,
+          },
+        ]"
+      >
+        <span
+          v-for="(dotClass, dotIdx) in getFaceDots(n)"
+          :key="dotIdx"
+          class="l-dice__dot"
+          :class="dotClass"
+        />
       </div>
     </div>
 
@@ -50,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useDiceAnimation } from 'src/composables/useDiceAnimation';
 
@@ -76,6 +62,9 @@ const diceRef = ref<HTMLElement | null>(null);
 const { phase, startLoop, landOnFace, stop } = useDiceAnimation({
   diceEl: diceRef,
 });
+
+const isRollingState = computed(() => phase.value === 'looping' || phase.value === 'landing');
+const isResultState = computed(() => phase.value === 'idle' && props.result !== null);
 
 // Запуск анимации при начале броска
 watch(
@@ -117,6 +106,43 @@ async function doLanding(face: number): Promise<void> {
   settingsStore.vibrate([50, 30, 50]);
   emit('roll-complete', face);
 }
+
+function getFaceDots(n: number): string[] {
+  switch (n) {
+    case 1:
+      return ['l-dice__dot--center'];
+    case 2:
+      return ['l-dice__dot--top-right', 'l-dice__dot--bottom-left'];
+    case 3:
+      return ['l-dice__dot--top-right', 'l-dice__dot--center', 'l-dice__dot--bottom-left'];
+    case 4:
+      return [
+        'l-dice__dot--top-left',
+        'l-dice__dot--top-right',
+        'l-dice__dot--bottom-left',
+        'l-dice__dot--bottom-right',
+      ];
+    case 5:
+      return [
+        'l-dice__dot--top-left',
+        'l-dice__dot--top-right',
+        'l-dice__dot--center',
+        'l-dice__dot--bottom-left',
+        'l-dice__dot--bottom-right',
+      ];
+    case 6:
+      return [
+        'l-dice__dot--top-left',
+        'l-dice__dot--top-right',
+        'l-dice__dot--middle-left',
+        'l-dice__dot--middle-right',
+        'l-dice__dot--bottom-left',
+        'l-dice__dot--bottom-right',
+      ];
+    default:
+      return [];
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -151,11 +177,28 @@ async function doLanding(face: number): Promise<void> {
     justify-content: center;
     padding: 15%;
     box-sizing: border-box;
+    transition:
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
 
     .body--dark & {
       background: var(--lila-surface-elevated);
       border: 1px solid var(--lila-border);
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+
+      &.is-rolling {
+        border: 2px solid #6b46c1;
+        box-shadow:
+          inset 0 0 20px rgba(0, 0, 0, 0.2),
+          0 0 30px rgba(107, 70, 193, 0.25);
+      }
+
+      &.is-result {
+        border: 2px solid var(--chakra-4);
+        box-shadow:
+          inset 0 0 20px rgba(0, 0, 0, 0.2),
+          0 0 24px rgba(34, 197, 94, 0.35);
+      }
     }
 
     .body--light & {
@@ -164,6 +207,20 @@ async function doLanding(face: number): Promise<void> {
       box-shadow:
         inset 0 2px 4px rgba(0, 0, 0, 0.05),
         0 2px 8px rgba(0, 0, 0, 0.1);
+
+      &.is-rolling {
+        border: 2px solid #6b46c1;
+        box-shadow:
+          0 0 30px rgba(107, 70, 193, 0.2),
+          0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      &.is-result {
+        border: 2px solid var(--chakra-4);
+        box-shadow:
+          0 0 24px rgba(34, 197, 94, 0.3),
+          0 2px 8px rgba(0, 0, 0, 0.1);
+      }
     }
 
     // Позиция каждой грани
