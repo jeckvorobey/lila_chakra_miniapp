@@ -13,7 +13,6 @@ export interface PaymentCreate {
 
 export interface PaymentInitResponse {
   payment_id: number;
-  confirmation_url: string;
   amount_rub: number;
   amount_tkn: number;
   bonus_tkn: number;

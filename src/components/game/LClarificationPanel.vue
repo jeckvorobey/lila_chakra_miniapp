@@ -227,6 +227,9 @@ function resolveErrorMessage(error: unknown): string {
   if (detail === 'errors.ai_quota_exceeded') {
     return t('clarification.quota_exceeded');
   }
+  if (detail === 'errors.ai_rate_limited' || detail === 'errors.ai_unavailable') {
+    return t('clarification.quota_exceeded');
+  }
   return t('clarification.error');
 }
 

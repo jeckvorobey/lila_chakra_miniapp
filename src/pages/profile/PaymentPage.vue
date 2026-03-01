@@ -129,16 +129,6 @@
         />
       </div>
     </div>
-
-    <!-- Информация о способах оплаты -->
-    <div class="text-center q-mt-lg">
-      <div class="text-caption text-secondary q-mb-sm">Безопасная оплата через</div>
-      <q-img
-        src="/icons/yookassa-logo.svg"
-        width="120px"
-        class="q-mx-auto"
-      />
-    </div>
   </q-page>
 </template>
 
@@ -147,7 +137,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { paymentsApi } from 'src/services/api';
 import type { PaymentPackage } from 'src/types/payment.interface';
-import { getTelegramWebApp } from 'src/boot/telegram';
 import { useUserStore } from 'src/stores/user.store';
 
 const $q = useQuasar();
@@ -175,18 +164,11 @@ function processPayment() {
 
   paymentsApi
     .createPayment({ amount_rub: selectedPackage.value })
-    .then((response) => {
+    .then(() => {
       $q.notify({
-        type: 'info',
-        message: 'Переход к оплате...',
+        type: 'positive',
+        message: 'Заявка на пополнение создана. Ожидайте подтверждения.',
       });
-
-      const tg = getTelegramWebApp();
-      if (tg?.openLink) {
-        tg.openLink(response.confirmation_url);
-      } else {
-        window.location.href = response.confirmation_url;
-      }
     })
     .catch(() => {
       $q.notify({
