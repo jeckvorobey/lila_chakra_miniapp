@@ -7,7 +7,7 @@ const { mockLoadLatestActiveGame } = vi.hoisted(() => ({
 }));
 
 const mockGameStore = {
-  isGameActive: false,
+  currentGame: null as { status: string } | null,
   loadLatestActiveGame: mockLoadLatestActiveGame,
 };
 
@@ -35,7 +35,7 @@ describe('GamePage', () => {
   });
 
   it('показывает empty state и пытается восстановить активную игру', async () => {
-    mockGameStore.isGameActive = false;
+    mockGameStore.currentGame = null;
     mockLoadLatestActiveGame.mockResolvedValue(false);
 
     const wrapper = mount(GamePage, {
@@ -55,7 +55,7 @@ describe('GamePage', () => {
   });
 
   it('показывает active state и не делает восстановление если игра уже активна', async () => {
-    mockGameStore.isGameActive = true;
+    mockGameStore.currentGame = { status: 'in_progress' };
 
     const wrapper = mount(GamePage, {
       global: {
@@ -71,5 +71,25 @@ describe('GamePage', () => {
 
     expect(mockLoadLatestActiveGame).not.toHaveBeenCalled();
     expect(wrapper.find('[data-testid="active-state"]').exists()).toBe(true);
+  });
+
+  it('для завершенной игры пытается восстановить активную и показывает empty state', async () => {
+    mockGameStore.currentGame = { status: 'completed' };
+    mockLoadLatestActiveGame.mockResolvedValue(false);
+
+    const wrapper = mount(GamePage, {
+      global: {
+        stubs: {
+          'q-page': {
+            template: '<div><slot /></div>',
+          },
+        },
+      },
+    });
+
+    await flushPromises();
+
+    expect(mockLoadLatestActiveGame).toHaveBeenCalledOnce();
+    expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(true);
   });
 });
