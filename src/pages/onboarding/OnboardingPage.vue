@@ -1,214 +1,130 @@
 <template>
   <q-page class="onboarding">
+    <div class="onboarding__topbar q-px-md q-pt-sm">
+      <q-space />
+      <l-theme-toggle />
+    </div>
+
     <q-carousel
       v-model="currentSlide"
       animated
-      swipeable
-      navigation
       control-color="primary"
       class="onboarding__carousel"
     >
-      <!-- Slide 1: Welcome -->
       <q-carousel-slide
-        name="welcome"
+        v-for="slide in slides"
+        :key="slide.name"
+        :name="slide.name"
         class="onboarding__slide"
       >
-        <div class="onboarding__content">
-          <q-icon
-            name="mdi-gamepad-variant"
-            size="80px"
-            color="primary"
-            class="q-mb-lg"
-          />
-          <h1 class="text-h4 text-weight-bold q-mb-sm">{{ $t('onboarding.welcome_title') }}</h1>
-          <p class="text-body1 text-secondary">{{ $t('onboarding.welcome_desc') }}</p>
-        </div>
-      </q-carousel-slide>
-
-      <!-- Slide 2: How to play -->
-      <q-carousel-slide
-        name="concept"
-        class="onboarding__slide"
-      >
-        <div class="onboarding__content">
-          <div class="onboarding__demo q-mb-lg">
+        <div class="onboarding__content q-px-sm q-px-md-sm">
+          <div
+            v-if="slide.name === 'transitions'"
+            class="row justify-center items-center q-gutter-lg q-mb-md"
+          >
             <q-icon
-              name="mdi-dice-multiple"
-              size="60px"
-              color="primary"
+              name="mdi-arrow-up-bold"
+              size="56px"
+              color="positive"
             />
             <q-icon
-              name="mdi-arrow-right"
-              size="32px"
-              color="grey"
-              class="q-mx-md"
+              name="mdi-snake"
+              size="56px"
+              color="negative"
             />
-            <div class="onboarding__board-preview">
-              <div
-                v-for="i in 9"
-                :key="i"
-                class="onboarding__cell"
-              />
-            </div>
           </div>
-          <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.concept_title') }}</h2>
-          <p class="text-body1 text-secondary">{{ $t('onboarding.concept_desc') }}</p>
+          <q-icon
+            v-else
+            :name="slide.icon"
+            size="72px"
+            :color="slide.iconColor"
+            class="q-mb-md"
+          />
+          <h1 class="text-h5 text-weight-bold q-mb-sm">{{ $t(slide.titleKey) }}</h1>
+          <p class="text-body1 text-secondary q-mb-md">{{ $t(slide.descKey) }}</p>
 
-          <q-list class="q-mt-md">
-            <q-item>
-              <q-item-section avatar>
+          <template v-if="slide.name === 'modes'">
+            <q-card
+              v-for="mode in modeCards"
+              :key="mode.titleKey"
+              flat
+              bordered
+              class="onboarding__mode-card q-mb-sm"
+            >
+              <q-card-section class="q-pa-md">
+                <div class="row items-center justify-between q-gutter-sm">
+                  <div class="text-subtitle2 text-weight-medium">{{ $t(mode.titleKey) }}</div>
+                  <q-badge
+                    color="primary"
+                    text-color="white"
+                    class="text-weight-medium"
+                  >
+                    {{ $t(mode.priceKey) }}
+                  </q-badge>
+                </div>
+                <p class="text-caption text-secondary q-mt-sm q-mb-none">
+                  {{ $t(mode.descKey) }}
+                </p>
+              </q-card-section>
+            </q-card>
+          </template>
+
+          <q-list
+            v-else
+            class="q-mt-sm q-px-xs"
+          >
+            <q-item
+              v-for="(point, pointIndex) in slide.points"
+              :key="point"
+              class="onboarding__list-item q-px-sm"
+            >
+              <q-item-section
+                v-if="slide.points.length > 0"
+                avatar
+              >
                 <q-icon
-                  name="mdi-numeric-6-circle"
-                  color="warning"
+                  :name="getPointIcon(slide.name, pointIndex).name"
+                  :color="getPointIcon(slide.name, pointIndex).color"
+                  size="22px"
                 />
               </q-item-section>
               <q-item-section>
-                <q-item-label>Вход в игру — выбросите 6</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section avatar>
-                <q-icon
-                  name="mdi-dice-multiple"
-                  color="primary"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Выпала 6 — бросайте ещё раз</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section avatar>
-                <q-icon
-                  name="mdi-star"
-                  color="warning"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Цель — клетка 68 (Космическое Сознание)</q-item-label>
+                <q-item-label class="text-body2">{{ $t(point) }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
-        </div>
-      </q-carousel-slide>
 
-      <!-- Slide 3: Arrows & Snakes -->
-      <q-carousel-slide
-        name="portals"
-        class="onboarding__slide"
-      >
-        <div class="onboarding__content">
-          <div class="row q-gutter-lg q-mb-lg justify-center">
-            <div class="text-center">
-              <q-icon
-                name="mdi-arrow-up-bold"
-                size="60px"
-                color="positive"
-              />
-              <div class="text-subtitle2 q-mt-sm">Стрелы</div>
-              <div class="text-caption text-secondary">Добродетели</div>
-            </div>
-            <div class="text-center">
-              <q-icon
-                name="mdi-snake"
-                size="60px"
-                color="negative"
-              />
-              <div class="text-subtitle2 q-mt-sm">Змеи</div>
-              <div class="text-caption text-secondary">Пороки</div>
-            </div>
-          </div>
-          <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.portals_title') }}</h2>
-          <p class="text-body1 text-secondary">{{ $t('onboarding.portals_desc') }}</p>
-
-          <q-card
-            flat
-            bordered
+          <div
+            v-if="slide.name === 'accept'"
             class="q-mt-md"
           >
-            <q-card-section class="row items-center">
-              <q-icon
-                name="mdi-arrow-up-bold"
-                color="positive"
-                size="24px"
-                class="q-mr-sm"
-              />
-              <div class="col">
-                <div class="text-body2">Сострадание (17 → 69)</div>
-                <div class="text-caption text-secondary">Самый мощный подъём</div>
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card-section class="row items-center">
-              <q-icon
-                name="mdi-snake"
-                color="negative"
-                size="24px"
-                class="q-mr-sm"
-              />
-              <div class="col">
-                <div class="text-body2">Эгоизм (55 → 3)</div>
-                <div class="text-caption text-secondary">Самое большое падение</div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </q-carousel-slide>
-
-      <!-- Slide 4: Safety -->
-      <q-carousel-slide
-        name="safety"
-        class="onboarding__slide"
-      >
-        <div class="onboarding__content">
-          <q-icon
-            name="mdi-shield-check"
-            size="80px"
-            color="warning"
-            class="q-mb-lg"
-          />
-          <h2 class="text-h5 text-weight-bold q-mb-sm">{{ $t('onboarding.safety_title') }}</h2>
-          <p class="text-body1 text-secondary q-mb-md">{{ $t('onboarding.safety_desc') }}</p>
-
-          <q-banner class="bg-warning-light rounded-borders">
-            <template #avatar>
-              <q-icon
-                name="mdi-alert"
-                color="warning"
-              />
-            </template>
-            <div class="text-body2">
-              <strong>Важно:</strong> Эта игра работает с подсознанием. Входная и выходная медитации
-              обязательны для вашей безопасности.
-            </div>
-          </q-banner>
-
-          <div class="q-mt-lg">
             <q-checkbox
               v-model="accepted"
-              label="Я понимаю и принимаю правила безопасности"
+              :label="$t('onboarding.accept_checkbox')"
             />
           </div>
         </div>
       </q-carousel-slide>
     </q-carousel>
 
-    <!-- Navigation buttons -->
-    <div class="onboarding__footer">
+    <div class="onboarding__footer q-px-md q-pt-sm q-pb-xl">
       <q-btn
-        v-if="currentSlide !== 'welcome'"
-        flat
-        color="grey"
+        v-if="!isFirstSlide"
+        outline
+        color="grey-7"
         icon="mdi-chevron-left"
+        :label="$t('onboarding.back')"
+        data-testid="onboarding-back"
         @click="prevSlide"
       />
       <q-space />
       <q-btn
-        v-if="currentSlide === 'safety'"
-        :label="$t('onboarding.understand')"
+        v-if="isLastSlide"
+        :label="$t('onboarding.accept_button')"
         color="primary"
         unelevated
         :disable="!accepted"
+        data-testid="onboarding-accept"
         @click="complete"
       />
       <q-btn
@@ -217,65 +133,207 @@
         color="primary"
         unelevated
         icon-right="mdi-chevron-right"
+        data-testid="onboarding-next"
         @click="nextSlide"
       />
     </div>
-
-    <!-- Skip button -->
-    <q-btn
-      :label="$t('onboarding.skip')"
-      flat
-      color="grey"
-      class="onboarding__skip"
-      @click="skip"
-    />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { LThemeToggle } from 'src/components/base';
 import { useUserStore } from 'src/stores/user.store';
+
+interface OnboardingSlide {
+  name: string;
+  icon: string;
+  iconColor: string;
+  titleKey: string;
+  descKey: string;
+  points: string[];
+}
+
+interface TransitionPointIcon {
+  name: string;
+  color: string;
+}
+
+type SlidePointIcons = Record<string, TransitionPointIcon[]>;
 
 const router = useRouter();
 const userStore = useUserStore();
 
-const slides = ['welcome', 'concept', 'portals', 'safety'];
-const currentSlide = ref('welcome');
+const slides: OnboardingSlide[] = [
+  {
+    name: 'intro',
+    icon: 'mdi-gamepad-variant',
+    iconColor: 'primary',
+    titleKey: 'onboarding.slide_1_title',
+    descKey: 'onboarding.slide_1_desc',
+    points: ['onboarding.slide_1_point_1', 'onboarding.slide_1_point_2', 'onboarding.slide_1_point_3'],
+  },
+  {
+    name: 'modes',
+    icon: 'mdi-account-switch',
+    iconColor: 'secondary',
+    titleKey: 'onboarding.slide_2_title',
+    descKey: 'onboarding.slide_2_desc',
+    points: [],
+  },
+  {
+    name: 'how-to-play',
+    icon: 'mdi-dice-multiple',
+    iconColor: 'primary',
+    titleKey: 'onboarding.slide_3_title',
+    descKey: 'onboarding.slide_3_desc',
+    points: ['onboarding.slide_3_point_1', 'onboarding.slide_3_point_2', 'onboarding.slide_3_point_3'],
+  },
+  {
+    name: 'transitions',
+    icon: 'mdi-source-branch',
+    iconColor: 'accent',
+    titleKey: 'onboarding.slide_4_title',
+    descKey: 'onboarding.slide_4_desc',
+    points: ['onboarding.slide_4_point_1', 'onboarding.slide_4_point_2', 'onboarding.slide_4_point_3'],
+  },
+  {
+    name: 'diary',
+    icon: 'mdi-notebook-outline',
+    iconColor: 'positive',
+    titleKey: 'onboarding.slide_5_title',
+    descKey: 'onboarding.slide_5_desc',
+    points: ['onboarding.slide_5_point_1', 'onboarding.slide_5_point_2', 'onboarding.slide_5_point_3'],
+  },
+  {
+    name: 'profile',
+    icon: 'mdi-cog-outline',
+    iconColor: 'warning',
+    titleKey: 'onboarding.slide_6_title',
+    descKey: 'onboarding.slide_6_desc',
+    points: ['onboarding.slide_6_point_1', 'onboarding.slide_6_point_2', 'onboarding.slide_6_point_3'],
+  },
+  {
+    name: 'accept',
+    icon: 'mdi-shield-check',
+    iconColor: 'warning',
+    titleKey: 'onboarding.slide_7_title',
+    descKey: 'onboarding.slide_7_desc',
+    points: ['onboarding.slide_7_point_1', 'onboarding.slide_7_point_2', 'onboarding.slide_7_point_3'],
+  },
+];
+
+const modeCards = [
+  {
+    titleKey: 'onboarding.mode_free_title',
+    descKey: 'onboarding.mode_free_desc',
+    priceKey: 'onboarding.mode_free_price_tkn',
+  },
+  {
+    titleKey: 'onboarding.mode_ai_title',
+    descKey: 'onboarding.mode_ai_desc',
+    priceKey: 'onboarding.mode_ai_price_tkn',
+  },
+  {
+    titleKey: 'onboarding.mode_incognito_title',
+    descKey: 'onboarding.mode_incognito_desc',
+    priceKey: 'onboarding.mode_incognito_price_tkn',
+  },
+];
+
+const transitionPointIcons: TransitionPointIcon[] = [
+  { name: 'mdi-arrow-up-bold', color: 'positive' },
+  { name: 'mdi-snake', color: 'negative' },
+  { name: 'mdi-head-cog-outline', color: 'primary' },
+];
+
+const slidePointIcons: SlidePointIcons = {
+  intro: [
+    { name: 'mdi-star-four-points-outline', color: 'secondary' },
+    { name: 'mdi-compass-outline', color: 'primary' },
+    { name: 'mdi-rocket-launch-outline', color: 'accent' },
+  ],
+  'how-to-play': [
+    { name: 'mdi-dice-multiple', color: 'primary' },
+    { name: 'mdi-hand-back-right-outline', color: 'secondary' },
+    { name: 'mdi-numeric-6-circle', color: 'warning' },
+  ],
+  transitions: transitionPointIcons,
+  diary: [
+    { name: 'mdi-timeline-clock-outline', color: 'primary' },
+    { name: 'mdi-lightbulb-on-outline', color: 'warning' },
+    { name: 'mdi-chart-line', color: 'positive' },
+  ],
+  profile: [
+    { name: 'mdi-volume-high', color: 'primary' },
+    { name: 'mdi-dice-6', color: 'secondary' },
+    { name: 'mdi-palette-outline', color: 'accent' },
+  ],
+  accept: [
+    { name: 'mdi-shield-check-outline', color: 'warning' },
+    { name: 'mdi-timer-sand', color: 'secondary' },
+    { name: 'mdi-play-circle-outline', color: 'primary' },
+  ],
+};
+
+function getPointIcon(slideName: string, pointIndex: number): TransitionPointIcon {
+  const icon = slidePointIcons[slideName]?.[pointIndex];
+  return icon ?? { name: 'mdi-circle-medium', color: 'grey-6' };
+}
+
+const currentSlide = ref(slides[0]!.name);
 const accepted = ref(false);
 
+const currentIndex = computed(() => slides.findIndex((item) => item.name === currentSlide.value));
+const isFirstSlide = computed(() => currentIndex.value === 0);
+const isLastSlide = computed(() => currentIndex.value === slides.length - 1);
+
 function nextSlide() {
-  const currentIndex = slides.indexOf(currentSlide.value);
-  if (currentIndex < slides.length - 1) {
-    currentSlide.value = slides[currentIndex + 1]!;
+  const nextIndex = currentIndex.value + 1;
+  if (nextIndex < slides.length) {
+    currentSlide.value = slides[nextIndex]!.name;
   }
 }
 
 function prevSlide() {
-  const currentIndex = slides.indexOf(currentSlide.value);
-  if (currentIndex > 0) {
-    currentSlide.value = slides[currentIndex - 1]!;
+  const prevIndex = currentIndex.value - 1;
+  if (prevIndex >= 0) {
+    currentSlide.value = slides[prevIndex]!.name;
   }
 }
 
 async function complete() {
+  if (!accepted.value) {
+    return;
+  }
   await userStore.completeOnboarding();
   void router.push('/game');
-}
-
-function skip() {
-  void complete();
 }
 </script>
 
 <style lang="scss" scoped>
 .onboarding {
-  position: relative;
   min-height: 100vh;
   background: var(--lila-bg);
 
+  &__topbar {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 4px);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: flex-end;
+    pointer-events: none;
+
+    :deep(.q-btn) {
+      pointer-events: auto;
+    }
+  }
+
   &__carousel {
-    height: calc(100vh - 120px);
+    height: calc(100vh - 112px);
     background: transparent;
   }
 
@@ -287,28 +345,19 @@ function skip() {
   }
 
   &__content {
-    max-width: 400px;
+    max-width: 440px;
+    width: 100%;
     text-align: center;
   }
 
-  &__demo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &__list-item {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
   }
 
-  &__board-preview {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-  }
-
-  &__cell {
-    width: 24px;
-    height: 24px;
-    background: var(--lila-surface);
-    border: 1px solid var(--lila-border);
-    border-radius: 4px;
+  &__mode-card {
+    text-align: left;
   }
 
   &__footer {
@@ -318,20 +367,7 @@ function skip() {
     right: 0;
     display: flex;
     align-items: center;
-    padding: var(--space-lg);
-    padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
     background: var(--lila-bg);
   }
-
-  &__skip {
-    position: fixed;
-    top: var(--space-md);
-    right: var(--space-md);
-    top: calc(var(--space-md) + env(safe-area-inset-top));
-  }
-}
-
-.bg-warning-light {
-  background: rgba(245, 158, 11, 0.15) !important;
 }
 </style>
