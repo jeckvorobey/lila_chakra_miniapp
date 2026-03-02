@@ -18,21 +18,25 @@
       >
         <q-card-section>
           <div class="text-overline text-secondary q-mb-xs">{{ $t('referral.your_link') }}</div>
-          <div class="row items-center no-wrap bg-dark rounded-borders q-pa-sm border-subtle">
-            <div class="col ellipsis text-body2 text-primary text-weight-medium">
-              {{ referralLink || '...' }}
-            </div>
-            <q-btn
-              flat
-              round
-              color="primary"
-              icon="mdi-content-copy"
-              size="sm"
-              @click="copyLink"
-            >
-              <q-tooltip>{{ $t('referral.copy') }}</q-tooltip>
-            </q-btn>
-          </div>
+          <q-input
+            :model-value="referralLink || '...'"
+            dense
+            outlined
+            readonly
+          >
+            <template #append>
+              <q-btn
+                flat
+                round
+                color="primary"
+                icon="mdi-content-copy"
+                size="sm"
+                @click="copyLink"
+              >
+                <q-tooltip>{{ $t('referral.copy') }}</q-tooltip>
+              </q-btn>
+            </template>
+          </q-input>
         </q-card-section>
 
         <q-separator dark />
@@ -177,10 +181,6 @@ onMounted(() => {
   padding: var(--lila-layout-gap);
 }
 
-.border-subtle {
-  border: 1px solid var(--lila-border);
-}
-
 .rule-number {
   width: 24px;
   height: 24px;
@@ -192,12 +192,6 @@ onMounted(() => {
 .rules-section {
   :deep(.q-item__section--avatar) {
     min-width: 32px;
-  }
-}
-
-.body--light {
-  .bg-dark {
-    background-color: #f0f0f0 !important;
   }
 }
 </style>

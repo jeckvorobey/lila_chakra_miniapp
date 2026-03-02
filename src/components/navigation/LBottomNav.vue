@@ -114,7 +114,7 @@ function onTabClick(tab: string) {
       }
 
       .body--light & {
-        color: var(--q-primary);
+        color: $primary !important;
       }
     }
 

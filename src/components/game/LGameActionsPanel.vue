@@ -18,7 +18,10 @@
             <div class="text-subtitle2 text-weight-medium ellipsis">
               {{ currentCellTitle }}
             </div>
-            <div class="text-caption text-secondary">
+            <div
+              v-if="currentChakraLabel"
+              class="text-caption text-secondary"
+            >
               {{ currentChakraLabel }}
             </div>
           </div>
@@ -139,9 +142,10 @@ const currentCellTitle = computed(() => {
     ? props.currentCellInfo.name_ru
     : props.currentCellInfo.name;
 });
-const currentChakraLabel = computed(() =>
-  props.currentChakra > 0 ? t(`chakra.${props.currentChakra}`) : 'chakra.0',
-);
+const currentChakraLabel = computed(() => {
+  if (props.currentCell === 0 || props.currentChakra <= 0) return '';
+  return t(`chakra.${props.currentChakra}`);
+});
 
 watchEffect(() => {
   if (props.currentCell === 68) {

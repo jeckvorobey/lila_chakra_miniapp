@@ -99,6 +99,78 @@
       </q-card>
     </div>
 
+    <!-- Ссылки поддержки -->
+    <q-list
+      bordered
+      separator
+      class="rounded-borders bg-surface q-mb-md"
+    >
+      <q-item
+        clickable
+        @click="$router.push('/profile/referral')"
+      >
+        <q-item-section avatar>
+          <q-icon name="mdi-share-variant" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.invite') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        @click="$router.push('/profile/transactions')"
+      >
+        <q-item-section avatar>
+          <q-icon name="mdi-history" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.transactions_title') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        @click="$router.push('/profile/rules')"
+      >
+        <q-item-section avatar>
+          <q-icon name="mdi-book-open-variant" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.rules') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        @click="$router.push('/profile/my-requests')"
+      >
+        <q-item-section avatar>
+          <q-icon name="mdi-format-list-bulleted-square" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.my_requests') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        @click="$router.push('/profile/feedback')"
+      >
+        <q-item-section avatar>
+          <q-icon name="mdi-message-outline" />
+        </q-item-section>
+        <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
+        <q-item-section side>
+          <q-icon name="mdi-chevron-right" />
+        </q-item-section>
+      </q-item>
+    </q-list>
+
     <!-- Настройки -->
     <div class="text-subtitle2 text-weight-medium q-mb-sm">{{ $t('profile.settings') }}</div>
     <q-list
@@ -123,7 +195,7 @@
               { icon: 'mdi-cellphone-cog', value: 'system' },
             ]"
             toggle-color="primary"
-            flat
+            unelevated
             dense
             @update:model-value="settingsStore.setTheme($event)"
           />
@@ -180,7 +252,7 @@
               { label: 'Ручной', value: 'manual' },
             ]"
             toggle-color="primary"
-            flat
+            unelevated
             dense
             size="sm"
             @update:model-value="onDiceModeChange"
@@ -266,78 +338,6 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-
-    <!-- Ссылки поддержки -->
-    <q-list
-      bordered
-      separator
-      class="rounded-borders bg-surface"
-    >
-      <q-item
-        clickable
-        @click="$router.push('/profile/referral')"
-      >
-        <q-item-section avatar>
-          <q-icon name="mdi-share-variant" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.invite') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-
-      <q-item
-        clickable
-        @click="$router.push('/profile/transactions')"
-      >
-        <q-item-section avatar>
-          <q-icon name="mdi-history" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.transactions_title') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-
-      <q-item
-        clickable
-        @click="$router.push('/profile/rules')"
-      >
-        <q-item-section avatar>
-          <q-icon name="mdi-book-open-variant" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.rules') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-
-      <q-item
-        clickable
-        @click="$router.push('/profile/my-requests')"
-      >
-        <q-item-section avatar>
-          <q-icon name="mdi-format-list-bulleted-square" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.my_requests') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-
-      <q-item
-        clickable
-        @click="$router.push('/profile/feedback')"
-      >
-        <q-item-section avatar>
-          <q-icon name="mdi-message-outline" />
-        </q-item-section>
-        <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
-        <q-item-section side>
-          <q-icon name="mdi-chevron-right" />
-        </q-item-section>
-      </q-item>
-    </q-list>
   </q-page>
 </template>
 
