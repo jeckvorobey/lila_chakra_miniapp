@@ -155,4 +155,30 @@ describe('LCellCard', () => {
     expect(text).toContain('Вы опустились по змее с клетки 44 (Клетка) на клетку 9 (Клетка).');
     expect(text).toContain('В Лиле змея указывает на урок через порок и возвращение к проработке.');
   });
+
+  it('показывает баннер перехода, даже если transition_from/transition_to не пришли', async () => {
+    mockMoves.splice(
+      0,
+      mockMoves.length,
+      buildMove({
+        transition_type: 'arrow',
+        transition_from: null,
+        transition_to: null,
+        end_cell: 10,
+        final_cell: 23,
+      }),
+    );
+
+    const wrapper = mountCard({
+      id: 23,
+      name: 'Клетка 23',
+      chakra_level: 3,
+      description: 'Описание',
+    });
+
+    await flushPromises();
+
+    const text = wrapper.text();
+    expect(text).toContain('Вы поднялись по стреле с клетки 10 (Клетка) на клетку 23 (Клетка).');
+  });
 });

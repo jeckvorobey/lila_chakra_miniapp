@@ -84,10 +84,12 @@ const transitionFromLastMove = computed(() => {
   if (!move || move.transition_type === 'none') {
     return null;
   }
-  if (move.transition_to == null || move.transition_from == null) {
-    return null;
-  }
-  return move;
+
+  return {
+    ...move,
+    transition_from: move.transition_from ?? move.end_cell ?? props.cellId,
+    transition_to: move.transition_to ?? move.final_cell ?? props.cellId,
+  };
 });
 
 const isLastMoveTransition = computed(() => transitionFromLastMove.value !== null);
