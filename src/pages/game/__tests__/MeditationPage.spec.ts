@@ -56,6 +56,27 @@ function mountPage() {
         'q-page': {
           template: '<div><slot /></div>',
         },
+        'q-card': {
+          template: '<div><slot /></div>',
+        },
+        'q-card-section': {
+          template: '<div><slot /></div>',
+        },
+        'q-list': {
+          template: '<div><slot /></div>',
+        },
+        'q-item': {
+          template: '<div><slot /></div>',
+        },
+        'q-item-section': {
+          template: '<div><slot /></div>',
+        },
+        'q-item-label': {
+          template: '<div><slot /></div>',
+        },
+        'q-icon': {
+          template: '<i />',
+        },
         'q-btn': {
           template: `<button @click="$emit('click')"><slot /></button>`,
           props: ['loading'],
@@ -97,6 +118,23 @@ describe('MeditationPage', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/game');
   });
 
+  it('для entry показывает список шагов без нумерации', async () => {
+    const store = useGameStore();
+    vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const text = wrapper.text();
+    expect(text).toContain('meditation.instructions_title');
+    expect(text).toContain('meditation.entry_steps.settle.text');
+    expect(text).toContain('meditation.entry_steps.formulate_question.text');
+    expect(text).toContain('meditation.entry_steps.readiness.text');
+    expect(text).not.toContain('meditation.instruction_entry');
+    expect(text).not.toContain('1.');
+    expect(text).not.toContain('2.');
+  });
+
   it('для exit пропускает медитацию и переходит в /game/final/:id', async () => {
     mockRoute.params.type = 'exit';
 
@@ -112,6 +150,25 @@ describe('MeditationPage', () => {
 
     expect(completeExitSpy).toHaveBeenCalledOnce();
     expect(mockRouterPush).toHaveBeenCalledWith('/game/final/1');
+  });
+
+  it('для exit показывает список шагов без нумерации', async () => {
+    mockRoute.params.type = 'exit';
+
+    const store = useGameStore();
+    vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const text = wrapper.text();
+    expect(text).toContain('meditation.instructions_title');
+    expect(text).toContain('meditation.exit_steps.settle.text');
+    expect(text).toContain('meditation.exit_steps.recall_path.text');
+    expect(text).toContain('meditation.exit_steps.gratitude.text');
+    expect(text).not.toContain('meditation.instruction_exit');
+    expect(text).not.toContain('1.');
+    expect(text).not.toContain('2.');
   });
 
   it('показывает notify и не уходит со страницы при ошибке пропуска', async () => {

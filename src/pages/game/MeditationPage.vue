@@ -7,16 +7,28 @@
       class="col column flex-center"
       style="padding: var(--lila-layout-gap)"
     >
-      <!-- Название -->
       <h1 class="text-h4 text-weight-medium text-center q-mb-sm">
-        {{ isEntry ? $t('meditation.entry_title') : $t('meditation.exit_title') }}
+        {{ $t('meditation.instructions_title') }}
       </h1>
 
-      <p class="text-body1 text-secondary text-center q-mb-xl">
-        {{ $t('meditation.instruction') }}
-      </p>
+      <q-card
+        flat
+        bordered
+        class="bg-surface meditation-page__steps q-mb-lg"
+      >
+        <q-card-section>
+          <div
+            v-for="step in meditationSteps"
+            :key="step.textKey"
+            class="meditation-page__step-item q-mb-md"
+          >
+            <div class="text-body2 text-secondary">
+              <span class="q-mr-sm">{{ step.emoji }}</span>{{ $t(step.textKey) }}
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
 
-      <!-- Плеер для аудио -->
       <l-audio-player
         :audio-url="meditationAudioUrl"
         :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')"
@@ -46,14 +58,71 @@ import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
 import { useGameStore } from 'src/stores/game.store';
 import type { MeditationAudioType } from 'src/types/audio.interface';
 
+interface MeditationStep {
+  emoji: string;
+  textKey: string;
+}
+
+const entryMeditationSteps: MeditationStep[] = [
+  {
+    emoji: '🪷',
+    textKey: 'meditation.entry_steps.settle.text',
+  },
+  {
+    emoji: '👁️',
+    textKey: 'meditation.entry_steps.close_eyes.text',
+  },
+  {
+    emoji: '❓',
+    textKey: 'meditation.entry_steps.formulate_question.text',
+  },
+  {
+    emoji: '🧠',
+    textKey: 'meditation.entry_steps.let_question_sound.text',
+  },
+  {
+    emoji: '✨',
+    textKey: 'meditation.entry_steps.readiness.text',
+  },
+];
+
+const exitMeditationSteps: MeditationStep[] = [
+  {
+    emoji: '🪷',
+    textKey: 'meditation.exit_steps.settle.text',
+  },
+  {
+    emoji: '🌬️',
+    textKey: 'meditation.exit_steps.close_eyes.text',
+  },
+  {
+    emoji: '🛤️',
+    textKey: 'meditation.exit_steps.recall_path.text',
+  },
+  {
+    emoji: '💡',
+    textKey: 'meditation.exit_steps.highlight_core.text',
+  },
+  {
+    emoji: '🎯',
+    textKey: 'meditation.exit_steps.define_step.text',
+  },
+  {
+    emoji: '🙏',
+    textKey: 'meditation.exit_steps.gratitude.text',
+  },
+];
+
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
 const gameStore = useGameStore();
 const { meditationAudioUrl, meditationAudioError } = storeToRefs(gameStore);
 
-// Тип медитации
 const isEntry = computed(() => route.params.type === 'entry');
+const meditationSteps = computed<MeditationStep[]>(() =>
+  isEntry.value ? entryMeditationSteps : exitMeditationSteps,
+);
 const meditationAudioType = computed<MeditationAudioType>(() =>
   isEntry.value ? 'meditation_entry' : 'meditation_exit',
 );
@@ -135,3 +204,14 @@ watch(
   },
 );
 </script>
+
+<style scoped lang="scss">
+.meditation-page__steps {
+  width: 100%;
+  max-width: 720px;
+}
+
+.meditation-page__step-item {
+  align-items: flex-start;
+}
+</style>

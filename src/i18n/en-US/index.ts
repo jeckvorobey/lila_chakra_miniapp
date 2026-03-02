@@ -157,7 +157,55 @@ export default {
     entry_title: 'Prepare Your Mind',
     exit: 'Exit Meditation',
     exit_title: 'Integration',
-    instruction: 'Find a comfortable position and follow the guidance',
+    instructions_title: 'Instruction',
+    entry_steps: {
+      settle: {
+        title: 'Get comfortable',
+        text: 'Sit with a straight back and relaxed shoulders. Rest your hands on your knees or in any position that feels natural.',
+      },
+      close_eyes: {
+        title: 'Close your eyes and breathe deeply',
+        text: 'Take several slow, deep inhales and exhales. With each exhale, let the tension of the day go.',
+      },
+      formulate_question: {
+        title: 'Formulate your question',
+        text: 'Silently state the question or intention you bring into the game. Keep it clear and concise.',
+      },
+      let_question_sound: {
+        title: 'Let the question resonate',
+        text: 'Do not search for an answer or analyze. Hold focus on the question and imagine handing it over to your subconscious.',
+      },
+      readiness: {
+        title: 'Feel your readiness',
+        text: 'When you sense inner quiet and readiness to begin, take one final deep inhale and exhale.',
+      },
+    },
+    exit_steps: {
+      settle: {
+        title: 'Get comfortable',
+        text: 'Return to the same comfortable position you had at the beginning.',
+      },
+      close_eyes: {
+        title: 'Close your eyes',
+        text: 'Breathe calmly and evenly, returning to your inner center.',
+      },
+      recall_path: {
+        title: 'Recall your journey',
+        text: 'Let key moments, insights, and realizations from the game arise freely. Do not analyze, simply observe.',
+      },
+      highlight_core: {
+        title: 'Identify the core insight',
+        text: 'From the flow of impressions, choose one insight that matters most right now. What simple action does it suggest?',
+      },
+      define_step: {
+        title: 'Define your next step',
+        text: 'Turn this insight into one concrete, small, and doable step you can take soon.',
+      },
+      gratitude: {
+        title: 'Thank the experience',
+        text: 'Silently thank the game and yourself for the journey. Take a deep inhale and exhale, then gently open your eyes.',
+      },
+    },
     skip: 'Skip',
     complete: 'Complete',
   },
