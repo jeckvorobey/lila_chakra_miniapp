@@ -130,6 +130,29 @@ function createIntermediateResponse(): MoveResponse {
   };
 }
 
+function createNoMoveWaitingZoneResponse(): MoveResponse {
+  return createFinalMoveResponse({
+    move: {
+      id: 2,
+      game_id: 1,
+      move_number: 7,
+      dice_rolls: [5],
+      is_triple_six: false,
+      is_pending: false,
+      start_cell: 69,
+      end_cell: 69,
+      final_cell: 69,
+      transition_type: 'none',
+      transition_from: null,
+      transition_to: null,
+      ai_interpretation: null,
+      player_insight: null,
+      created_at: '2026-02-11T00:00:00Z',
+    },
+    game_status: 'in_waiting_zone',
+  });
+}
+
 function mountModal() {
   return shallowMount(LDiceRollModal, {
     props: {
@@ -283,6 +306,30 @@ describe('LDiceRollModal', () => {
 
     expect(mockNotify).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'negative', message: 'Ошибка сети' }),
+    );
+  });
+
+  it('при отсутствии хода в зоне ожидания показывает inline сообщение и не закрывает модалку', async () => {
+    mockRollDiceAuto.mockResolvedValue(createNoMoveWaitingZoneResponse());
+
+    const wrapper = mountModal();
+    await wrapper.get('[data-testid="dice-auto-roll-btn"]').trigger('click');
+
+    await vi.advanceTimersByTimeAsync(2000);
+    await flushPromises();
+
+    const dice = wrapper.findComponent({ name: 'LDice' });
+    dice.vm.$emit('roll-complete', 5);
+    await nextTick();
+
+    await vi.advanceTimersByTimeAsync(450);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('dice.no_move');
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    expect(wrapper.emitted('roll-finished')).toBeUndefined();
+    expect(mockNotify).not.toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'dice.no_move' }),
     );
   });
 });

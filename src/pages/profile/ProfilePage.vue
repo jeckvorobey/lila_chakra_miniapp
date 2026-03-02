@@ -142,6 +142,7 @@
           <q-toggle
             v-model="settingsStore.soundEnabled"
             color="primary"
+            active-color="primary"
           />
         </q-item-section>
       </q-item>
@@ -158,6 +159,7 @@
           <q-toggle
             v-model="settingsStore.vibrationEnabled"
             color="primary"
+            active-color="primary"
           />
         </q-item-section>
       </q-item>
@@ -273,12 +275,12 @@
     >
       <q-item
         clickable
-        @click="$router.push('/profile/rules')"
+        @click="$router.push('/profile/referral')"
       >
         <q-item-section avatar>
-          <q-icon name="mdi-book-open-variant" />
+          <q-icon name="mdi-share-variant" />
         </q-item-section>
-        <q-item-section>{{ $t('profile.rules') }}</q-item-section>
+        <q-item-section>{{ $t('profile.invite') }}</q-item-section>
         <q-item-section side>
           <q-icon name="mdi-chevron-right" />
         </q-item-section>
@@ -299,12 +301,12 @@
 
       <q-item
         clickable
-        @click="$router.push('/profile/feedback')"
+        @click="$router.push('/profile/rules')"
       >
         <q-item-section avatar>
-          <q-icon name="mdi-message-outline" />
+          <q-icon name="mdi-book-open-variant" />
         </q-item-section>
-        <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
+        <q-item-section>{{ $t('profile.rules') }}</q-item-section>
         <q-item-section side>
           <q-icon name="mdi-chevron-right" />
         </q-item-section>
@@ -325,12 +327,12 @@
 
       <q-item
         clickable
-        @click="$router.push('/profile/referral')"
+        @click="$router.push('/profile/feedback')"
       >
         <q-item-section avatar>
-          <q-icon name="mdi-share-variant" />
+          <q-icon name="mdi-message-outline" />
         </q-item-section>
-        <q-item-section>{{ $t('profile.invite') }}</q-item-section>
+        <q-item-section>{{ $t('profile.feedback') }}</q-item-section>
         <q-item-section side>
           <q-icon name="mdi-chevron-right" />
         </q-item-section>

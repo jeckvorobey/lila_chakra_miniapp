@@ -112,6 +112,10 @@ function onTabClick(tab: string) {
       .body--dark & {
         text-shadow: 0 0 10px $primary;
       }
+
+      .body--light & {
+        color: var(--q-primary);
+      }
     }
 
     :deep(.q-tab:hover:not(.q-tab--active)) {

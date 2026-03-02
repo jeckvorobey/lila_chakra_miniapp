@@ -323,7 +323,7 @@ export default {
     my_requests: 'My Requests',
     rules: 'Game Rules',
     about: 'About',
-    invite: 'Invite Friend',
+    invite: 'Share Link',
     chip_settings: 'Chip Settings',
     chip_color: 'Chip Color',
     chip_text_color: 'Text Color',

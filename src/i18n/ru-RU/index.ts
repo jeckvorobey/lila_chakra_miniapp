@@ -327,7 +327,7 @@ export default {
     my_requests: 'Мои обращения',
     rules: 'Правила игры',
     about: 'О приложении',
-    invite: 'Пригласить друга',
+    invite: 'Поделиться ссылкой',
     chip_settings: 'Настройка фишки',
     chip_color: 'Цвет фишки',
     chip_text_color: 'Цвет текста',

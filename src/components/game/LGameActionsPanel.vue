@@ -161,17 +161,6 @@ async function onRollFinished(result: MoveResponse): Promise<void> {
   if (result.move.final_cell !== result.move.start_cell) {
     await gameStore.startChipAnimation();
     showCellInfoModal.value = true;
-  } else {
-    // Если игрок остался на месте в зоне ожидания (69-71) — показываем уведомление об отсутствии хода
-    const s = result.move.start_cell;
-    if (s >= 69 && s <= 71) {
-      $q.notify({
-        type: 'info',
-        message: t('dice.no_move'),
-        icon: 'mdi-dice-multiple-outline',
-        position: 'top',
-      });
-    }
   }
 }
 

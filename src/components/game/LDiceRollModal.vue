@@ -137,6 +137,15 @@ function sleep(ms: number): Promise<void> {
   });
 }
 
+/**
+ * Проверяет сценарий "хода нет" в зоне ожидания (69-71).
+ */
+function isNoMoveInWaitingZone(result: MoveResponse): boolean {
+  if (!result.move) return false;
+  const { start_cell, final_cell } = result.move;
+  return start_cell >= 69 && start_cell <= 71 && final_cell === start_cell;
+}
+
 /** Обработка завершения анимации приземления кубика */
 async function onRollComplete(): Promise<void> {
   isRollingVisual.value = false;
@@ -205,6 +214,14 @@ async function executeRoll(rollFn: () => Promise<MoveResponse | null>): Promise<
       return;
     }
 
+    if (isNoMoveInWaitingZone(result)) {
+      pendingMessage.value = t('dice.no_move');
+      pendingAutoRolls.value = [];
+      pendingResult.value = null;
+      lastDiceResult.value = result.move.dice_rolls[result.move.dice_rolls.length - 1] ?? null;
+      return;
+    }
+
     pendingMessage.value = '';
     pendingAutoRolls.value = [];
     pendingResult.value = result;
@@ -249,6 +266,13 @@ async function executeManualRoll(value: number): Promise<void> {
 
     if (result.move.is_triple_six) {
       $q.notify({ type: 'warning', message: t('dice.burned'), icon: 'mdi-fire' });
+    }
+
+    if (isNoMoveInWaitingZone(result)) {
+      pendingManualRolls.value = [];
+      pendingMessage.value = t('dice.no_move');
+      gameStore.resetManualRolls();
+      return;
     }
 
     pendingManualRolls.value = [];
