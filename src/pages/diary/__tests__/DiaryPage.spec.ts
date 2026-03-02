@@ -74,11 +74,11 @@ describe('DiaryPage', () => {
     mockLoadGame.mockResolvedValue(true);
     const i18n = createI18n({
       legacy: false,
-      locale: 'ru-RU',
+      locale: 'en-US',
       missingWarn: false,
       fallbackWarn: false,
       messages: {
-        'ru-RU': {},
+        'en-US': {},
       },
     });
 
