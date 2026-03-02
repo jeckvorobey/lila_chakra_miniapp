@@ -14,12 +14,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useGameStore } from 'src/stores/game.store';
+import { isActiveGameStatus } from 'src/data/game-status';
 import { LGameActiveState, LGameEmptyState } from 'src/components/game';
 
 const gameStore = useGameStore();
 const isRestoringGame = ref(false);
 
-const hasActiveGame = computed(() => gameStore.isGameActive);
+const hasActiveGame = computed(() => {
+  const status = gameStore.currentGame?.status;
+  return status ? isActiveGameStatus(status) : false;
+});
 const showEmptyState = computed(() => !isRestoringGame.value && !hasActiveGame.value);
 
 onMounted(async () => {

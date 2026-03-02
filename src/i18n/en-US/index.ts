@@ -90,6 +90,7 @@ export default {
     roll_again: 'Roll again!',
     burned: 'Triple 6 — Burned!',
     waiting_for_6: 'Roll 6 to enter the game',
+    no_move: 'No move possible. Roll again next turn',
     change_mode_prefix: 'you can change dice mode in ',
     change_mode_link: 'profile settings',
   },

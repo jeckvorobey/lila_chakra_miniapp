@@ -46,12 +46,30 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   // });
 
   // Защита маршрутов: финал и медитация выхода доступны только при завершённой игре.
-  Router.beforeEach((to) => {
+  Router.beforeEach(async (to) => {
     const isFinale = to.name === 'game-final';
     const isExitMeditation = to.name === 'meditation' && to.params['type'] === 'exit';
+    const gameStore = useGameStore();
 
-    if (isFinale || isExitMeditation) {
-      const gameStore = useGameStore();
+    if (isFinale) {
+      const gameIdParam = Number(to.params['gameId']);
+      if (!Number.isFinite(gameIdParam) || gameIdParam <= 0) {
+        return { name: 'game' };
+      }
+
+      if (gameStore.currentGame?.id !== gameIdParam) {
+        const isLoaded = await gameStore.loadGame(gameIdParam);
+        if (!isLoaded) {
+          return { name: 'game' };
+        }
+      }
+
+      if (!gameStore.isGameCompleted) {
+        return { name: 'game' };
+      }
+    }
+
+    if (isExitMeditation) {
       if (!gameStore.isGameCompleted) {
         return { name: 'game' };
       }

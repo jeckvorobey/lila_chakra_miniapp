@@ -110,12 +110,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useGameStore } from 'src/stores/game.store';
 import { gamesApi } from 'src/services/api';
 import type { GameBrief, GameStatus } from 'src/types/game.interface';
 import { isActiveGameStatus } from 'src/data/game-status';
 
 const router = useRouter();
 const { t } = useI18n();
+const gameStore = useGameStore();
 
 interface DiaryGame extends GameBrief {
   magic_time_remaining?: string;
@@ -178,7 +180,9 @@ function openGame(gameId: number) {
   void router.push(`/diary/${gameId}`);
 }
 
-function openReport(gameId: number) {
+async function openReport(gameId: number) {
+  const isLoaded = await gameStore.loadGame(gameId);
+  if (!isLoaded) return;
   void router.push(`/game/final/${gameId}`);
 }
 
