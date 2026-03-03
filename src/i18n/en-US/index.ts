@@ -493,6 +493,11 @@ export default {
     required_message: 'Open the game from the Telegram app',
   },
 
+  // Messages
+  messages: {
+    promo_applied: 'Promo code applied successfully',
+  },
+
   // Referral program
   referral: {
     title: 'Invite Friend',

@@ -497,6 +497,11 @@ export default {
     required_message: 'Откройте игру из приложения Telegram',
   },
 
+  // Сообщения
+  messages: {
+    promo_applied: 'Промокод успешно применён',
+  },
+
   // Реферальная программа
   referral: {
     title: 'Пригласить друга',

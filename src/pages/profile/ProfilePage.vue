@@ -54,6 +54,9 @@
       </q-card-section>
     </q-card>
 
+    <!-- Промокод -->
+    <PromoCodeForm class="q-mb-md" />
+
     <!-- Статистика -->
     <div class="row q-gutter-sm q-mb-md">
       <q-card
@@ -346,6 +349,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useUserStore } from 'src/stores/user.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useAuthStore } from 'src/stores/auth.store';
+import PromoCodeForm from 'src/components/profile/PromoCodeForm.vue';
 
 const userStore = useUserStore();
 const settingsStore = useSettingsStore();
