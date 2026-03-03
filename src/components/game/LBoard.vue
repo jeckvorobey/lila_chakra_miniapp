@@ -141,7 +141,7 @@ onMounted(async () => {
     .body--light & {
       border-color: rgba(0, 0, 0, 0.12);
       background: linear-gradient(180deg, #ffffff 0%, #f5f5f4 100%);
-      box-shadow: var(--lila-shadow);
+      box-shadow: var(--shadow-card);
     }
   }
 

@@ -235,14 +235,14 @@ onMounted(() => {
 <style lang="scss" scoped>
 .payment-page {
   min-height: 100%;
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 
   .bg-surface-elevated {
-    background: var(--lila-surface-elevated);
+    background: var(--color-surface-elevated);
   }
 
   &__package {
-    background: var(--lila-surface);
+    background: var(--color-surface);
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
@@ -250,13 +250,13 @@ onMounted(() => {
     justify-content: center;
 
     &:hover {
-      border-color: var(--lila-primary);
+      border-color: var(var(--q-primary));
     }
 
     &--selected {
-      border-color: var(--lila-primary);
+      border-color: var(var(--q-primary));
       background: rgba(107, 70, 193, 0.1);
-      box-shadow: var(--lila-glow-primary);
+      box-shadow: var(--glow-primary);
     }
   }
 

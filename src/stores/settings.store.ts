@@ -5,10 +5,23 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, watch, computed } from 'vue';
-import { Dark } from 'quasar';
+import { Dark, setCssVar } from 'quasar';
 import type { ThemeMode, DiceMode, Settings } from 'src/types/settings.interface';
 
 const STORAGE_KEY = 'lila-settings';
+
+const THEME_COLORS = {
+  dark: {
+    primary: '#6B46C1',
+    secondary: '#F6AD55',
+    accent: '#38B2AC',
+  },
+  light: {
+    primary: '#7C3AED',
+    secondary: '#D97706',
+    accent: '#0D9488',
+  },
+};
 
 const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
@@ -58,6 +71,13 @@ export const useSettingsStore = defineStore('settings', () => {
 
   function applyTheme(isDark: boolean): void {
     Dark.set(isDark);
+    
+    // Динамическая смена цветов бренда
+    const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
+    setCssVar('primary', colors.primary);
+    setCssVar('secondary', colors.secondary);
+    setCssVar('accent', colors.accent);
+
     if (typeof document !== 'undefined') {
       document.body.classList.toggle('body--light', !isDark);
       document.body.classList.toggle('body--dark', isDark);

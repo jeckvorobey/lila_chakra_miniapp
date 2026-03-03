@@ -225,16 +225,16 @@ onMounted(() => {
 <style lang="scss" scoped>
 .diary-page {
   min-height: 100%;
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 
   &__card {
-    background: var(--lila-surface);
-    border-color: var(--lila-border);
+    background: var(--color-surface);
+    border-color: var(--color-border);
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: var(--lila-primary);
+      border-color: var(var(--q-primary));
       transform: translateY(-2px);
     }
   }

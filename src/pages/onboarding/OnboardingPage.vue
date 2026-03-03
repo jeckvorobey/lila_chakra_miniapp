@@ -323,7 +323,7 @@ async function complete() {
 <style lang="scss" scoped>
 .onboarding {
   min-height: 100vh;
-  background: var(--lila-bg);
+  background: var(--color-background);
 
   &__topbar {
     position: fixed;
@@ -375,7 +375,7 @@ async function complete() {
     right: 0;
     display: flex;
     align-items: center;
-    background: var(--lila-bg);
+    background: var(--color-background);
   }
 }
 </style>

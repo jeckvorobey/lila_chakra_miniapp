@@ -93,19 +93,19 @@ const cardClasses = computed(() => [
 
 <style lang="scss" scoped>
 .l-card {
-  background-color: var(--lila-surface);
-  box-shadow: var(--lila-shadow);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
   transition: all 0.2s ease;
 
   &--highlighted {
-    border-color: $primary;
-    box-shadow: var(--lila-glow-primary);
+    border-color: var(--q-primary);
+    box-shadow: var(--glow-primary);
   }
 
   &--glass {
-    background: var(--lila-glass-bg);
-    backdrop-filter: var(--lila-glass-blur);
-    -webkit-backdrop-filter: var(--lila-glass-blur);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
   &--interactive {

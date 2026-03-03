@@ -66,11 +66,11 @@ const fillStyle = computed(() => {
 .l-progress {
   &__track {
     height: 8px;
-    background-color: var(--lila-surface);
+    background-color: var(--color-surface);
     overflow: hidden;
 
     .body--light & {
-      background-color: var(--lila-border);
+      background-color: var(--color-border);
     }
   }
 

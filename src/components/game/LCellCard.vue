@@ -202,6 +202,6 @@ watch(
 
 <style lang="scss" scoped>
 .l-cell-card {
-  color: var(--lila-text-primary);
+  color: var(--color-text-primary);
 }
 </style>

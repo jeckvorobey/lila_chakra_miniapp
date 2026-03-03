@@ -156,13 +156,13 @@ function confirm() {
     transition: all 0.2s ease;
 
     .body--dark & {
-      background: var(--lila-surface);
-      border-color: var(--lila-border);
+      background: var(--color-surface);
+      border-color: var(--color-border);
     }
 
     .body--light & {
-      background: var(--lila-surface-elevated);
-      border-color: var(--lila-border);
+      background: var(--color-surface-elevated);
+      border-color: var(--color-border);
     }
 
     &:active {
@@ -170,7 +170,7 @@ function confirm() {
     }
 
     &--selected {
-      box-shadow: var(--lila-glow-primary);
+      box-shadow: var(--glow-primary);
       transform: scale(1.05);
 
       .body--dark & {

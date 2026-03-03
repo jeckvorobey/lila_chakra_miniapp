@@ -455,7 +455,7 @@ async function executeStartGame() {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 
   &__content {
     flex: 1;
@@ -463,7 +463,7 @@ async function executeStartGame() {
 
   &__input {
     :deep(.q-field__control) {
-      background: var(--lila-surface);
+      background: var(--color-surface);
     }
 
     :deep(textarea) {
@@ -472,7 +472,7 @@ async function executeStartGame() {
   }
 
   &__assistant-card {
-    background: var(--lila-surface);
+    background: var(--color-surface);
     padding: 16px;
     overflow: hidden;
   }
@@ -495,9 +495,9 @@ async function executeStartGame() {
   &__footer {
     position: sticky;
     bottom: 0;
-    padding: var(--lila-layout-gap) 0;
-    padding-bottom: calc(64px + var(--lila-layout-gap) * 3);
-    background: var(--lila-bg);
+    padding: var(--layout-gap) 0;
+    padding-bottom: calc(64px + var(--layout-gap) * 3);
+    background: var(--color-background);
   }
 }
 </style>

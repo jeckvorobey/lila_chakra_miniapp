@@ -1,7 +1,7 @@
 <template>
   <q-page
     class="lila-page-nav-offset"
-    style="padding: var(--lila-layout-gap)"
+    style="padding: var(--layout-gap)"
   >
     <!-- User info -->
     <div class="row items-center q-mb-md">
@@ -440,7 +440,7 @@ onMounted(() => {
 .chip-settings__controls {
   flex: 1 1 auto;
   min-width: 0;
-  border: 1px solid var(--lila-border);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -453,9 +453,9 @@ onMounted(() => {
   min-height: 52px;
   padding: 0 14px;
   border: 0;
-  border-bottom: 1px solid var(--lila-border);
+  border-bottom: 1px solid var(--color-border);
   background: transparent;
-  color: var(--lila-text-primary);
+  color: var(--color-text-primary);
   text-align: left;
   cursor: pointer;
 }

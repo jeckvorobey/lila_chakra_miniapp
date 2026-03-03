@@ -113,7 +113,7 @@ function onHide() {
 
 <style lang="scss" scoped>
 .l-modal {
-  background-color: var(--lila-surface-elevated);
+  background-color: var(--color-surface-elevated);
   border-radius: 24px 24px 0 0;
   max-height: 90vh;
   padding-top: 16px;
@@ -141,7 +141,7 @@ function onHide() {
   &__handle-bar {
     width: 40px;
     height: 4px;
-    background-color: var(--lila-border);
+    background-color: var(--color-border);
     border-radius: 9999px;
   }
 }

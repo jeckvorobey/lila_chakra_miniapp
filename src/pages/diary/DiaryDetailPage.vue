@@ -385,12 +385,12 @@ onMounted(() => {
 <style lang="scss" scoped>
 .diary-detail {
   min-height: 100%;
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 
   &__actions {
     position: fixed;
     width: 100%;
-    bottom: calc(64px + var(--lila-layout-gap) * 2);
+    bottom: calc(64px + var(--layout-gap) * 2);
   }
 }
 

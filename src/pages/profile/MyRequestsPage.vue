@@ -145,7 +145,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .my-requests-page {
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 }
 
 .request-text {

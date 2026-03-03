@@ -1,11 +1,11 @@
 <template>
   <q-page
     class="column"
-    style="background: var(--lila-bg)"
+    style="background: var(--color-background)"
   >
     <div
       class="col column flex-center"
-      style="padding: var(--lila-layout-gap)"
+      style="padding: var(--layout-gap)"
     >
       <h1 class="text-h4 text-weight-medium text-center q-mb-sm">
         {{ $t('meditation.instructions_title') }}

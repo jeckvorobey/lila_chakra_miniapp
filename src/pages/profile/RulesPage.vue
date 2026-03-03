@@ -307,6 +307,6 @@ const gameModes = computed<ModeItem[]>(() => [
 
 <style lang="scss" scoped>
 .rules-page {
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 }
 </style>

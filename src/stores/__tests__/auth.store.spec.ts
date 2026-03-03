@@ -72,8 +72,20 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
     // Устанавливаем mock BroadcastChannel
     global.BroadcastChannel = MockBroadcastChannel as unknown as typeof BroadcastChannel;
 
-    // Очищаем localStorage
-    localStorage.clear();
+    // Устанавливаем mock localStorage если он не работает в окружении
+    const storageMock: Record<string, string> = {};
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn((key: string) => storageMock[key] || null),
+      setItem: vi.fn((key: string, value: string) => {
+        storageMock[key] = value;
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete storageMock[key];
+      }),
+      clear: vi.fn(() => {
+        Object.keys(storageMock).forEach((key) => delete storageMock[key]);
+      }),
+    });
 
     // Сбрасываем api headers
     mockApi.defaults.headers.common = {};

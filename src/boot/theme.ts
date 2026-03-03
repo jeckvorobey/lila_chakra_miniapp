@@ -4,9 +4,22 @@
  */
 
 import { boot } from 'quasar/wrappers';
-import { Dark } from 'quasar';
+import { Dark, setCssVar } from 'quasar';
 
 type ThemeMode = 'dark' | 'light' | 'system';
+
+const THEME_COLORS = {
+  dark: {
+    primary: '#6B46C1',
+    secondary: '#F6AD55',
+    accent: '#38B2AC',
+  },
+  light: {
+    primary: '#7C3AED',
+    secondary: '#D97706',
+    accent: '#0D9488',
+  },
+};
 
 const STORAGE_KEY = 'lila-settings';
 
@@ -81,6 +94,12 @@ export default boot(() => {
 
   // Установить тёмный режим Quasar
   Dark.set(isDark);
+
+  // Применить цвета бренда
+  const colors = isDark ? THEME_COLORS.dark : THEME_COLORS.light;
+  setCssVar('primary', colors.primary);
+  setCssVar('secondary', colors.secondary);
+  setCssVar('accent', colors.accent);
 
   // Применить классы body
   if (typeof document !== 'undefined') {

@@ -2,7 +2,7 @@
   <q-card
     v-if="audioUrl"
     class="bg-surface q-pa-sm rounded-borders q-shadow-2"
-    :style="{ border: '1px solid var(--lila-border)' }"
+    :style="{ border: '1px solid var(--color-border)' }"
   >
     <q-card-section class="q-pa-sm">
       <q-item

@@ -178,7 +178,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .referral-page {
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 }
 
 .rule-number {

@@ -83,7 +83,7 @@ const buttonColor = computed(() => {
 
 const textColor = computed(() => {
   if (props.variant === 'ghost') {
-    return settingsStore.theme === 'light' ? 'dark' : 'white';
+    return settingsStore.isLight ? 'dark' : 'white';
   }
   return undefined;
 });
@@ -127,10 +127,11 @@ function handleClick(event: Event) {
 
   // Варианты
   &--primary {
+    // В темной теме градиент, в светлой можно тоже оставить или сделать сплошным
     background: linear-gradient(
       135deg,
-      $primary,
-      color.adjust($primary, $lightness: -10%)
+      var(--q-primary),
+      var(--q-primary)
     ) !important;
 
     &:hover:not(:disabled) {
@@ -140,27 +141,25 @@ function handleClick(event: Event) {
   }
 
   &--secondary {
+    // Outline вариант - граница задается Quasar через currentColor (равен buttonColor)
+    // Добавляем легкий фон для светлой темы
     .body--light & {
-      background: rgba($primary, 0.1);
+      background: rgba(var(--q-primary), 0.05);
     }
 
     &:hover:not(:disabled) {
-      background: rgba($primary, 0.15);
+      background: rgba(var(--q-primary), 0.1);
     }
   }
 
   &--ghost {
     &:hover:not(:disabled) {
-      background: var(--lila-surface);
+      background: var(--color-surface);
     }
   }
 
   &--danger {
-    background: linear-gradient(
-      135deg,
-      $negative,
-      color.adjust($negative, $lightness: -10%)
-    ) !important;
+    background: var(--q-negative) !important;
 
     &:hover:not(:disabled) {
       filter: brightness(1.1);

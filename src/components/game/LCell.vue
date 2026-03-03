@@ -231,9 +231,9 @@ function handleLongPress() {
   }
 
   &__tooltip {
-    background: var(--lila-surface-elevated);
-    color: var(--lila-text-primary);
-    border: 1px solid var(--lila-border);
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
   }
 
   &--disabled {

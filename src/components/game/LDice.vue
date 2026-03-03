@@ -182,8 +182,8 @@ function getFaceDots(n: number): string[] {
       box-shadow 0.3s ease;
 
     .body--dark & {
-      background: var(--lila-surface-elevated);
-      border: 1px solid var(--lila-border);
+      background: var(--color-surface-elevated);
+      border: 1px solid var(--color-border);
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 
       &.is-rolling {
@@ -203,7 +203,7 @@ function getFaceDots(n: number): string[] {
 
     .body--light & {
       background: white;
-      border: 1px solid var(--lila-border);
+      border: 1px solid var(--color-border);
       box-shadow:
         inset 0 2px 4px rgba(0, 0, 0, 0.05),
         0 2px 8px rgba(0, 0, 0, 0.1);
@@ -251,12 +251,12 @@ function getFaceDots(n: number): string[] {
     border-radius: 50%;
 
     .body--dark & {
-      background: var(--lila-text-primary);
+      background: var(--color-text-primary);
       box-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
     }
 
     .body--light & {
-      background: var(--lila-text-primary);
+      background: var(--color-text-primary);
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 

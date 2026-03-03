@@ -69,11 +69,11 @@ describe('OnboardingPage', () => {
     const wrapper = mountPage();
     const text = wrapper.text();
 
-    expect(text).toContain('onboarding.slide_1_title');
-    expect(text).toContain('onboarding.slide_7_title');
-    expect(text).toContain('onboarding.mode_free_price_tkn');
-    expect(text).toContain('onboarding.mode_ai_price_tkn');
-    expect(text).toContain('onboarding.mode_incognito_price_tkn');
+    expect(text).toContain('onboarding.intro.title');
+    expect(text).toContain('onboarding.accept.title');
+    expect(text).toContain('onboarding.modes.free.price');
+    expect(text).toContain('onboarding.modes.ai.price');
+    expect(text).toContain('onboarding.modes.incognito.price');
   });
 
   it('не показывает кнопку пропуска', () => {

@@ -40,6 +40,6 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .game-page {
   overflow: hidden;
-  padding: 0 var(--lila-layout-gap);
+  padding: 0 var(--layout-gap);
 }
 </style>

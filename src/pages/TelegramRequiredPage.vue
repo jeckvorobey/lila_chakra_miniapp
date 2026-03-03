@@ -42,8 +42,8 @@ onMounted(() => {
   &__card {
     max-width: 420px;
     border-radius: 16px;
-    border: 1px solid var(--lila-border);
-    box-shadow: var(--lila-shadow), var(--lila-glow-primary);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card), var(--glow-primary);
   }
 
   &__link {

@@ -41,6 +41,11 @@ vi.mock('quasar', async () => {
     useQuasar: () => ({
       dialog: mockDialog,
       notify: mockNotify,
+      screen: {
+        lt: {
+          sm: false,
+        },
+      },
     }),
   };
 });

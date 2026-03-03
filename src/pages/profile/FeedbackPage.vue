@@ -98,6 +98,6 @@ async function submitFeedback() {
 
 <style scoped lang="scss">
 .feedback-page {
-  padding: var(--lila-layout-gap);
+  padding: var(--layout-gap);
 }
 </style>

@@ -67,7 +67,7 @@ function onTabClick(tab: string) {
 
 <style lang="scss" scoped>
 .l-bottom-nav {
-  border: 1px solid var(--lila-border);
+  border: 1px solid var(--color-border);
   border-bottom: none;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
@@ -87,7 +87,7 @@ function onTabClick(tab: string) {
       font-size: 11px;
       font-weight: 500;
       text-transform: none;
-      color: var(--lila-text-secondary);
+      color: var(--color-text-secondary);
       transition: all 0.3s ease;
     }
 
@@ -119,7 +119,7 @@ function onTabClick(tab: string) {
     }
 
     :deep(.q-tab:hover:not(.q-tab--active)) {
-      color: var(--lila-text-primary);
+      color: var(--color-text-primary);
     }
   }
 }
