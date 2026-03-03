@@ -253,7 +253,8 @@ import { useGameStore, type QueryCategory, type GameMode } from 'src/stores/game
 import { useUiStore } from 'src/stores/ui.store';
 
 const $q = useQuasar();
-const { t } = useI18n();
+const i18n = useI18n();
+const { t } = i18n;
 const router = useRouter();
 const gameStore = useGameStore();
 const uiStore = useUiStore();
@@ -337,7 +338,7 @@ function isQueryExamplesByCategory(value: unknown): value is QueryExamplesByCate
 }
 
 const examplesByCategory = computed<QueryExamplesByCategory>(() => {
-  const localizedExamples = t('query.examples_by_category');
+  const localizedExamples = i18n.tm('query.examples_by_category');
   return isQueryExamplesByCategory(localizedExamples) ? localizedExamples : {};
 });
 
