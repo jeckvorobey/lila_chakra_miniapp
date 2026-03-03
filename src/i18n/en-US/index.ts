@@ -45,12 +45,12 @@ export default {
       },
       ai: {
         title: 'With AI Mentor',
-        description: 'AI interpretation for each move and full history in diary.',
+        description: 'Full AI interpretation of every move. All data is saved in your game diary.',
         price: '10 TKN',
       },
       incognito: {
-        title: 'Incognito',
-        description: 'AI guidance. Your data is deleted after 72 hours.',
+        title: 'With AI Mentor (Incognito)',
+        description: 'AI interpretation of every move. Temporary history storage in the diary — 72 hours after game completion. Interpretations, answers, and insights are permanently deleted.',
         price: '20 TKN',
       },
     },
@@ -593,11 +593,11 @@ export default {
     mode_free_desc:
       'Play without AI interpretation. We recommend writing your thoughts and insights in a notebook.',
     mode_ai_title: 'With AI Mentor',
-    mode_ai_desc: 'Full AI interpretation of every move. All data is saved in your game diary.',
+    mode_ai_desc:
+      'Full AI interpretation of every move. All data is saved in your game diary.',
     mode_incognito_title: 'With AI Mentor (Incognito)',
     mode_incognito_desc:
-      'AI interpretation without long-term storage. Only moves are saved; ' +
-      'interpretations are deleted after the game ends.',
+      'AI interpretation of every move. Temporary history storage in the diary — 72 hours after game completion. Interpretations, answers, and insights are permanently deleted.',
 
     // Extra question
     extra_question_title: 'Extra Question',

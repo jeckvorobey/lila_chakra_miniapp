@@ -169,7 +169,7 @@ const slides: OnboardingSlide[] = [
   {
     name: 'intro',
     icon: 'mdi-gamepad-variant',
-    iconColor: 'primary',
+    iconColor: 'secondary',
     titleKey: 'onboarding.intro.title',
     descKey: 'onboarding.intro.description',
     points: ['onboarding.intro.point1', 'onboarding.intro.point2', 'onboarding.intro.point3'],
@@ -185,7 +185,7 @@ const slides: OnboardingSlide[] = [
   {
     name: 'how-to-play',
     icon: 'mdi-dice-multiple',
-    iconColor: 'primary',
+    iconColor: 'secondary',
     titleKey: 'onboarding.how_to_play.title',
     descKey: 'onboarding.how_to_play.description',
     points: [
