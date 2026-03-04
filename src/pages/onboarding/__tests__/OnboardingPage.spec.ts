@@ -13,6 +13,12 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockRouterPush }),
 }));
 
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 vi.mock('src/services/api', () => ({
   usersApi: {
     getProfile: vi.fn(),
@@ -65,15 +71,15 @@ describe('OnboardingPage', () => {
     mockRouterPush.mockReset();
   });
 
-  it('рендерит 7 слайдов и цены режимов в ТКН', () => {
+  it('рендерит 7 слайдов и цены режимов из game.store', () => {
     const wrapper = mountPage();
     const text = wrapper.text();
 
     expect(text).toContain('onboarding.intro.title');
     expect(text).toContain('onboarding.accept.title');
-    expect(text).toContain('onboarding.modes.free.price');
-    expect(text).toContain('onboarding.modes.ai.price');
-    expect(text).toContain('onboarding.modes.incognito.price');
+    expect(text).toContain('0 rules.tkn');
+    expect(text).toContain('10 rules.tkn');
+    expect(text).toContain('15 rules.tkn');
   });
 
   it('не показывает кнопку пропуска', () => {

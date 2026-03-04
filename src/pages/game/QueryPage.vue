@@ -278,6 +278,7 @@ const suggestionState = ref<SuggestionState>('idle');
 const suggestions = ref<QuerySuggestion[]>([]);
 const selectedSuggestionId = ref<string | null>(null);
 const suggestionError = ref('');
+const tknLabel = computed(() => t('rules.tkn'));
 
 // Категории
 const categories = computed(() => [
@@ -313,12 +314,28 @@ const categories = computed(() => [
   },
 ]);
 
-// Опции режима игры
-const gameModeOptions: ReadonlyArray<{ value: GameMode; label: string; cost: number }> = [
-  { value: 'free', label: 'Бесплатный', cost: 0 },
-  { value: 'ai_guide', label: 'ИИ Наставник (10 ТКН)', cost: 10 },
-  { value: 'ai_incognito', label: 'ИИ Наставник [Инкогнито] (20 ТКН)', cost: 20 },
-];
+// Опции режима игры (стоимость берем из единого источника в game.store)
+const gameModeOptions = computed<ReadonlyArray<{ value: GameMode; label: string; cost: number }>>(
+  () => [
+    {
+      value: 'free',
+      label: 'Бесплатный',
+      cost: gameStore.getGameModeEntryCost('free'),
+    },
+    {
+      value: 'ai_guide',
+      label: `ИИ Наставник (${gameStore.getGameModeEntryCost('ai_guide')} ${tknLabel.value})`,
+      cost: gameStore.getGameModeEntryCost('ai_guide'),
+    },
+    {
+      value: 'ai_incognito',
+      label:
+        `ИИ Наставник [Инкогнито] (${gameStore.getGameModeEntryCost('ai_incognito')} ` +
+        `${tknLabel.value})`,
+      cost: gameStore.getGameModeEntryCost('ai_incognito'),
+    },
+  ],
+);
 
 const inactiveModeColor = computed(() => ($q.dark.isActive ? 'grey-9' : 'grey-2'));
 const inactiveModeTextColor = computed(() => ($q.dark.isActive ? 'grey-3' : 'dark'));
@@ -417,7 +434,7 @@ async function requestSuggestions() {
 async function startGame() {
   if (!canStart.value) return;
 
-  const modeOption = gameModeOptions.find((o) => o.value === gameMode.value);
+  const modeOption = gameModeOptions.value.find((o) => o.value === gameMode.value);
   const cost = modeOption?.cost || 0;
 
   if (cost > 0) {

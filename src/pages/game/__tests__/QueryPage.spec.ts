@@ -19,6 +19,8 @@ const {
 
 const mockGameStore = {
   createGame: mockCreateGame,
+  getGameModeEntryCost: (mode: 'free' | 'ai_guide' | 'ai_incognito') =>
+    ({ free: 0, ai_guide: 10, ai_incognito: 15 })[mode],
 };
 
 vi.mock('src/stores/game.store', () => ({

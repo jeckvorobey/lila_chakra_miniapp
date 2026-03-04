@@ -30,7 +30,15 @@ export { WINNING_CELL, CHAKRA_ROWS, CELLS_PER_ROW, WAITING_ZONE };
 
 export type { GameMode, QueryCategory };
 
+const GAME_MODE_ENTRY_COSTS_TKN: Readonly<Record<GameMode, number>> = {
+  free: 0,
+  ai_guide: 10,
+  ai_incognito: 15,
+};
+
 export const useGameStore = defineStore('game', () => {
+
+  const gameModeEntryCostsTkn = computed(() => GAME_MODE_ENTRY_COSTS_TKN);
 
 
 
@@ -190,6 +198,13 @@ export const useGameStore = defineStore('game', () => {
    */
   function isInWaitingZoneCell(cellId: number): boolean {
     return WAITING_ZONE.has(cellId);
+  }
+
+  /**
+   * Получить стоимость входа в игру для выбранного режима.
+   */
+  function getGameModeEntryCost(mode: GameMode): number {
+    return gameModeEntryCostsTkn.value[mode] ?? 0;
   }
 
   /**
@@ -700,6 +715,7 @@ export const useGameStore = defineStore('game', () => {
     snakesHit,
     highestCell,
     isNextClarificationPaid,
+    gameModeEntryCostsTkn,
 
     // Вспомогательные функции
     getChakraLevel,
@@ -707,6 +723,7 @@ export const useGameStore = defineStore('game', () => {
     isSnakeHead,
     getTransition,
     isInWaitingZoneCell,
+    getGameModeEntryCost,
 
     // Действия
     createGame,

@@ -41,17 +41,14 @@ export default {
       free: {
         title: 'Free',
         description: 'Play without AI. We recommend taking notes in a diary.',
-        price: '0 TKN',
       },
       ai: {
         title: 'With AI Mentor',
         description: 'Full AI interpretation of every move. All data is saved in your game diary.',
-        price: '10 TKN',
       },
       incognito: {
         title: 'With AI Mentor (Incognito)',
         description: 'AI interpretation of every move. Temporary history storage in the diary — 72 hours after game completion. Interpretations, answers, and insights are permanently deleted.',
-        price: '20 TKN',
       },
     },
     how_to_play: {

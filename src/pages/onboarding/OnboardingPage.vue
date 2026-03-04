@@ -59,7 +59,7 @@
                     text-color="white"
                     class="text-weight-medium"
                   >
-                    {{ $t(mode.priceKey) }}
+                    {{ formatModePrice(mode.mode) }}
                   </q-badge>
                 </div>
                 <p class="text-caption text-secondary q-mt-sm q-mb-none">
@@ -143,7 +143,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { LThemeToggle } from 'src/components/base';
+import type { GameMode } from 'src/types/game.interface';
+import { useGameStore } from 'src/stores/game.store';
 import { useUserStore } from 'src/stores/user.store';
 
 interface OnboardingSlide {
@@ -163,6 +166,8 @@ interface TransitionPointIcon {
 type SlidePointIcons = Record<string, TransitionPointIcon[]>;
 
 const router = useRouter();
+const { t } = useI18n();
+const gameStore = useGameStore();
 const userStore = useUserStore();
 
 const slides: OnboardingSlide[] = [
@@ -234,21 +239,25 @@ const slides: OnboardingSlide[] = [
 
 const modeCards = [
   {
+    mode: 'free' as GameMode,
     titleKey: 'onboarding.modes.free.title',
     descKey: 'onboarding.modes.free.description',
-    priceKey: 'onboarding.modes.free.price',
   },
   {
+    mode: 'ai_guide' as GameMode,
     titleKey: 'onboarding.modes.ai.title',
     descKey: 'onboarding.modes.ai.description',
-    priceKey: 'onboarding.modes.ai.price',
   },
   {
+    mode: 'ai_incognito' as GameMode,
     titleKey: 'onboarding.modes.incognito.title',
     descKey: 'onboarding.modes.incognito.description',
-    priceKey: 'onboarding.modes.incognito.price',
   },
 ];
+
+function formatModePrice(mode: GameMode): string {
+  return `${gameStore.getGameModeEntryCost(mode)} ${t('rules.tkn')}`;
+}
 
 const transitionPointIcons: TransitionPointIcon[] = [
   { name: 'mdi-arrow-up-bold', color: 'positive' },

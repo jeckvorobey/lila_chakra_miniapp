@@ -378,4 +378,12 @@ describe('game.store rollDice', () => {
 
     expect(store.isNextClarificationPaid).toBe(true);
   });
+
+  it('возвращает стоимость входа из единого словаря цен режимов', () => {
+    const store = useGameStore();
+
+    expect(store.getGameModeEntryCost('free')).toBe(0);
+    expect(store.getGameModeEntryCost('ai_guide')).toBe(10);
+    expect(store.getGameModeEntryCost('ai_incognito')).toBe(15);
+  });
 });

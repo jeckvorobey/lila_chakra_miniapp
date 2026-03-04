@@ -247,8 +247,10 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { LCard } from 'src/components/base';
+import { useGameStore } from 'src/stores/game.store';
 
 const { t } = useI18n();
+const gameStore = useGameStore();
 
 interface RuleListItem {
   icon: string;
@@ -291,7 +293,7 @@ const gameModes = computed<ModeItem[]>(() => [
     iconColor: 'primary',
     title: t('rules.mode_ai_title'),
     description: t('rules.mode_ai_desc'),
-    price: 15,
+    price: gameStore.getGameModeEntryCost('ai_guide'),
     badgeColor: 'primary',
   },
   {
@@ -299,7 +301,7 @@ const gameModes = computed<ModeItem[]>(() => [
     iconColor: 'secondary',
     title: t('rules.mode_incognito_title'),
     description: t('rules.mode_incognito_desc'),
-    price: 20,
+    price: gameStore.getGameModeEntryCost('ai_incognito'),
     badgeColor: 'secondary',
   },
 ]);
