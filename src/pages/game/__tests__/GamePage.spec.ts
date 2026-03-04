@@ -7,7 +7,7 @@ const { mockLoadLatestActiveGame } = vi.hoisted(() => ({
 }));
 
 const mockGameStore = {
-  currentGame: null as { status: string } | null,
+  isGameActive: false,
   loadLatestActiveGame: mockLoadLatestActiveGame,
 };
 
@@ -35,7 +35,7 @@ describe('GamePage', () => {
   });
 
   it('показывает empty state и пытается восстановить активную игру', async () => {
-    mockGameStore.currentGame = null;
+    mockGameStore.isGameActive = false;
     mockLoadLatestActiveGame.mockResolvedValue(false);
 
     const wrapper = mount(GamePage, {
@@ -55,7 +55,7 @@ describe('GamePage', () => {
   });
 
   it('показывает active state и не делает восстановление если игра уже активна', async () => {
-    mockGameStore.currentGame = { status: 'in_progress' };
+    mockGameStore.isGameActive = true;
 
     const wrapper = mount(GamePage, {
       global: {
@@ -74,7 +74,7 @@ describe('GamePage', () => {
   });
 
   it('для завершенной игры пытается восстановить активную и показывает empty state', async () => {
-    mockGameStore.currentGame = { status: 'completed' };
+    mockGameStore.isGameActive = false;
     mockLoadLatestActiveGame.mockResolvedValue(false);
 
     const wrapper = mount(GamePage, {

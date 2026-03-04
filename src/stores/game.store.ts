@@ -253,10 +253,16 @@ export const useGameStore = defineStore('game', () => {
     error.value = null;
 
     try {
-      const [game, gameMoves] = await Promise.all([
-        gamesApi.get(gameId),
-        gamesApi.getMoves(gameId),
-      ]);
+      const game = await gamesApi.get(gameId);
+      let gameMoves: MoveOut[] = [];
+
+      try {
+        gameMoves = await gamesApi.getMoves(gameId);
+      } catch (movesError) {
+        // История ходов может быть недоступна временно (например, Redis для AI_INCOGNITO),
+        // но саму игру нужно восстановить после перезагрузки.
+        console.warn('[GameStore] Не удалось загрузить историю ходов, продолжаем без неё:', movesError);
+      }
 
       currentGame.value = game;
       moves.value = gameMoves;

@@ -157,6 +157,46 @@ describe('game.store meditation audio', () => {
   });
 });
 
+describe('game.store loadGame', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.clearAllMocks();
+  });
+
+  it('восстанавливает игру даже если запрос ходов временно недоступен', async () => {
+    const store = useGameStore();
+
+    mockGamesApi.get.mockResolvedValue({
+      id: 19,
+      user_id: 7,
+      query: 'Инкогнито игра',
+      category: 'career',
+      mode: 'ai_incognito',
+      status: 'in_progress',
+      current_cell: 0,
+      entry_meditation_completed: true,
+      exit_meditation_completed: false,
+      total_moves: 1,
+      arrows_hit: 0,
+      snakes_hit: 0,
+      highest_cell: 7,
+      created_at: '2026-02-08T14:33:14.866798Z',
+      completed_at: null,
+      magic_time_ends_at: null,
+      ai_summary: null,
+      clarifications_used: 1,
+      is_next_clarification_paid: false,
+    });
+    mockGamesApi.getMoves.mockRejectedValue(new Error('Redis temporarily unavailable'));
+
+    const result = await store.loadGame(19);
+
+    expect(result).toBe(true);
+    expect(store.currentGame?.id).toBe(19);
+    expect(store.moves).toEqual([]);
+  });
+});
+
 describe('game.store rollDice', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
