@@ -98,6 +98,12 @@ function mountPage() {
         'q-icon': {
           template: '<span />',
         },
+        'q-carousel': {
+          template: '<div><slot /></div>',
+        },
+        'q-carousel-slide': {
+          template: '<div><slot /></div>',
+        },
         'q-btn': QBtnStub,
       },
     },
@@ -115,6 +121,7 @@ function buildFinaleState(summary: object | null = null) {
     game_id: 42,
     summary,
     image: {
+      artifacts: [],
       latest_artifact: null,
       active_job: null,
       free_generations_left: 1,

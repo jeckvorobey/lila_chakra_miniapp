@@ -143,11 +143,34 @@
             </div>
 
             <div
-              v-if="artifactPreviewUrl"
+              v-if="selectedArtifactPreviewUrl"
               class="q-mt-sm"
             >
+              <q-carousel
+                v-if="artifacts.length > 1"
+                v-model="selectedArtifactId"
+                animated
+                arrows
+                navigation
+                height="360px"
+              >
+                <q-carousel-slide
+                  v-for="artifact in artifacts"
+                  :key="artifact.artifact_id"
+                  :name="artifact.artifact_id"
+                  class="q-pa-none"
+                >
+                  <img
+                    :src="artifactPreviewUrls[artifact.artifact_id]"
+                    class="full-width full-height rounded-borders"
+                    alt="Finale art"
+                    style="object-fit: cover"
+                  />
+                </q-carousel-slide>
+              </q-carousel>
               <img
-                :src="artifactPreviewUrl"
+                v-else
+                :src="selectedArtifactPreviewUrl"
                 class="full-width rounded-borders"
                 alt="Finale art"
               />
@@ -163,7 +186,7 @@
               >
                 {{ t('finale.image_failed') }}
               </span>
-              <span v-else-if="finaleState.image.latest_artifact">
+              <span v-else-if="artifacts.length > 0">
                 {{ t('finale.image_ready') }}
               </span>
               <span v-else>
@@ -188,7 +211,7 @@
                   class="full-width"
                   outline
                   color="secondary"
-                  :disable="!finaleState.image.latest_artifact"
+                  :disable="!selectedArtifact"
                   :label="t('finale.download')"
                   @click="downloadCurrentArtifact"
                 />
@@ -198,7 +221,7 @@
                   class="full-width"
                   outline
                   color="accent"
-                  :disable="!finaleState.image.latest_artifact"
+                  :disable="!selectedArtifact"
                   :label="t('finale.share')"
                   @click="shareCurrentArtifact"
                 />
@@ -212,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
@@ -235,9 +258,11 @@ const isLoading = ref(false);
 const isGeneratingSummary = ref(false);
 const isStartingImage = ref(false);
 const errorMessage = ref('');
-const pollTimer = ref<ReturnType<typeof setInterval> | null>(null);
-const artifactPreviewUrl = ref('');
-const previewArtifactId = ref<number | null>(null);
+const pollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const pollStartedAtMs = ref<number | null>(null);
+const pollAttempt = ref(0);
+const artifactPreviewUrls = ref<Record<number, string>>({});
+const selectedArtifactId = ref<number | null>(null);
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -246,6 +271,23 @@ const activeJob = computed<GameFinaleImageJob | null>(
   () => finaleState.value?.image.active_job ?? null,
 );
 const activeJobStatus = computed(() => activeJob.value?.status ?? null);
+const artifacts = computed(() => {
+  const imageState = finaleState.value?.image;
+  if (!imageState) return [];
+  if (imageState.artifacts?.length) return imageState.artifacts;
+  return imageState.latest_artifact ? [imageState.latest_artifact] : [];
+});
+const selectedArtifact = computed(() => {
+  const currentId = selectedArtifactId.value;
+  if (currentId != null) {
+    const found = artifacts.value.find((artifact) => artifact.artifact_id === currentId);
+    if (found) return found;
+  }
+  return artifacts.value[0] ?? null;
+});
+const selectedArtifactPreviewUrl = computed(() =>
+  selectedArtifact.value ? artifactPreviewUrls.value[selectedArtifact.value.artifact_id] || '' : '',
+);
 const canGenerateImage = computed(() => {
   if (!finaleState.value) return false;
   if (isStartingImage.value) return false;
@@ -276,7 +318,7 @@ async function loadFinaleState(): Promise<void> {
     ]);
     finaleState.value = state;
     gameData.value = game;
-    await refreshArtifactPreview();
+    await refreshArtifactPreviews();
     syncPollingState();
   } catch (error) {
     errorMessage.value = resolveBackendErrorMessage(error);
@@ -328,64 +370,118 @@ async function pollImageJob(): Promise<void> {
   const job = activeJob.value;
   if (!gameId.value || !job) return;
 
+  if (
+    pollStartedAtMs.value !== null &&
+    Date.now() - pollStartedAtMs.value >= 2 * 60 * 1000
+  ) {
+    clearPolling();
+    $q.notify({
+      type: 'warning',
+      message: t('error.generic'),
+    });
+    return;
+  }
+
   try {
     const next = await gamesApi.getFinaleImageJob(gameId.value, job.job_id);
     if (!finaleState.value) return;
     finaleState.value.image.active_job = next;
 
-    if (next.status === 'completed') {
+    if (next.status === 'completed' || next.status === 'completed_with_errors') {
       await loadFinaleState();
       clearPolling();
     } else if (next.status === 'failed') {
       clearPolling();
+    } else {
+      scheduleNextPoll();
     }
   } catch {
     clearPolling();
   }
 }
 
-function clearArtifactPreview(): void {
-  if (!artifactPreviewUrl.value) return;
-  URL.revokeObjectURL(artifactPreviewUrl.value);
-  artifactPreviewUrl.value = '';
-  previewArtifactId.value = null;
+function clearArtifactPreviews(): void {
+  Object.values(artifactPreviewUrls.value).forEach((url) => URL.revokeObjectURL(url));
+  artifactPreviewUrls.value = {};
 }
 
-async function refreshArtifactPreview(): Promise<void> {
-  const artifact = finaleState.value?.image.latest_artifact;
-  if (!artifact) {
-    clearArtifactPreview();
+async function refreshArtifactPreviews(): Promise<void> {
+  const currentArtifacts = artifacts.value;
+  if (currentArtifacts.length === 0) {
+    clearArtifactPreviews();
+    selectedArtifactId.value = null;
     return;
   }
-  if (previewArtifactId.value === artifact.artifact_id && artifactPreviewUrl.value) {
+  const firstArtifact = currentArtifacts[0];
+  if (!firstArtifact) {
+    clearArtifactPreviews();
+    selectedArtifactId.value = null;
     return;
   }
 
-  const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
-  clearArtifactPreview();
-  artifactPreviewUrl.value = URL.createObjectURL(blob);
-  previewArtifactId.value = artifact.artifact_id;
+  if (
+    selectedArtifactId.value === null ||
+    !currentArtifacts.some((artifact) => artifact.artifact_id === selectedArtifactId.value)
+  ) {
+    selectedArtifactId.value = firstArtifact.artifact_id;
+  }
+
+  const activeIds = new Set(currentArtifacts.map((artifact) => artifact.artifact_id));
+  for (const [artifactIdRaw, url] of Object.entries(artifactPreviewUrls.value)) {
+    const artifactId = Number(artifactIdRaw);
+    if (!activeIds.has(artifactId)) {
+      URL.revokeObjectURL(url);
+      delete artifactPreviewUrls.value[artifactId];
+    }
+  }
+
+  for (const artifact of currentArtifacts) {
+    if (artifactPreviewUrls.value[artifact.artifact_id]) continue;
+    const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
+    artifactPreviewUrls.value[artifact.artifact_id] = URL.createObjectURL(blob);
+  }
+}
+
+function getNextPollDelayMs(): number {
+  const delay = 2500 + pollAttempt.value * 1000;
+  return Math.min(delay, 10000);
+}
+
+function scheduleNextPoll(): void {
+  clearPollingTimerOnly();
+  pollTimer.value = setTimeout(() => {
+    pollAttempt.value += 1;
+    void pollImageJob();
+  }, getNextPollDelayMs());
+}
+
+function clearPollingTimerOnly(): void {
+  if (!pollTimer.value) return;
+  clearTimeout(pollTimer.value);
+  pollTimer.value = null;
 }
 
 function syncPollingState(): void {
   if (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') {
+    if (pollStartedAtMs.value === null) {
+      pollStartedAtMs.value = Date.now();
+      pollAttempt.value = 0;
+    }
     if (pollTimer.value) return;
-    pollTimer.value = setInterval(() => {
-      void pollImageJob();
-    }, 2500);
+    scheduleNextPoll();
     return;
   }
   clearPolling();
 }
 
 function clearPolling(): void {
-  if (!pollTimer.value) return;
-  clearInterval(pollTimer.value);
-  pollTimer.value = null;
+  clearPollingTimerOnly();
+  pollStartedAtMs.value = null;
+  pollAttempt.value = 0;
 }
 
 async function downloadCurrentArtifact(): Promise<void> {
-  const artifact = finaleState.value?.image.latest_artifact;
+  const artifact = selectedArtifact.value;
   if (!artifact) return;
 
   const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
@@ -400,7 +496,7 @@ async function downloadCurrentArtifact(): Promise<void> {
 }
 
 async function shareCurrentArtifact(): Promise<void> {
-  const artifact = finaleState.value?.image.latest_artifact;
+  const artifact = selectedArtifact.value;
   if (!artifact) return;
 
   try {
@@ -432,6 +528,13 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearPolling();
-  clearArtifactPreview();
+  clearArtifactPreviews();
 });
+
+watch(
+  () => artifacts.value.map((artifact) => artifact.artifact_id).join(','),
+  () => {
+    void refreshArtifactPreviews();
+  },
+);
 </script>

@@ -147,14 +147,18 @@ export interface GameFinaleImageArtifact {
 export interface GameFinaleImageJob {
   job_id: string;
   game_id: number;
-  status: 'queued' | 'processing' | 'completed' | 'failed';
+  status: 'queued' | 'processing' | 'completed' | 'completed_with_errors' | 'failed';
   error: string | null;
   artifact_id: number | null;
+  artifacts: GameFinaleImageArtifact[];
+  artifacts_count: number;
+  errors: string[];
   created_at: string;
   updated_at: string;
 }
 
 export interface GameFinaleImageState {
+  artifacts: GameFinaleImageArtifact[];
   latest_artifact: GameFinaleImageArtifact | null;
   active_job: GameFinaleImageJob | null;
   free_generations_left: number;
