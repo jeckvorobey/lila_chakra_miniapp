@@ -59,6 +59,7 @@ const currentCellInfo: CellBrief = {
 
 interface CellInfoProps {
   modelValue: boolean;
+  currentCellId: number;
   currentCellInfo: CellBrief | null;
   gameMode: 'free' | 'ai_incognito' | 'ai_guide';
 }
@@ -83,10 +84,14 @@ beforeEach(() => {
 });
 
 function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
+  const mergedCurrentCellInfo = overrides.currentCellInfo ?? currentCellInfo;
+  const resolvedCurrentCellId = overrides.currentCellId ?? mergedCurrentCellInfo?.id ?? 0;
+
   return mount(LCellInfo, {
     props: {
       modelValue: true,
-      currentCellInfo,
+      currentCellId: resolvedCurrentCellId,
+      currentCellInfo: mergedCurrentCellInfo,
       gameMode: 'free',
       ...overrides,
     },
@@ -110,7 +115,11 @@ function mountCellInfo(overrides: Partial<CellInfoProps> = {}) {
           props: ['initialClarifications', 'isNextClarificationPaid'],
           template: '<div data-testid="clarification-panel" />',
         },
-        LTransitionBanner: true,
+        LTransitionBanner: {
+          name: 'LTransitionBanner',
+          props: ['cellId'],
+          template: '<div data-testid="transition-banner" :data-cell-id="cellId" />',
+        },
         LAiMentorInterpretation: true,
       },
     },
@@ -332,5 +341,40 @@ describe('LCellInfo', () => {
     const mentorComp = wrapper.findComponent({ name: 'LAiMentorInterpretation' });
     expect(mentorComp.exists()).toBe(true);
     expect(mentorComp.props('interpretation')).toBe('Интерпретация для клетки 3');
+  });
+
+  it('для баннера использует currentCellId, даже если currentCellInfo отстаёт', async () => {
+    gameStoreState.currentGame.mode = 'ai_guide';
+    gameStoreState.moves = [
+      {
+        id: 50,
+        game_id: 1,
+        move_number: 1,
+        dice_rolls: [6],
+        is_triple_six: false,
+        is_pending: false,
+        start_cell: 4,
+        end_cell: 10,
+        final_cell: 24,
+        transition_type: 'arrow',
+        transition_from: 10,
+        transition_to: 24,
+        ai_interpretation: 'Переход по стреле',
+        player_insight: null,
+        created_at: '2026-03-05T10:00:00Z',
+      },
+    ];
+
+    const wrapper = mountCellInfo({
+      // Имитируем рассинхрон: info ещё про старую клетку
+      currentCellInfo: { ...currentCellInfo, id: 10 },
+      currentCellId: 24,
+      gameMode: 'ai_guide',
+    });
+    await flushPromises();
+
+    const banner = wrapper.findComponent({ name: 'LTransitionBanner' });
+    expect(banner.exists()).toBe(true);
+    expect(banner.props('cellId')).toBe(24);
   });
 });

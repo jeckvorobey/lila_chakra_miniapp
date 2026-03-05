@@ -89,6 +89,7 @@
 
     <l-cell-info
       v-model="showCellInfoModal"
+      :current-cell-id="currentCell"
       :current-cell-info="currentCellInfo"
       :game-mode="gameMode"
       @write-insight="openInsightModal"

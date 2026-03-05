@@ -89,8 +89,9 @@ const globalMountOptions = {
       props: ['modelValue'],
     },
     LCellInfo: {
-      template: '<div data-testid="cell-info-modal">{{ modelValue }}</div>',
-      props: ['modelValue'],
+      template:
+        '<div data-testid="cell-info-modal">{{ modelValue }}|{{ currentCellId }}</div>',
+      props: ['modelValue', 'currentCellId'],
     },
   },
 };
@@ -156,11 +157,16 @@ describe('LGameActionsPanel', () => {
 
   it('по кнопке инфо открывает модалку ячейки вместо эмита', async () => {
     const wrapper = mountPanel();
-    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('false');
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('false|5');
 
     await wrapper.get('[data-testid="current-cell-info-btn"]').trigger('click');
 
-    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true');
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true|5');
+  });
+
+  it('передаёт currentCell в LCellInfo как currentCellId', () => {
+    const wrapper = mountPanel();
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toContain('|5');
   });
 
   it('по кнопке броска открывает модалку кубика', async () => {
@@ -180,7 +186,7 @@ describe('LGameActionsPanel', () => {
     await flushPromises();
 
     expect(mockStartChipAnimation).toHaveBeenCalledOnce();
-    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true');
+    expect(wrapper.get('[data-testid="cell-info-modal"]').text()).toBe('true|5');
   });
 
   it('при победном броске не показывает старый victory dialog', async () => {

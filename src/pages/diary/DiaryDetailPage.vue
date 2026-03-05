@@ -83,7 +83,7 @@
 
           <!-- Ответ ИИ ментора -->
           <q-card
-            v-if="entry.kind === 'roll' && entry.move.ai_interpretation"
+            v-if="(entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')) && entry.move.ai_interpretation"
             flat
             bordered
             class="q-mt-sm q-mb-sm bg-surface"
@@ -106,7 +106,7 @@
 
           <!-- Уточняющие вопросы -->
           <div
-            v-if="entry.kind === 'roll' && entry.move.clarifications && entry.move.clarifications.length > 0"
+            v-if="(entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')) && entry.move.clarifications && entry.move.clarifications.length > 0"
             class="q-mb-sm"
           >
             <q-list
@@ -132,7 +132,7 @@
 
           <!-- Инсайт игрока -->
           <q-card
-            v-if="entry.kind === 'roll'"
+            v-if="entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')"
             flat
             bordered
             class="bg-surface q-mb-md"

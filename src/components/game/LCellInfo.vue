@@ -9,7 +9,7 @@
     <template #header>
       <l-cell-header
         v-if="currentCellInfo"
-        :id="cellId"
+        :id="resolvedCellId"
         :name="cellName"
         :name-sanskrit="cellNameSanskrit"
       >
@@ -28,8 +28,9 @@
     <div class="q-pa-md">
       <template>
         <l-transition-banner
-          v-if="cellId"
-          :cell-id="cellId"
+          v-if="resolvedCellId"
+          :key="`${resolvedCellId}-${viewedCellMove?.id ?? 'none'}`"
+          :cell-id="resolvedCellId"
         />
         <l-cell-keywords
           v-if="currentCellInfo"
@@ -150,6 +151,7 @@ import LAiMentorInterpretation from './LAiMentorInterpretation.vue';
 
 interface Props {
   modelValue: boolean;
+  currentCellId: number;
   currentCellInfo: CellBrief | Cell | null;
   gameMode: GameMode;
 }
@@ -181,7 +183,7 @@ const viewedCellMove = computed(() => {
   const moves = gameStore.moves;
   if (!moves || moves.length === 0) return null;
   for (let i = moves.length - 1; i >= 0; i--) {
-    if (moves[i]?.final_cell === cellId.value) {
+    if (moves[i]?.final_cell === resolvedCellId.value) {
       return moves[i];
     }
   }
@@ -197,8 +199,8 @@ const isOpen = computed({
   },
 });
 
-const cellId = computed(() => props.currentCellInfo?.id ?? 0);
-const isVictoryCell = computed(() => cellId.value === 68);
+const resolvedCellId = computed(() => props.currentCellId || props.currentCellInfo?.id || 0);
+const isVictoryCell = computed(() => resolvedCellId.value === 68);
 const isPaidGame = computed(() => props.gameMode !== 'free');
 
 const aiReflectionPoints = computed(() => {
@@ -312,11 +314,11 @@ function buildHistoryKey(gameId: number, targetCellId: number): string {
 }
 
 async function loadClarificationHistory(gameId: number): Promise<void> {
-  if (!cellId.value) return;
-  const historyKey = buildHistoryKey(gameId, cellId.value);
+  if (!resolvedCellId.value) return;
+  const historyKey = buildHistoryKey(gameId, resolvedCellId.value);
   try {
-    const response = await gamesApi.getClarificationHistory(gameId, cellId.value);
-    clarificationHistory.value = mapHistoryToClarifications(response.items, cellId.value);
+    const response = await gamesApi.getClarificationHistory(gameId, resolvedCellId.value);
+    clarificationHistory.value = mapHistoryToClarifications(response.items, resolvedCellId.value);
     isNextClarificationPaid.value = response.is_next_clarification_paid ?? true;
     loadedHistoryKey.value = historyKey;
   } catch {
@@ -394,7 +396,7 @@ async function generateMoveMentorForCurrentMove(gameId: number, moveId: number):
 watch(
   () => viewedCellMove.value?.ai_interpretation,
   (newInterpretation) => {
-    if (newInterpretation && viewedCellMove.value?.final_cell === cellId.value) {
+    if (newInterpretation && viewedCellMove.value?.final_cell === resolvedCellId.value) {
       aiMentorError.value = '';
       isAiMentorLoading.value = false;
     }
@@ -415,7 +417,7 @@ watch(
     [
       isOpen.value,
       gameStore.currentGame?.id,
-      cellId.value,
+      resolvedCellId.value,
       viewedCellMove.value?.id,
       viewedCellMove.value?.ai_interpretation,
       isPaidGame.value,
@@ -439,7 +441,7 @@ watch(
 );
 
 watch(
-  () => [isOpen.value, gameStore.currentGame?.id, cellId.value] as const,
+  () => [isOpen.value, gameStore.currentGame?.id, resolvedCellId.value] as const,
   ([open, gameId, currentCellId], previousValue) => {
     const prevOpen = previousValue?.[0] ?? false;
     const justOpened = open && !prevOpen;
@@ -463,7 +465,12 @@ watch(
 watch(
   () => viewedCellMove.value?.id,
   (nextMoveId, prevMoveId) => {
-    if (nextMoveId === prevMoveId || !isOpen.value || !cellId.value || !gameStore.currentGame?.id) {
+    if (
+      nextMoveId === prevMoveId ||
+      !isOpen.value ||
+      !resolvedCellId.value ||
+      !gameStore.currentGame?.id
+    ) {
       return;
     }
     void loadClarificationHistory(gameStore.currentGame.id);
