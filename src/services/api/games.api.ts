@@ -4,6 +4,7 @@ import type {
   ClarificationHistoryResponse,
   ClarificationStreamEvent,
   DiceRollRequest,
+  FinaleImageStreamEvent,
   GameCreate,
   GameDetail,
   GameDiaryResponse,
@@ -39,6 +40,17 @@ function readNumberField(data: Record<string, unknown>, key: string, fallback = 
     if (Number.isFinite(parsed)) return parsed;
   }
   return fallback;
+}
+
+function readObjectField(
+  data: Record<string, unknown>,
+  key: string,
+): Record<string, unknown> | null {
+  const value = data[key];
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return null;
 }
 
 function drainSseMessages(buffer: string): { messages: SseMessage[]; rest: string } {
@@ -110,6 +122,57 @@ function mapClarificationSseEvent(message: SseMessage): ClarificationStreamEvent
       message: readStringField(data, 'message', 'errors.ai_clarification_generation_failed'),
     };
   }
+  return null;
+}
+
+function mapFinaleImageSseEvent(message: SseMessage): FinaleImageStreamEvent | null {
+  let payload: unknown;
+  try {
+    payload = JSON.parse(message.data);
+  } catch {
+    return null;
+  }
+
+  if (typeof payload !== 'object' || payload === null) {
+    return null;
+  }
+  const data = payload as Record<string, unknown>;
+  const job = readObjectField(data, 'job');
+
+  if (message.event === 'meta' && job) {
+    return {
+      type: 'meta',
+      job: job as unknown as GameFinaleImageJob,
+    };
+  }
+  if (message.event === 'progress' && job) {
+    return {
+      type: 'progress',
+      job: job as unknown as GameFinaleImageJob,
+    };
+  }
+  if (message.event === 'artifact') {
+    const artifact = readObjectField(data, 'artifact');
+    if (!artifact || !job) return null;
+    return {
+      type: 'artifact',
+      artifact: artifact as unknown as GameFinaleImageJob['artifacts'][number],
+      job: job as unknown as GameFinaleImageJob,
+    };
+  }
+  if (message.event === 'done' && job) {
+    return {
+      type: 'done',
+      job: job as unknown as GameFinaleImageJob,
+    };
+  }
+  if (message.event === 'error') {
+    return {
+      type: 'error',
+      message: readStringField(data, 'message', 'errors.ai_internal_error'),
+    };
+  }
+
   return null;
 }
 
@@ -347,6 +410,85 @@ export const gamesApi = {
           throw new Error(event.message);
         }
         yield event;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  },
+
+  /**
+   * Подписаться на SSE-стрим статуса генерации финального AI-арта.
+   */
+  async *streamFinaleImageJob(
+    gameId: number,
+    jobId: string,
+    signal?: AbortSignal,
+  ): AsyncGenerator<FinaleImageStreamEvent> {
+    const authorizationHeader = api.defaults.headers.common['Authorization'];
+    const url = buildApiResourceUrl(`/games/${gameId}/finale/image/jobs/${jobId}/stream`);
+    const requestInit: RequestInit = {
+      method: 'GET',
+      headers: {
+        Accept: 'text/event-stream',
+        ...(typeof authorizationHeader === 'string' ? { Authorization: authorizationHeader } : {}),
+      },
+      ...(signal ? { signal } : {}),
+    };
+    const response = await fetch(url, requestInit);
+
+    if (!response.ok) {
+      let detail = 'errors.ai_internal_error';
+      try {
+        const errorData = (await response.json()) as { detail?: string };
+        if (typeof errorData?.detail === 'string' && errorData.detail) {
+          detail = errorData.detail;
+        }
+      } catch {
+        // no-op: оставить дефолтный detail
+      }
+      throw new Error(detail);
+    }
+
+    if (!response.body) {
+      throw new Error('errors.ai_internal_error');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const { messages, rest } = drainSseMessages(buffer);
+        buffer = rest;
+        for (const message of messages) {
+          const event = mapFinaleImageSseEvent(message);
+          if (!event) continue;
+          if (event.type === 'error') {
+            throw new Error(event.message);
+          }
+          yield event;
+          if (event.type === 'done') {
+            return;
+          }
+        }
+      }
+
+      buffer += decoder.decode();
+      const { messages } = drainSseMessages(buffer);
+      for (const message of messages) {
+        const event = mapFinaleImageSseEvent(message);
+        if (!event) continue;
+        if (event.type === 'error') {
+          throw new Error(event.message);
+        }
+        yield event;
+        if (event.type === 'done') {
+          return;
+        }
       }
     } finally {
       reader.releaseLock();

@@ -196,20 +196,11 @@
 
             <div class="q-mt-md text-body2">
               <div
-                v-if="activeJobStatus === 'queued' || activeJobStatus === 'processing' || isStartingImage"
-                class="column items-center q-gutter-y-sm"
+                v-if="shouldShowImageLoader"
+                class="column items-center"
               >
                 <l-ai-loader
                   :text="t('finale.image_generation_wait')"
-                />
-                <q-btn
-                  flat
-                  dense
-                  color="grey-7"
-                  size="sm"
-                  icon="mdi-close-circle-outline"
-                  label="Отменить ожидание"
-                  @click="cancelImageGeneration"
                 />
               </div>
               <span
@@ -291,14 +282,13 @@ const isLoading = ref(false);
 const isGeneratingSummary = ref(false);
 const isStartingImage = ref(false);
 const errorMessage = ref('');
-const pollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
-const pollStartedAtMs = ref<number | null>(null);
-const pollAttempt = ref(0);
-const pollFailureStreak = ref(0);
+const streamJobId = ref<string | null>(null);
+const streamAbortController = ref<AbortController | null>(null);
+const streamReconnectAttempt = ref(0);
 const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
-const MAX_POLL_FAILURE_STREAK = 5;
+const MAX_STREAM_RECONNECT_ATTEMPTS = 2;
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -309,39 +299,13 @@ const activeJob = computed<GameFinaleImageJob | null>(
 const activeJobStatus = computed(() => {
   const job = activeJob.value;
   if (!job) return null;
-  // Если задача в списке отмененных, притворяемся, что она провалена
-  if (isJobCancelled(job.job_id)) return 'failed';
   return job.status;
 });
-
-const CANCELLED_JOBS_KEY = 'lila_cancelled_image_jobs';
-
-function getCancelledJobs(): string[] {
-  try {
-    const saved = localStorage.getItem(CANCELLED_JOBS_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
-}
-
-function isJobCancelled(jobId: string): boolean {
-  return getCancelledJobs().includes(jobId);
-}
-
-function markJobAsCancelled(jobId: string): void {
-  const cancelled = getCancelledJobs();
-  if (!cancelled.includes(jobId)) {
-    cancelled.push(jobId);
-    // Ограничиваем список последними 50 задачами, чтобы не раздувать localStorage
-    const limited = cancelled.slice(-50);
-    localStorage.setItem(CANCELLED_JOBS_KEY, JSON.stringify(limited));
-  }
-}
 
 const artifacts = computed(() => {
   const imageState = finaleState.value?.image;
   if (!imageState) return [];
+  if (imageState.active_job?.artifacts?.length) return imageState.active_job.artifacts;
   if (imageState.artifacts?.length) return imageState.artifacts;
   return imageState.latest_artifact ? [imageState.latest_artifact] : [];
 });
@@ -371,6 +335,12 @@ const isImageGeneratingCombined = computed(() => {
   );
 });
 
+const shouldShowImageLoader = computed(() => {
+  if (isStartingImage.value) return true;
+  const isJobRunning = activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing';
+  return isJobRunning && artifacts.value.length === 0;
+});
+
 function resolveBackendErrorMessage(error: unknown): string {
   const detail =
     error instanceof AxiosError
@@ -395,7 +365,12 @@ async function loadFinaleState(): Promise<void> {
     finaleState.value = state;
     gameData.value = game;
     await refreshArtifactPreviews();
-    syncPollingState();
+    const job = state.image.active_job;
+    if (job && (job.status === 'queued' || job.status === 'processing')) {
+      void startImageJobStream(job.job_id, { resetRetry: true });
+    } else {
+      stopImageJobStream();
+    }
   } catch (error) {
     errorMessage.value = resolveBackendErrorMessage(error);
   } finally {
@@ -431,7 +406,7 @@ async function startImageGeneration(): Promise<void> {
     if (finaleState.value) {
       finaleState.value.image.active_job = job;
     }
-    syncPollingState();
+    await startImageJobStream(job.job_id, { resetRetry: true });
   } catch (error) {
     $q.notify({
       type: 'negative',
@@ -442,72 +417,16 @@ async function startImageGeneration(): Promise<void> {
   }
 }
 
-function cancelImageGeneration(): void {
-  const job = activeJob.value;
-  if (job) {
-    markJobAsCancelled(job.job_id);
-  }
-  clearPolling();
-  isStartingImage.value = false;
-  if (finaleState.value?.image.active_job) {
-    finaleState.value.image.active_job.status = 'failed';
-  }
-  $q.notify({
-    type: 'info',
-    message: 'Ожидание генерации прервано',
-  });
+function isTerminalImageJobStatus(statusValue: string | null): boolean {
+  return statusValue === 'completed' || statusValue === 'completed_with_errors' || statusValue === 'failed';
 }
 
-async function pollImageJob(): Promise<void> {
-  const job = activeJob.value;
-  if (!gameId.value || !job) return;
-
-  if (pollStartedAtMs.value !== null && Date.now() - pollStartedAtMs.value >= 2 * 60 * 1000) {
-    clearPolling();
-    $q.notify({
-      type: 'warning',
-      message: t('error.generic'),
-    });
-    return;
+function stopImageJobStream(): void {
+  if (streamAbortController.value) {
+    streamAbortController.value.abort();
   }
-
-  try {
-    const next = await gamesApi.getFinaleImageJob(gameId.value, job.job_id);
-    if (!finaleState.value) return;
-    finaleState.value.image.active_job = next;
-    pollFailureStreak.value = 0;
-
-    if (next.status === 'completed' || next.status === 'completed_with_errors') {
-      await loadFinaleState();
-      clearPolling();
-    } else if (next.status === 'failed') {
-      clearPolling();
-    } else {
-      scheduleNextPoll();
-    }
-  } catch {
-    pollFailureStreak.value += 1;
-
-    await loadFinaleState();
-    if (artifacts.value.length > 0) {
-      clearPolling();
-      return;
-    }
-
-    if (
-      (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') &&
-      pollFailureStreak.value < MAX_POLL_FAILURE_STREAK
-    ) {
-      scheduleNextPoll();
-      return;
-    }
-
-    clearPolling();
-    $q.notify({
-      type: 'warning',
-      message: t('error.generic'),
-    });
-  }
+  streamAbortController.value = null;
+  streamJobId.value = null;
 }
 
 function clearArtifactPreviews(): void {
@@ -552,43 +471,95 @@ async function refreshArtifactPreviews(): Promise<void> {
   }
 }
 
-function getNextPollDelayMs(): number {
-  const delay = 2500 + pollAttempt.value * 1000;
-  return Math.min(delay, 10000);
+function getStreamReconnectDelayMs(attempt: number): number {
+  return Math.min(1000 * attempt, 4000);
 }
 
-function scheduleNextPoll(): void {
-  clearPollingTimerOnly();
-  pollTimer.value = setTimeout(() => {
-    pollAttempt.value += 1;
-    void pollImageJob();
-  }, getNextPollDelayMs());
-}
-
-function clearPollingTimerOnly(): void {
-  if (!pollTimer.value) return;
-  clearTimeout(pollTimer.value);
-  pollTimer.value = null;
-}
-
-function syncPollingState(): void {
-  if (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') {
-    if (pollStartedAtMs.value === null) {
-      pollStartedAtMs.value = Date.now();
-      pollAttempt.value = 0;
-    }
-    if (pollTimer.value) return;
-    scheduleNextPoll();
+async function handleImageJobStreamFailure(jobId: string, error: unknown): Promise<void> {
+  if (!gameId.value) return;
+  if (streamReconnectAttempt.value >= MAX_STREAM_RECONNECT_ATTEMPTS) {
+    $q.notify({
+      type: 'warning',
+      message: resolveBackendErrorMessage(error),
+    });
     return;
   }
-  clearPolling();
+
+  streamReconnectAttempt.value += 1;
+  try {
+    const latest = await gamesApi.getFinaleImageJob(gameId.value, jobId);
+    if (finaleState.value) {
+      finaleState.value.image.active_job = latest;
+    }
+    await refreshArtifactPreviews();
+
+    if (isTerminalImageJobStatus(latest.status)) {
+      if (latest.status === 'completed' || latest.status === 'completed_with_errors') {
+        await loadFinaleState();
+      }
+      return;
+    }
+  } catch {
+    // no-op: продолжим попытку переподключения
+  }
+
+  await new Promise((resolve) =>
+    setTimeout(resolve, getStreamReconnectDelayMs(streamReconnectAttempt.value)),
+  );
+  if (streamJobId.value !== jobId) return;
+  await startImageJobStream(jobId, { resetRetry: false });
 }
 
-function clearPolling(): void {
-  clearPollingTimerOnly();
-  pollStartedAtMs.value = null;
-  pollAttempt.value = 0;
-  pollFailureStreak.value = 0;
+async function startImageJobStream(
+  jobId: string,
+  options: { resetRetry: boolean },
+): Promise<void> {
+  if (!gameId.value) return;
+  if (streamJobId.value === jobId && streamAbortController.value) return;
+
+  stopImageJobStream();
+  if (options.resetRetry) {
+    streamReconnectAttempt.value = 0;
+  }
+
+  const controller = new AbortController();
+  streamAbortController.value = controller;
+  streamJobId.value = jobId;
+
+  try {
+    for await (const event of gamesApi.streamFinaleImageJob(gameId.value, jobId, controller.signal)) {
+      if (!finaleState.value) continue;
+      if (event.type === 'meta' || event.type === 'progress') {
+        finaleState.value.image.active_job = event.job;
+        continue;
+      }
+      if (event.type === 'artifact') {
+        finaleState.value.image.active_job = event.job;
+        await refreshArtifactPreviews();
+        continue;
+      }
+      if (event.type === 'done') {
+        finaleState.value.image.active_job = event.job;
+        if (event.job.status === 'completed' || event.job.status === 'completed_with_errors') {
+          await loadFinaleState();
+        } else {
+          await refreshArtifactPreviews();
+          stopImageJobStream();
+        }
+        return;
+      }
+    }
+  } catch (error) {
+    if (controller.signal.aborted) return;
+    await handleImageJobStreamFailure(jobId, error);
+  } finally {
+    if (streamAbortController.value === controller) {
+      streamAbortController.value = null;
+    }
+    if (streamJobId.value === jobId && !controller.signal.aborted) {
+      streamJobId.value = null;
+    }
+  }
 }
 
 async function downloadCurrentArtifact(): Promise<void> {
@@ -638,7 +609,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  clearPolling();
+  stopImageJobStream();
   clearArtifactPreviews();
 });
 

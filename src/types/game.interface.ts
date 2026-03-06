@@ -320,3 +320,36 @@ export type ClarificationStreamEvent =
   | ClarificationStreamDeltaEvent
   | ClarificationStreamDoneEvent
   | ClarificationStreamErrorEvent;
+
+export interface FinaleImageStreamMetaEvent {
+  type: 'meta';
+  job: GameFinaleImageJob;
+}
+
+export interface FinaleImageStreamProgressEvent {
+  type: 'progress';
+  job: GameFinaleImageJob;
+}
+
+export interface FinaleImageStreamArtifactEvent {
+  type: 'artifact';
+  artifact: GameFinaleImageArtifact;
+  job: GameFinaleImageJob;
+}
+
+export interface FinaleImageStreamDoneEvent {
+  type: 'done';
+  job: GameFinaleImageJob;
+}
+
+export interface FinaleImageStreamErrorEvent {
+  type: 'error';
+  message: string;
+}
+
+export type FinaleImageStreamEvent =
+  | FinaleImageStreamMetaEvent
+  | FinaleImageStreamProgressEvent
+  | FinaleImageStreamArtifactEvent
+  | FinaleImageStreamDoneEvent
+  | FinaleImageStreamErrorEvent;
