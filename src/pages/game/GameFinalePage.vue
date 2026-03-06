@@ -195,10 +195,23 @@
             </div>
 
             <div class="q-mt-md text-body2">
-              <l-ai-loader
+              <div
                 v-if="activeJobStatus === 'queued' || activeJobStatus === 'processing' || isStartingImage"
-                :text="t('finale.image_generation_wait')"
-              />
+                class="column items-center q-gutter-y-sm"
+              >
+                <l-ai-loader
+                  :text="t('finale.image_generation_wait')"
+                />
+                <q-btn
+                  flat
+                  dense
+                  color="grey-7"
+                  size="sm"
+                  icon="mdi-close-circle-outline"
+                  label="Отменить ожидание"
+                  @click="cancelImageGeneration"
+                />
+              </div>
               <span
                 v-else-if="activeJobStatus === 'failed'"
                 class="text-negative"
@@ -291,7 +304,39 @@ const hasSummary = computed(() => Boolean(summary.value?.mentor_text?.trim()));
 const activeJob = computed<GameFinaleImageJob | null>(
   () => finaleState.value?.image.active_job ?? null,
 );
-const activeJobStatus = computed(() => activeJob.value?.status ?? null);
+const activeJobStatus = computed(() => {
+  const job = activeJob.value;
+  if (!job) return null;
+  // Если задача в списке отмененных, притворяемся, что она провалена
+  if (isJobCancelled(job.job_id)) return 'failed';
+  return job.status;
+});
+
+const CANCELLED_JOBS_KEY = 'lila_cancelled_image_jobs';
+
+function getCancelledJobs(): string[] {
+  try {
+    const saved = localStorage.getItem(CANCELLED_JOBS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isJobCancelled(jobId: string): boolean {
+  return getCancelledJobs().includes(jobId);
+}
+
+function markJobAsCancelled(jobId: string): void {
+  const cancelled = getCancelledJobs();
+  if (!cancelled.includes(jobId)) {
+    cancelled.push(jobId);
+    // Ограничиваем список последними 50 задачами, чтобы не раздувать localStorage
+    const limited = cancelled.slice(-50);
+    localStorage.setItem(CANCELLED_JOBS_KEY, JSON.stringify(limited));
+  }
+}
+
 const artifacts = computed(() => {
   const imageState = finaleState.value?.image;
   if (!imageState) return [];
@@ -393,6 +438,22 @@ async function startImageGeneration(): Promise<void> {
   } finally {
     isStartingImage.value = false;
   }
+}
+
+function cancelImageGeneration(): void {
+  const job = activeJob.value;
+  if (job) {
+    markJobAsCancelled(job.job_id);
+  }
+  clearPolling();
+  isStartingImage.value = false;
+  if (finaleState.value?.image.active_job) {
+    finaleState.value.image.active_job.status = 'failed';
+  }
+  $q.notify({
+    type: 'info',
+    message: 'Ожидание генерации прервано',
+  });
 }
 
 async function pollImageJob(): Promise<void> {
