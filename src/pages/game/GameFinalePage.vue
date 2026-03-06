@@ -195,9 +195,10 @@
             </div>
 
             <div class="q-mt-md text-body2">
-              <span v-if="activeJobStatus === 'queued' || activeJobStatus === 'processing'">
-                {{ t('finale.image_generating') }}
-              </span>
+              <l-ai-loader
+                v-if="activeJobStatus === 'queued' || activeJobStatus === 'processing' || isStartingImage"
+                :text="t('finale.image_generation_wait')"
+              />
               <span
                 v-else-if="activeJobStatus === 'failed'"
                 class="text-negative"
@@ -218,7 +219,7 @@
                   class="full-width"
                   color="primary"
                   unelevated
-                  :loading="isStartingImage"
+                  :loading="isImageGeneratingCombined"
                   :disable="!canGenerateImage"
                   :label="t('finale.generate_image')"
                   @click="startImageGeneration"
@@ -259,6 +260,7 @@ import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { AxiosError } from 'axios';
 import { gamesApi } from 'src/services/api';
+import LAiLoader from 'src/components/common/LAiLoader.vue';
 import type {
   GameFinaleState,
   GameFinaleSummary,
@@ -312,6 +314,14 @@ const canGenerateImage = computed(() => {
   if (isStartingImage.value) return false;
   if (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') return false;
   return finaleState.value.image.free_generations_left > 0;
+});
+
+const isImageGeneratingCombined = computed(() => {
+  return (
+    isStartingImage.value ||
+    activeJobStatus.value === 'queued' ||
+    activeJobStatus.value === 'processing'
+  );
 });
 
 function resolveBackendErrorMessage(error: unknown): string {

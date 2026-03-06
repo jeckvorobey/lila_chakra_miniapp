@@ -83,7 +83,11 @@
 
           <!-- Ответ ИИ ментора -->
           <q-card
-            v-if="(entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')) && entry.move.ai_interpretation"
+            v-if="
+              (entry.kind === 'transition' ||
+                (entry.kind === 'roll' && entry.move.transition_type === 'none')) &&
+              entry.move.ai_interpretation
+            "
             flat
             bordered
             class="q-mt-sm q-mb-sm bg-surface"
@@ -106,7 +110,12 @@
 
           <!-- Уточняющие вопросы -->
           <div
-            v-if="(entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')) && entry.move.clarifications && entry.move.clarifications.length > 0"
+            v-if="
+              (entry.kind === 'transition' ||
+                (entry.kind === 'roll' && entry.move.transition_type === 'none')) &&
+              entry.move.clarifications &&
+              entry.move.clarifications.length > 0
+            "
             class="q-mb-sm"
           >
             <q-list
@@ -132,7 +141,10 @@
 
           <!-- Инсайт игрока -->
           <q-card
-            v-if="entry.kind === 'transition' || (entry.kind === 'roll' && entry.move.transition_type === 'none')"
+            v-if="
+              entry.kind === 'transition' ||
+              (entry.kind === 'roll' && entry.move.transition_type === 'none')
+            "
             flat
             bordered
             class="bg-surface q-mb-md"
@@ -163,7 +175,11 @@
                   size="sm"
                   color="primary"
                   :icon="entry.move.player_insight ? 'mdi-pencil' : 'mdi-plus'"
-                  :label="entry.move.player_insight ? $t('actions.edit_insight') : $t('actions.write_insight')"
+                  :label="
+                    entry.move.player_insight
+                      ? $t('actions.edit_insight')
+                      : $t('actions.write_insight')
+                  "
                   @click="editInsight(entry.move)"
                 />
               </div>
@@ -193,7 +209,7 @@
         </div>
         <div
           v-if="game?.status === 'completed'"
-          class="col-12 row q-gutter-sm items-center justify-center"
+          class="col-12 row q-gutter-sm items-center justify-center q-px-sm"
         >
           <div
             v-if="!game.exit_meditation_completed"
@@ -215,14 +231,17 @@
             />
           </div>
         </div>
-        <q-btn
-          v-if="!isCurrentGameActive && !hasAnyActiveGame"
-          outline
-          :label="$t('game.new_game')"
-          color="primary"
-          class="full-width"
-          @click="$router.push('/game/new')"
-        />
+        <div class="col-12 row q-gutter-sm q-px-sm">
+          <div class="col">
+            <q-btn
+              v-if="!isCurrentGameActive && !hasAnyActiveGame"
+              :label="$t('game.new_game')"
+              color="primary"
+              class="full-width"
+              @click="$router.push('/game/new')"
+            />
+          </div>
+        </div>
       </div>
     </template>
   </q-page>

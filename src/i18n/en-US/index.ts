@@ -434,6 +434,7 @@ export default {
     generate_summary: 'Generate Summary',
     generate_image: 'Generate AI Art',
     image_generating: 'Image generation is in progress...',
+    image_generation_wait: 'This may take a few minutes. Please wait.',
     image_failed: 'Image generation is unavailable. Please try later.',
     image_ready: 'Image is ready for download and sharing.',
     image_not_started: 'Image has not been generated yet.',
