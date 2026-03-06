@@ -159,7 +159,7 @@
                   v-for="artifact in artifacts"
                   :key="artifact.artifact_id"
                   :name="artifact.artifact_id"
-                  class="q-pa-none"
+                  class="q-pa-none overflow-hidden"
                 >
                   <img
                     :src="artifactPreviewUrls[artifact.artifact_id]"
