@@ -43,7 +43,7 @@ export default defineConfig((ctx) => {
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
 
-      // publicPath: '/',
+      publicPath: '/lila_chakra_miniapp/',
       // analyze: true,
       env: {
         APP_VERSION: pkg.version,

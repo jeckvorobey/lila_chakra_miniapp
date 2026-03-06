@@ -92,12 +92,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'profile.transactions_title', showBack: true },
       },
 
-      // {
-      //   path: 'telegram-required',
-      //   name: 'telegram-required',
-      //   component: () => import('pages/TelegramRequiredPage.vue'),
-      //   meta: { hideHeader: true, hideBottomNav: true },
-      // },
+      {
+        path: 'telegram-required',
+        name: 'telegram-required',
+        component: () => import('pages/TelegramRequiredPage.vue'),
+        meta: { hideHeader: true, hideBottomNav: true },
+      },
       // Онбординг (внутри MainLayout для корректной работы QPage)
       {
         path: 'onboarding',

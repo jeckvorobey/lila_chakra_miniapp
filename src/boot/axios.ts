@@ -1,5 +1,5 @@
 import { defineBoot } from '#q-app/wrappers';
-import axios, { type AxiosInstance } from 'axios';
+import axios, { AxiosHeaders, type AxiosInstance } from 'axios';
 import { Notify } from 'quasar';
 import { useAuthStore } from 'src/stores/auth.store';
 
@@ -44,6 +44,24 @@ function resolveApiBaseUrl(): string {
 const apiBaseUrl = resolveApiBaseUrl();
 const api = axios.create({ baseURL: apiBaseUrl });
 
+function getTelegramInitData(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  const tg = (
+    window as {
+      Telegram?: {
+        WebApp?: { initData?: string };
+      };
+    }
+  ).Telegram?.WebApp;
+
+  const initData = tg?.initData;
+  if (!initData) return null;
+
+  const trimmed = initData.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function buildApiResourceUrl(path: string): string {
   const trimmedPath = path.trim();
   if (/^https?:\/\//.test(trimmedPath)) {
@@ -67,6 +85,16 @@ export function buildApiResourceUrl(path: string): string {
 
 export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
+
+  api.interceptors.request.use((config) => {
+    const initData = getTelegramInitData();
+    if (initData) {
+      const headers = AxiosHeaders.from(config.headers);
+      headers.set('X-Telegram-Init-Data', initData);
+      config.headers = headers;
+    }
+    return config;
+  });
 
   // Глобальная обработка 401/403 для сброса сессии (кроме auth endpoints)
   api.interceptors.response.use(

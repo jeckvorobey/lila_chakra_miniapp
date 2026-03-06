@@ -7,7 +7,7 @@ import {
 } from 'vue-router';
 import routes from './routes';
 import { useGameStore } from 'src/stores/game.store';
-// import { isInTelegram } from 'src/boot/telegram';
+import { isInTelegram } from 'src/boot/telegram';
 
 /*
  * Если вы не собираете с режимом SSR, вы можете
@@ -35,15 +35,14 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  // Приложение должно открываться внутри Telegram
-  // Временно отключено для разработки (нужна проверка и редирект).
-  // Router.beforeEach((to) => {
-  //   if (!isInTelegram() && to.name !== 'telegram-required') {
-  //     return { name: 'telegram-required' };
-  //   }
-  //
-  //   return true;
-  // });
+  // Приложение должно открываться только внутри Telegram Mini App.
+  Router.beforeEach((to) => {
+    if (!isInTelegram() && to.name !== 'telegram-required') {
+      return { name: 'telegram-required' };
+    }
+
+    return true;
+  });
 
   // Защита маршрутов: финал и медитация выхода доступны только при завершённой игре.
   Router.beforeEach(async (to) => {
