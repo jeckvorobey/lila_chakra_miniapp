@@ -28,7 +28,7 @@ jobs:
       - name: Resolve production env 🧩
         env:
           API_URL_VAR: ${{ vars.VITE_API_URL }}
-          API_URL_SECRET: ${{ secrets.VITE_API_URL }}
+          API_URL_SECRET: ${{ vars.VITE_API_URL }}
           API_PREFIX_VAR: ${{ vars.VITE_API_PREFIX }}
           TG_BOT_USERNAME_VAR: ${{ vars.VITE_TG_BOT_USERNAME }}
         run: |
