@@ -12,10 +12,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: site
-    env:
-      VITE_API_URL: ${{ vars.VITE_API_URL }}
-      VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX || '/api' }}
-      VITE_TG_BOT_USERNAME: ${{ vars.VITE_TG_BOT_USERNAME || 'ILeelaBot' }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -29,10 +25,27 @@ jobs:
       - name: Install dependencies 🔧
         run: npm install
 
+      - name: Resolve production env 🧩
+        env:
+          API_URL_VAR: ${{ vars.VITE_API_URL }}
+          API_URL_SECRET: ${{ secrets.VITE_API_URL }}
+          API_PREFIX_VAR: ${{ vars.VITE_API_PREFIX }}
+          TG_BOT_USERNAME_VAR: ${{ vars.VITE_TG_BOT_USERNAME }}
+        run: |
+          API_URL="${API_URL_VAR:-$API_URL_SECRET}"
+          if [ -z "$API_URL" ]; then
+            echo "::error::VITE_API_URL is not set in Environment 'site' (Variables or Secrets)."
+            exit 1
+          fi
+
+          echo "VITE_API_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "VITE_API_PREFIX=${API_PREFIX_VAR:-/api}" >> "$GITHUB_ENV"
+          echo "VITE_TG_BOT_USERNAME=${TG_BOT_USERNAME_VAR:-ILeelaBot}" >> "$GITHUB_ENV"
+
       - name: Validate production env 🔍
         run: |
           if [ -z "$VITE_API_URL" ]; then
-            echo "::error::VITE_API_URL is not set. Configure it in Environment 'site' -> Variables."
+            echo "::error::VITE_API_URL is not set. Configure it in Environment 'site' (Variables or Secrets)."
             exit 1
           fi
 
