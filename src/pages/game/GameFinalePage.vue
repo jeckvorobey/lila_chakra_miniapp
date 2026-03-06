@@ -294,9 +294,11 @@ const errorMessage = ref('');
 const pollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const pollStartedAtMs = ref<number | null>(null);
 const pollAttempt = ref(0);
+const pollFailureStreak = ref(0);
 const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
+const MAX_POLL_FAILURE_STREAK = 5;
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -473,6 +475,7 @@ async function pollImageJob(): Promise<void> {
     const next = await gamesApi.getFinaleImageJob(gameId.value, job.job_id);
     if (!finaleState.value) return;
     finaleState.value.image.active_job = next;
+    pollFailureStreak.value = 0;
 
     if (next.status === 'completed' || next.status === 'completed_with_errors') {
       await loadFinaleState();
@@ -483,7 +486,27 @@ async function pollImageJob(): Promise<void> {
       scheduleNextPoll();
     }
   } catch {
+    pollFailureStreak.value += 1;
+
+    await loadFinaleState();
+    if (artifacts.value.length > 0) {
+      clearPolling();
+      return;
+    }
+
+    if (
+      (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') &&
+      pollFailureStreak.value < MAX_POLL_FAILURE_STREAK
+    ) {
+      scheduleNextPoll();
+      return;
+    }
+
     clearPolling();
+    $q.notify({
+      type: 'warning',
+      message: t('error.generic'),
+    });
   }
 }
 
@@ -565,6 +588,7 @@ function clearPolling(): void {
   clearPollingTimerOnly();
   pollStartedAtMs.value = null;
   pollAttempt.value = 0;
+  pollFailureStreak.value = 0;
 }
 
 async function downloadCurrentArtifact(): Promise<void> {
