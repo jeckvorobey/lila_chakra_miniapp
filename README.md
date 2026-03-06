@@ -96,7 +96,7 @@ npm run build
 ### Деплой на GitHub Pages
 
 Для корректной работы API в production обязательно задайте переменные репозитория
-в `Settings -> Secrets and variables -> Actions -> Variables`:
+в `Settings -> Secrets and variables -> Actions` (можно в `Variables` или `Secrets`):
 
 - `VITE_API_URL` — полный URL backend, например `https://api.example.com`
 - `VITE_API_PREFIX` — префикс API (обычно `/api`)
