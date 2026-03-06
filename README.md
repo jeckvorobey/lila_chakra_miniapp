@@ -93,6 +93,18 @@ npm run build
 
 Готовый код будет в папке `dist/spa/` (для SPA) или другой в зависимости от конфигурации.
 
+### Деплой на GitHub Pages
+
+Для корректной работы API в production обязательно задайте переменные репозитория
+в `Settings -> Secrets and variables -> Actions -> Variables`:
+
+- `VITE_API_URL` — полный URL backend, например `https://api.example.com`
+- `VITE_API_PREFIX` — префикс API (обычно `/api`)
+- `VITE_TG_BOT_USERNAME` — username Telegram-бота
+
+Если `VITE_API_URL` не задан, workflow деплоя завершится ошибкой, чтобы не публиковать
+сборку с некорректным относительным `/api` на домене GitHub Pages.
+
 ## Структура проекта
 
 ```bash
