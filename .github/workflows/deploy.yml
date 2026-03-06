@@ -12,6 +12,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment: site
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX || '/api' }}
+      VITE_TG_BOT_USERNAME: ${{ vars.VITE_TG_BOT_USERNAME || 'ILeelaBot' }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -26,19 +30,13 @@ jobs:
         run: npm install
 
       - name: Validate production env 🔍
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL != '' && vars.VITE_API_URL || secrets.VITE_API_URL }}
         run: |
           if [ -z "$VITE_API_URL" ]; then
-            echo "::error::VITE_API_URL is not set. Configure it in Settings -> Secrets and variables -> Actions (Variables or Secrets)."
+            echo "::error::VITE_API_URL is not set. Configure it in Environment 'site' -> Variables."
             exit 1
           fi
 
       - name: Build project 🏗️
-        env:
-          VITE_API_URL: ${{ vars.VITE_API_URL != '' && vars.VITE_API_URL || secrets.VITE_API_URL }}
-          VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX != '' && vars.VITE_API_PREFIX || '/api' }}
-          VITE_TG_BOT_USERNAME: ${{ vars.VITE_TG_BOT_USERNAME != '' && vars.VITE_TG_BOT_USERNAME || 'ILeelaBot' }}
         run: npx quasar build
 
       - name: Add .nojekyll 📄
