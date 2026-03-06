@@ -151,8 +151,9 @@
                 v-model="selectedArtifactId"
                 animated
                 arrows
-                navigation
-                height="360px"
+                swipeable
+                infinite
+                v-model:fullscreen="fullscreen"
               >
                 <q-carousel-slide
                   v-for="artifact in artifacts"
@@ -167,6 +168,23 @@
                     style="object-fit: cover"
                   />
                 </q-carousel-slide>
+
+                <template v-slot:control>
+                  <q-carousel-control
+                    position="bottom-right"
+                    :offset="[18, 18]"
+                  >
+                    <q-btn
+                      push
+                      round
+                      dense
+                      color="white"
+                      text-color="primary"
+                      :icon="fullscreen ? 'fullscreen_exit' : 'fullscreen'"
+                      @click="fullscreen = !fullscreen"
+                    />
+                  </q-carousel-control>
+                </template>
               </q-carousel>
               <img
                 v-else
@@ -263,6 +281,7 @@ const pollStartedAtMs = ref<number | null>(null);
 const pollAttempt = ref(0);
 const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
+const fullscreen = ref(false);
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -370,10 +389,7 @@ async function pollImageJob(): Promise<void> {
   const job = activeJob.value;
   if (!gameId.value || !job) return;
 
-  if (
-    pollStartedAtMs.value !== null &&
-    Date.now() - pollStartedAtMs.value >= 2 * 60 * 1000
-  ) {
+  if (pollStartedAtMs.value !== null && Date.now() - pollStartedAtMs.value >= 2 * 60 * 1000) {
     clearPolling();
     $q.notify({
       type: 'warning',
