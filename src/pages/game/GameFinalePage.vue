@@ -160,7 +160,8 @@
                 >
                   <img
                     :src="artifactPreviewUrls[artifact.artifact_id]"
-                    class="full-width full-height rounded-borders"
+                    class="full-width full-height finale-art-image"
+                    :class="{ 'finale-art-image--fullscreen': fullscreen }"
                     alt="Finale art"
                     style="object-fit: cover"
                   />
@@ -186,7 +187,7 @@
               <img
                 v-else
                 :src="selectedArtifactPreviewUrl"
-                class="full-width rounded-borders"
+                class="full-width finale-art-image"
                 alt="Finale art"
               />
             </div>
@@ -197,6 +198,21 @@
                 class="column items-center"
               >
                 <l-ai-loader :text="t('finale.image_generation_wait')" />
+              </div>
+              <div
+                v-else-if="pollingInterrupted"
+                class="column items-start q-gutter-y-sm"
+              >
+                <span class="text-warning">
+                  {{ pollingErrorMessage }}
+                </span>
+                <q-btn
+                  flat
+                  color="primary"
+                  no-caps
+                  :label="t('actions.retry')"
+                  @click="recoverImagePolling"
+                />
               </div>
               <span
                 v-else-if="activeJobStatus === 'failed'"
@@ -262,13 +278,13 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { AxiosError } from 'axios';
+import { useFinaleImagePolling } from 'src/composables/useFinaleImagePolling';
 import { useTelegram } from 'src/composables/useTelegram';
 import { gamesApi } from 'src/services/api';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import type {
   GameFinaleState,
   GameFinaleSummary,
-  GameFinaleImageJob,
   GameDetail,
 } from 'src/types/game.interface';
 
@@ -281,37 +297,26 @@ const finaleState = ref<GameFinaleState | null>(null);
 const gameData = ref<GameDetail | null>(null);
 const isLoading = ref(false);
 const isGeneratingSummary = ref(false);
-const isStartingImage = ref(false);
 const errorMessage = ref('');
-const streamJobId = ref<string | null>(null);
-const streamAbortController = ref<AbortController | null>(null);
-const streamReconnectAttempt = ref(0);
 const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
 const artifactPreviewRequests = new Map<number, Promise<void>>();
-let isRefreshingArtifactPreviews = false;
-let shouldRefreshArtifactPreviewsAgain = false;
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
 const hasSummary = computed(() => Boolean(summary.value?.mentor_text?.trim()));
-const activeJob = computed<GameFinaleImageJob | null>(
-  () => finaleState.value?.image.active_job ?? null,
-);
-const activeJobStatus = computed(() => {
-  const job = activeJob.value;
-  if (!job) return null;
-  return job.status;
+const imagePolling = useFinaleImagePolling({
+  gameId,
+  finaleState,
+  loadFinaleState: async () => {
+    await loadFinaleState({ resumePolling: false });
+  },
+  generateFinaleImage: gamesApi.generateFinaleImage,
+  getFinaleImageJob: gamesApi.getFinaleImageJob,
 });
-
-const artifacts = computed(() => {
-  const imageState = finaleState.value?.image;
-  if (!imageState) return [];
-  if (imageState.active_job?.artifacts?.length) return imageState.active_job.artifacts;
-  if (imageState.artifacts?.length) return imageState.artifacts;
-  return imageState.latest_artifact ? [imageState.latest_artifact] : [];
-});
+const activeJobStatus = imagePolling.activeJobStatus;
+const artifacts = imagePolling.artifacts;
 const selectedArtifact = computed(() => {
   const currentId = selectedArtifactId.value;
   if (currentId != null) {
@@ -323,25 +328,15 @@ const selectedArtifact = computed(() => {
 const selectedArtifactPreviewUrl = computed(() =>
   selectedArtifact.value ? artifactPreviewUrls.value[selectedArtifact.value.artifact_id] || '' : '',
 );
-const canGenerateImage = computed(() => {
-  if (!finaleState.value) return false;
-  if (isStartingImage.value) return false;
-  if (activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing') return false;
-  return finaleState.value.image.free_generations_left > 0;
-});
-
-const isImageGeneratingCombined = computed(() => {
-  return (
-    isStartingImage.value ||
-    activeJobStatus.value === 'queued' ||
-    activeJobStatus.value === 'processing'
-  );
-});
-
-const shouldShowImageLoader = computed(() => {
-  if (isStartingImage.value) return true;
-  const isJobRunning = activeJobStatus.value === 'queued' || activeJobStatus.value === 'processing';
-  return isJobRunning && artifacts.value.length === 0;
+const canGenerateImage = imagePolling.canGenerateImage;
+const isImageGeneratingCombined = imagePolling.isImageGeneratingCombined;
+const shouldShowImageLoader = imagePolling.shouldShowImageLoader;
+const pollingInterrupted = imagePolling.pollingInterrupted;
+const pollingError = imagePolling.pollingError;
+const pollingErrorMessage = computed(() => {
+  if (!pollingInterrupted.value) return '';
+  if (!pollingError.value) return t('error.generic');
+  return resolveBackendErrorMessage(new Error(pollingError.value));
 });
 
 function resolveBackendErrorMessage(error: unknown): string {
@@ -356,7 +351,7 @@ function resolveBackendErrorMessage(error: unknown): string {
   return detail || (error instanceof Error ? error.message : t('error.generic'));
 }
 
-async function loadFinaleState(): Promise<void> {
+async function loadFinaleState(options: { resumePolling?: boolean } = {}): Promise<void> {
   if (!gameId.value) return;
   isLoading.value = true;
   errorMessage.value = '';
@@ -368,11 +363,8 @@ async function loadFinaleState(): Promise<void> {
     finaleState.value = state;
     gameData.value = game;
     await refreshArtifactPreviews();
-    const job = state.image.active_job;
-    if (job && (job.status === 'queued' || job.status === 'processing')) {
-      void startImageJobStream(job.job_id, { resetRetry: true });
-    } else {
-      stopImageJobStream();
+    if (options.resumePolling !== false) {
+      imagePolling.resumeIfNeeded();
     }
   } catch (error) {
     errorMessage.value = resolveBackendErrorMessage(error);
@@ -402,30 +394,25 @@ async function generateSummary(): Promise<void> {
 }
 
 async function startImageGeneration(): Promise<void> {
-  if (!gameId.value || !canGenerateImage.value) return;
-  isStartingImage.value = true;
   try {
-    const job = await gamesApi.generateFinaleImage(gameId.value);
-    if (finaleState.value) {
-      finaleState.value.image.active_job = job;
-    }
-    await startImageJobStream(job.job_id, { resetRetry: true });
+    await imagePolling.start();
   } catch (error) {
     $q.notify({
       type: 'negative',
       message: resolveBackendErrorMessage(error),
     });
-  } finally {
-    isStartingImage.value = false;
   }
 }
 
-function stopImageJobStream(): void {
-  if (streamAbortController.value) {
-    streamAbortController.value.abort();
+async function recoverImagePolling(): Promise<void> {
+  try {
+    await imagePolling.recover();
+  } catch (error) {
+    $q.notify({
+      type: 'warning',
+      message: resolveBackendErrorMessage(error),
+    });
   }
-  streamAbortController.value = null;
-  streamJobId.value = null;
 }
 
 function clearArtifactPreviews(): void {
@@ -488,94 +475,6 @@ async function refreshArtifactPreviews(): Promise<void> {
       );
     }
     await artifactPreviewRequests.get(artifact.artifact_id);
-  }
-}
-
-function scheduleArtifactPreviewRefresh(): void {
-  if (isRefreshingArtifactPreviews) {
-    shouldRefreshArtifactPreviewsAgain = true;
-    return;
-  }
-
-  isRefreshingArtifactPreviews = true;
-  void (async () => {
-    try {
-      do {
-        shouldRefreshArtifactPreviewsAgain = false;
-        await refreshArtifactPreviews();
-      } while (shouldRefreshArtifactPreviewsAgain);
-    } finally {
-      isRefreshingArtifactPreviews = false;
-    }
-  })();
-}
-
-function handleImageJobStreamFailure(jobId: string, error: unknown): void {
-  if (!gameId.value) return;
-  streamReconnectAttempt.value += 1;
-  stopImageJobStream();
-  $q.notify({
-    type: 'warning',
-    message: resolveBackendErrorMessage(error),
-  });
-}
-
-async function startImageJobStream(jobId: string, options: { resetRetry: boolean }): Promise<void> {
-  if (!gameId.value) return;
-  if (streamJobId.value === jobId && streamAbortController.value) return;
-
-  stopImageJobStream();
-  if (options.resetRetry) {
-    streamReconnectAttempt.value = 0;
-  }
-
-  const controller = new AbortController();
-  streamAbortController.value = controller;
-  streamJobId.value = jobId;
-
-  try {
-    for await (const event of gamesApi.streamFinaleImageJob(
-      gameId.value,
-      jobId,
-      controller.signal,
-    )) {
-      if (!finaleState.value) continue;
-      if (event.type === 'meta' || event.type === 'progress') {
-        finaleState.value.image.active_job = event.job;
-        continue;
-      }
-      if (event.type === 'artifact') {
-        finaleState.value.image.active_job = event.job;
-        scheduleArtifactPreviewRefresh();
-        continue;
-      }
-      if (event.type === 'done') {
-        finaleState.value.image.active_job = event.job;
-        if (event.job.status === 'completed' || event.job.status === 'completed_with_errors') {
-          await loadFinaleState();
-        } else {
-          scheduleArtifactPreviewRefresh();
-          stopImageJobStream();
-        }
-        return;
-      }
-    }
-
-    // Иногда SSE соединение закрывается без финального `done`.
-    // В этом случае перечитываем итоговое состояние, чтобы не оставлять UI в loading.
-    if (!controller.signal.aborted) {
-      await loadFinaleState();
-    }
-  } catch (error) {
-    if (controller.signal.aborted) return;
-    handleImageJobStreamFailure(jobId, error);
-  } finally {
-    if (streamAbortController.value === controller) {
-      streamAbortController.value = null;
-    }
-    if (streamJobId.value === jobId && !controller.signal.aborted) {
-      streamJobId.value = null;
-    }
   }
 }
 
@@ -725,8 +624,30 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  stopImageJobStream();
+  imagePolling.stop();
   clearArtifactPreviews();
   artifactPreviewRequests.clear();
 });
 </script>
+
+<style scoped lang="scss">
+.finale-art-image {
+  border-radius: 16px;
+}
+
+.finale-art-image--fullscreen {
+  border-radius: 0;
+}
+
+:deep(.q-carousel--fullscreen .q-carousel__slide) {
+  border-radius: 0;
+}
+
+@media (max-width: 599px) {
+  :deep(.q-carousel--fullscreen),
+  :deep(.q-carousel--fullscreen .q-carousel__slide),
+  :deep(.q-carousel--fullscreen img) {
+    border-radius: 0 !important;
+  }
+}
+</style>

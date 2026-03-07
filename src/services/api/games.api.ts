@@ -252,6 +252,16 @@ export const gamesApi = {
   },
 
   /**
+   * Получить статус фоновой генерации финального AI-арта.
+   */
+  async getFinaleImageJob(gameId: number, jobId: string): Promise<GameFinaleImageJob> {
+    const response = await api.get<GameFinaleImageJob>(
+      `/games/${gameId}/finale/image/jobs/${jobId}`,
+    );
+    return response.data;
+  },
+
+  /**
    * Скачать финальный AI-арт как Blob.
    */
   async downloadFinaleImage(gameId: number, artifactId: number): Promise<Blob> {

@@ -8,7 +8,7 @@ const { mockApi, mockApiFetch } = vi.hoisted(() => ({
   mockApiFetch: vi.fn(),
 }));
 
-vi.mock('src/boot/axios', () => ({
+vi.mock('src/lib/api-client', () => ({
   api: mockApi,
 }));
 
@@ -30,6 +30,31 @@ function createJsonResponse(body: unknown, status = 200): Response {
 describe('gamesApi stream requests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('запрашивает статус finale image job через axios helper', async () => {
+    mockApi.get.mockResolvedValueOnce({
+      data: {
+        job_id: 'job-1',
+        game_id: 21,
+        status: 'processing',
+        error: null,
+        artifact_id: null,
+        artifacts: [],
+        artifacts_count: 0,
+        errors: [],
+        created_at: '2026-03-07T10:00:00Z',
+        updated_at: '2026-03-07T10:00:01Z',
+      },
+    });
+
+    const result = await gamesApi.getFinaleImageJob(21, 'job-1');
+
+    expect(mockApi.get).toHaveBeenCalledWith('/games/21/finale/image/jobs/job-1');
+    expect(result).toMatchObject({
+      job_id: 'job-1',
+      status: 'processing',
+    });
   });
 
   it('открывает finale image stream через общий apiFetch helper', async () => {

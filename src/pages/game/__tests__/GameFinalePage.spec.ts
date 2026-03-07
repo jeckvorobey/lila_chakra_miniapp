@@ -10,10 +10,10 @@ const {
   mockGenerateFinaleMentor,
   mockGenerateFinaleSummary,
   mockGenerateFinaleImage,
+  mockGetFinaleImageJob,
   mockDownloadFinaleImage,
   mockGetFinaleImageTelegramFile,
   mockCreateFinaleImageTelegramShare,
-  mockStreamFinaleImageJob,
   mockRoute,
   mockTelegramShowPopup,
   mockTelegramDownloadFile,
@@ -26,10 +26,10 @@ const {
   mockGenerateFinaleMentor: vi.fn(),
   mockGenerateFinaleSummary: vi.fn(),
   mockGenerateFinaleImage: vi.fn(),
+  mockGetFinaleImageJob: vi.fn(),
   mockDownloadFinaleImage: vi.fn(),
   mockGetFinaleImageTelegramFile: vi.fn(),
   mockCreateFinaleImageTelegramShare: vi.fn(),
-  mockStreamFinaleImageJob: vi.fn(),
   mockRoute: {
     params: {
       gameId: '42',
@@ -68,10 +68,10 @@ vi.mock('src/services/api', () => ({
     generateFinaleMentor: mockGenerateFinaleMentor,
     generateFinaleSummary: mockGenerateFinaleSummary,
     generateFinaleImage: mockGenerateFinaleImage,
+    getFinaleImageJob: mockGetFinaleImageJob,
     downloadFinaleImage: mockDownloadFinaleImage,
     getFinaleImageTelegramFile: mockGetFinaleImageTelegramFile,
     createFinaleImageTelegramShare: mockCreateFinaleImageTelegramShare,
-    streamFinaleImageJob: mockStreamFinaleImageJob,
   },
 }));
 
@@ -97,9 +97,14 @@ const QBtnStub = defineComponent({
       type: String,
       default: '',
     },
+    icon: {
+      type: String,
+      default: '',
+    },
   },
   emits: ['click'],
-  template: '<button :data-label="label" @click="$emit(\'click\')">{{ label }}</button>',
+  template:
+    '<button :data-label="label" :data-icon="icon" @click="$emit(\'click\')">{{ label || icon }}</button>',
 });
 
 function mountPage() {
@@ -128,9 +133,12 @@ function mountPage() {
           template: '<span />',
         },
         'q-carousel': {
-          template: '<div><slot /></div>',
+          template: '<div><slot /><slot name="control" /></div>',
         },
         'q-carousel-slide': {
+          template: '<div><slot /></div>',
+        },
+        'q-carousel-control': {
           template: '<div><slot /></div>',
         },
         'q-btn': QBtnStub,
@@ -203,7 +211,30 @@ describe('GameFinalePage', () => {
       generated_at: '2026-02-20T11:10:00Z',
     });
     mockGenerateFinaleSummary.mockResolvedValue({});
-    mockGenerateFinaleImage.mockResolvedValue({});
+    mockGenerateFinaleImage.mockResolvedValue({
+      job_id: 'job-42',
+      game_id: 42,
+      status: 'queued',
+      error: null,
+      artifact_id: null,
+      artifacts: [],
+      artifacts_count: 0,
+      errors: [],
+      created_at: '2026-02-20T11:10:00Z',
+      updated_at: '2026-02-20T11:10:00Z',
+    });
+    mockGetFinaleImageJob.mockResolvedValue({
+      job_id: 'job-42',
+      game_id: 42,
+      status: 'processing',
+      error: null,
+      artifact_id: null,
+      artifacts: [],
+      artifacts_count: 0,
+      errors: [],
+      created_at: '2026-02-20T11:10:00Z',
+      updated_at: '2026-02-20T11:10:00Z',
+    });
     mockDownloadFinaleImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }));
     mockGetFinaleImageTelegramFile.mockResolvedValue({
       url: 'https://example.com/public/finale-image/token',
@@ -222,10 +253,7 @@ describe('GameFinalePage', () => {
     mockTelegramDownloadFile.mockResolvedValue(true);
     mockTelegramShareMessage.mockResolvedValue(true);
     mockTelegramShareToStory.mockReturnValue(true);
-    mockStreamFinaleImageJob.mockImplementation(async function* () {
-      await Promise.resolve();
-      yield* [];
-    });
+    vi.useRealTimers();
   });
 
   it('при загрузке не вызывает автогенерацию финального ответа', async () => {
@@ -344,7 +372,34 @@ describe('GameFinalePage', () => {
     warnSpy.mockRestore();
   });
 
-  it('при ошибке SSE не делает fallback на status endpoint и показывает warning', async () => {
+  it('в fullscreen использует класс без скругления у картинки', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    const fullscreenButton = wrapper
+      .findAll('button')
+      .find((button) => button.attributes('data-icon') === 'fullscreen');
+    expect(fullscreenButton).toBeDefined();
+
+    await fullscreenButton?.trigger('click');
+    await flushPromises();
+
+    expect(wrapper.html()).toContain('finale-art-image--fullscreen');
+  });
+
+  it('при ошибке polling останавливает loader и показывает recover-кнопку', async () => {
+    vi.useFakeTimers();
     mockGetFinaleState.mockResolvedValue({
       ...buildFinaleState(),
       image: {
@@ -365,25 +420,21 @@ describe('GameFinalePage', () => {
         free_generations_left: 0,
       },
     });
-    mockStreamFinaleImageJob.mockImplementation(async function* () {
-      await Promise.resolve();
-      yield* [];
-      throw new Error('errors.ai_internal_error');
-    });
+    mockGetFinaleImageJob.mockRejectedValueOnce(new Error('errors.ai_internal_error'));
 
-    mountPage();
+    const wrapper = mountPage();
     await flushPromises();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(1500);
     await flushPromises();
 
-    expect(mockStreamFinaleImageJob).toHaveBeenCalledOnce();
-    expect(mockNotify).toHaveBeenCalledWith({
-      type: 'warning',
-      message: 'errors.ai_internal_error',
-    });
+    expect(mockGetFinaleImageJob).toHaveBeenCalledWith(42, 'job-42');
+    expect(wrapper.text()).toContain('errors.ai_internal_error');
+    expect(wrapper.findAll('button').some((button) => button.attributes('data-label') === 'actions.retry')).toBe(true);
+    expect(mockNotify).not.toHaveBeenCalled();
   });
 
-  it('при тихом завершении SSE перечитывает финальное состояние и показывает артефакт', async () => {
+  it('при завершении polling перечитывает финальное состояние и показывает артефакт', async () => {
+    vi.useFakeTimers();
     mockGetFinaleState
       .mockResolvedValueOnce({
         ...buildFinaleState(),
@@ -414,25 +465,32 @@ describe('GameFinalePage', () => {
           free_generations_left: 0,
         },
       });
-
-    mockStreamFinaleImageJob.mockImplementation(async function* () {
-      await Promise.resolve();
-      yield* [];
+    mockGetFinaleImageJob.mockResolvedValueOnce({
+      job_id: 'job-42',
+      game_id: 42,
+      status: 'completed',
+      error: null,
+      artifact_id: 26,
+      artifacts: [buildArtifact(26)],
+      artifacts_count: 1,
+      errors: [],
+      created_at: '2026-02-20T11:10:00Z',
+      updated_at: '2026-02-20T11:10:06Z',
     });
 
     const wrapper = mountPage();
     await flushPromises();
-    await flushPromises();
-    await flushPromises();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(1500);
     await flushPromises();
 
     expect(mockGetFinaleState).toHaveBeenCalledTimes(2);
+    expect(mockGetFinaleImageJob).toHaveBeenCalledWith(42, 'job-42');
     expect(mockDownloadFinaleImage).toHaveBeenCalledWith(42, 26);
     expect(wrapper.text()).toContain('finale.image_ready');
   });
 
-  it('не блокирует завершение SSE, если предзагрузка превью артефакта зависла', async () => {
+  it('не блокирует завершение polling, если предзагрузка превью артефакта зависла', async () => {
+    vi.useFakeTimers();
     mockGetFinaleState
       .mockResolvedValueOnce({
         ...buildFinaleState({
@@ -474,56 +532,108 @@ describe('GameFinalePage', () => {
         },
       });
 
-    mockDownloadFinaleImage.mockImplementation(
-      () => new Promise<Blob>(() => undefined),
-    );
-    mockStreamFinaleImageJob.mockImplementation(async function* () {
-      await Promise.resolve();
-      yield {
-        type: 'artifact',
-        artifact: buildArtifact(26),
-        job: {
-          job_id: 'job-42',
-          game_id: 42,
-          status: 'processing',
-          error: null,
-          artifact_id: 26,
-          artifacts: [buildArtifact(26)],
-          artifacts_count: 1,
-          errors: [],
-          created_at: '2026-02-20T11:10:00Z',
-          updated_at: '2026-02-20T11:10:05Z',
-        },
-      };
-      yield {
-        type: 'done',
-        job: {
-          job_id: 'job-42',
-          game_id: 42,
-          status: 'completed',
-          error: null,
-          artifact_id: 26,
-          artifacts: [buildArtifact(26)],
-          artifacts_count: 1,
-          errors: [],
-          created_at: '2026-02-20T11:10:00Z',
-          updated_at: '2026-02-20T11:10:06Z',
-        },
-      };
+    mockDownloadFinaleImage.mockImplementation(() => new Promise<Blob>(() => undefined));
+    mockGetFinaleImageJob.mockResolvedValueOnce({
+      job_id: 'job-42',
+      game_id: 42,
+      status: 'completed',
+      error: null,
+      artifact_id: 26,
+      artifacts: [buildArtifact(26)],
+      artifacts_count: 1,
+      errors: [],
+      created_at: '2026-02-20T11:10:00Z',
+      updated_at: '2026-02-20T11:10:06Z',
     });
 
     const wrapper = mountPage();
     await flushPromises();
-    await flushPromises();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(1500);
     await flushPromises();
 
     expect(mockGetFinaleState).toHaveBeenCalledTimes(2);
-    expect(mockStreamFinaleImageJob).toHaveBeenCalledOnce();
+    expect(mockGetFinaleImageJob).toHaveBeenCalledOnce();
     expect(mockNotify).not.toHaveBeenCalled();
     expect(mockDownloadFinaleImage).toHaveBeenCalledTimes(1);
     expect(wrapper.exists()).toBe(true);
     wrapper.unmount();
+  });
+
+  it('по кнопке retry после ошибки polling перечитывает состояние и возобновляет опрос', async () => {
+    vi.useFakeTimers();
+    mockGetFinaleState
+      .mockResolvedValueOnce({
+        ...buildFinaleState(),
+        image: {
+          artifacts: [],
+          latest_artifact: null,
+          active_job: {
+            job_id: 'job-42',
+            game_id: 42,
+            status: 'processing',
+            error: null,
+            artifact_id: null,
+            artifacts: [],
+            artifacts_count: 0,
+            errors: [],
+            created_at: '2026-02-20T11:10:00Z',
+            updated_at: '2026-02-20T11:10:00Z',
+          },
+          free_generations_left: 0,
+        },
+      })
+      .mockResolvedValueOnce({
+        ...buildFinaleState(),
+        image: {
+          artifacts: [],
+          latest_artifact: null,
+          active_job: {
+            job_id: 'job-42',
+            game_id: 42,
+            status: 'processing',
+            error: null,
+            artifact_id: null,
+            artifacts: [],
+            artifacts_count: 0,
+            errors: [],
+            created_at: '2026-02-20T11:10:00Z',
+            updated_at: '2026-02-20T11:10:00Z',
+          },
+          free_generations_left: 0,
+        },
+      });
+    mockGetFinaleImageJob
+      .mockRejectedValueOnce(new Error('errors.ai_internal_error'))
+      .mockResolvedValueOnce({
+        job_id: 'job-42',
+        game_id: 42,
+        status: 'processing',
+        error: null,
+        artifact_id: null,
+        artifacts: [],
+        artifacts_count: 0,
+        errors: [],
+        created_at: '2026-02-20T11:10:00Z',
+        updated_at: '2026-02-20T11:10:10Z',
+      });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await vi.advanceTimersByTimeAsync(1500);
+    await flushPromises();
+
+    const retryButton = wrapper
+      .findAll('button')
+      .find((button) => button.attributes('data-label') === 'actions.retry');
+    expect(retryButton).toBeDefined();
+
+    await retryButton?.trigger('click');
+    await flushPromises();
+    await vi.advanceTimersByTimeAsync(1500);
+    await flushPromises();
+
+    expect(mockGetFinaleState).toHaveBeenCalledTimes(2);
+    expect(mockGetFinaleImageJob).toHaveBeenCalledTimes(2);
   });
 
   it('кнопка скачать в Telegram использует telegram-file и downloadFile', async () => {
@@ -543,7 +653,7 @@ describe('GameFinalePage', () => {
 
     const downloadButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('icon') === 'mdi-download');
+      .find((button) => button.attributes('data-icon') === 'mdi-download');
     expect(downloadButton).toBeDefined();
 
     await downloadButton?.trigger('click');
@@ -579,7 +689,7 @@ describe('GameFinalePage', () => {
 
     const shareButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('icon') === 'mdi-share-variant');
+      .find((button) => button.attributes('data-icon') === 'mdi-share-variant');
     expect(shareButton).toBeDefined();
 
     await shareButton?.trigger('click');
@@ -618,7 +728,7 @@ describe('GameFinalePage', () => {
 
     const shareButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('icon') === 'mdi-share-variant');
+      .find((button) => button.attributes('data-icon') === 'mdi-share-variant');
     expect(shareButton).toBeDefined();
 
     await shareButton?.trigger('click');
