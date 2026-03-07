@@ -1,0 +1,1 @@
+import{aR as m}from"./index-A5TqZeT1.js";import{u as r}from"./settings.store-Cqb5L5iM.js";function g(){const e=r(),{theme:t,isDark:s,isLight:o}=m(e);return{themeMode:t,isDark:s,isLight:o,setTheme:e.setTheme,toggleTheme:e.toggleTheme}}export{g as u};
