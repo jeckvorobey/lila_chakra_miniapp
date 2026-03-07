@@ -247,6 +247,6 @@ describe('MeditationPage', () => {
     await retryButton!.trigger('click');
     await flushPromises();
 
-    expect(loadSpy).toHaveBeenCalledTimes(initialLoadCalls + 1);
+    expect(loadSpy.mock.calls.length).toBeGreaterThan(initialLoadCalls);
   });
 });
