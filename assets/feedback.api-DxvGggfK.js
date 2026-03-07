@@ -1,0 +1,1 @@
+import{a as s}from"./index-CUSnUuoT.js";const r={async createRequest(e){return(await s.post("/feedback/requests",e)).data},async getMyRequests(e){return(await s.get("/feedback/requests/my",{params:{offset:e?.offset??0,limit:e?.limit??50}})).data}};export{r as f};

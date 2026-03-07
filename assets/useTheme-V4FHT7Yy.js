@@ -1,0 +1,1 @@
+import{aW as m}from"./index-CUSnUuoT.js";import{u as r}from"./settings.store-TJd_VChr.js";function g(){const e=r(),{theme:t,isDark:s,isLight:o}=m(e);return{themeMode:t,isDark:s,isLight:o,setTheme:e.setTheme,toggleTheme:e.toggleTheme}}export{g as u};
