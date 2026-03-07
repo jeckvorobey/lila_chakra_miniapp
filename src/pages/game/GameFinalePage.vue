@@ -258,7 +258,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
@@ -288,7 +288,7 @@ const streamReconnectAttempt = ref(0);
 const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
-const MAX_STREAM_RECONNECT_ATTEMPTS = 2;
+const artifactPreviewRequests = new Map<number, Promise<void>>();
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -417,10 +417,6 @@ async function startImageGeneration(): Promise<void> {
   }
 }
 
-function isTerminalImageJobStatus(statusValue: string | null): boolean {
-  return statusValue === 'completed' || statusValue === 'completed_with_errors' || statusValue === 'failed';
-}
-
 function stopImageJobStream(): void {
   if (streamAbortController.value) {
     streamAbortController.value.abort();
@@ -466,48 +462,40 @@ async function refreshArtifactPreviews(): Promise<void> {
 
   for (const artifact of currentArtifacts) {
     if (artifactPreviewUrls.value[artifact.artifact_id]) continue;
-    const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
-    artifactPreviewUrls.value[artifact.artifact_id] = URL.createObjectURL(blob);
+    if (!artifactPreviewRequests.has(artifact.artifact_id)) {
+      artifactPreviewRequests.set(
+        artifact.artifact_id,
+        (async () => {
+          try {
+            const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
+            if (!artifacts.value.some((item) => item.artifact_id === artifact.artifact_id)) {
+              return;
+            }
+            artifactPreviewUrls.value[artifact.artifact_id] = URL.createObjectURL(blob);
+          } catch (error) {
+            console.warn('Failed to preload finale artifact preview', {
+              gameId: gameId.value,
+              artifactId: artifact.artifact_id,
+              error,
+            });
+          } finally {
+            artifactPreviewRequests.delete(artifact.artifact_id);
+          }
+        })(),
+      );
+    }
+    await artifactPreviewRequests.get(artifact.artifact_id);
   }
 }
 
-function getStreamReconnectDelayMs(attempt: number): number {
-  return Math.min(1000 * attempt, 4000);
-}
-
-async function handleImageJobStreamFailure(jobId: string, error: unknown): Promise<void> {
+function handleImageJobStreamFailure(jobId: string, error: unknown): void {
   if (!gameId.value) return;
-  if (streamReconnectAttempt.value >= MAX_STREAM_RECONNECT_ATTEMPTS) {
-    $q.notify({
-      type: 'warning',
-      message: resolveBackendErrorMessage(error),
-    });
-    return;
-  }
-
   streamReconnectAttempt.value += 1;
-  try {
-    const latest = await gamesApi.getFinaleImageJob(gameId.value, jobId);
-    if (finaleState.value) {
-      finaleState.value.image.active_job = latest;
-    }
-    await refreshArtifactPreviews();
-
-    if (isTerminalImageJobStatus(latest.status)) {
-      if (latest.status === 'completed' || latest.status === 'completed_with_errors') {
-        await loadFinaleState();
-      }
-      return;
-    }
-  } catch {
-    // no-op: продолжим попытку переподключения
-  }
-
-  await new Promise((resolve) =>
-    setTimeout(resolve, getStreamReconnectDelayMs(streamReconnectAttempt.value)),
-  );
-  if (streamJobId.value !== jobId) return;
-  await startImageJobStream(jobId, { resetRetry: false });
+  stopImageJobStream();
+  $q.notify({
+    type: 'warning',
+    message: resolveBackendErrorMessage(error),
+  });
 }
 
 async function startImageJobStream(
@@ -551,7 +539,7 @@ async function startImageJobStream(
     }
   } catch (error) {
     if (controller.signal.aborted) return;
-    await handleImageJobStreamFailure(jobId, error);
+    handleImageJobStreamFailure(jobId, error);
   } finally {
     if (streamAbortController.value === controller) {
       streamAbortController.value = null;
@@ -611,12 +599,6 @@ onMounted(() => {
 onUnmounted(() => {
   stopImageJobStream();
   clearArtifactPreviews();
+  artifactPreviewRequests.clear();
 });
-
-watch(
-  () => artifacts.value.map((artifact) => artifact.artifact_id).join(','),
-  () => {
-    void refreshArtifactPreviews();
-  },
-);
 </script>

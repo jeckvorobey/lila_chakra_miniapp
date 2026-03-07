@@ -10,8 +10,8 @@ const {
   mockGenerateFinaleMentor,
   mockGenerateFinaleSummary,
   mockGenerateFinaleImage,
-  mockGetFinaleImageJob,
   mockDownloadFinaleImage,
+  mockStreamFinaleImageJob,
   mockRoute,
 } = vi.hoisted(() => ({
   mockNotify: vi.fn(),
@@ -20,8 +20,8 @@ const {
   mockGenerateFinaleMentor: vi.fn(),
   mockGenerateFinaleSummary: vi.fn(),
   mockGenerateFinaleImage: vi.fn(),
-  mockGetFinaleImageJob: vi.fn(),
   mockDownloadFinaleImage: vi.fn(),
+  mockStreamFinaleImageJob: vi.fn(),
   mockRoute: {
     params: {
       gameId: '42',
@@ -56,8 +56,8 @@ vi.mock('src/services/api', () => ({
     generateFinaleMentor: mockGenerateFinaleMentor,
     generateFinaleSummary: mockGenerateFinaleSummary,
     generateFinaleImage: mockGenerateFinaleImage,
-    getFinaleImageJob: mockGetFinaleImageJob,
     downloadFinaleImage: mockDownloadFinaleImage,
+    streamFinaleImageJob: mockStreamFinaleImageJob,
   },
 }));
 
@@ -129,6 +129,16 @@ function buildFinaleState(summary: object | null = null) {
   };
 }
 
+function buildArtifact(artifactId: number) {
+  return {
+    artifact_id: artifactId,
+    file_name: `finale-${artifactId}.png`,
+    mime_type: 'image/png',
+    generation_index: artifactId,
+    created_at: '2026-02-20T11:10:00Z',
+  };
+}
+
 function buildGameDetail() {
   return {
     id: 42,
@@ -165,8 +175,11 @@ describe('GameFinalePage', () => {
     });
     mockGenerateFinaleSummary.mockResolvedValue({});
     mockGenerateFinaleImage.mockResolvedValue({});
-    mockGetFinaleImageJob.mockResolvedValue({});
     mockDownloadFinaleImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }));
+    mockStreamFinaleImageJob.mockImplementation(async function* () {
+      await Promise.resolve();
+      yield* [];
+    });
   });
 
   it('при загрузке не вызывает автогенерацию финального ответа', async () => {
@@ -241,5 +254,86 @@ describe('GameFinalePage', () => {
     await flushPromises();
 
     expect(wrapper.find('[data-test="mentor-loading"]').exists()).toBe(true);
+  });
+
+  it('при загрузке предзагружает превью артефакта только один раз', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+
+    mountPage();
+    await flushPromises();
+
+    expect(mockDownloadFinaleImage).toHaveBeenCalledTimes(1);
+    expect(mockDownloadFinaleImage).toHaveBeenCalledWith(42, 26);
+  });
+
+  it('не падает при 404 на автопредзагрузке превью', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+    mockDownloadFinaleImage.mockRejectedValueOnce(
+      new Error('Request failed with status code 404'),
+    );
+
+    mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    expect(mockNotify).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
+  });
+
+  it('при ошибке SSE не делает fallback на status endpoint и показывает warning', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [],
+        latest_artifact: null,
+        active_job: {
+          job_id: 'job-42',
+          game_id: 42,
+          status: 'processing',
+          error: null,
+          artifact_id: null,
+          artifacts: [],
+          artifacts_count: 0,
+          errors: [],
+          created_at: '2026-02-20T11:10:00Z',
+          updated_at: '2026-02-20T11:10:00Z',
+        },
+        free_generations_left: 0,
+      },
+    });
+    mockStreamFinaleImageJob.mockImplementation(async function* () {
+      await Promise.resolve();
+      yield* [];
+      throw new Error('errors.ai_internal_error');
+    });
+
+    mountPage();
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
+
+    expect(mockStreamFinaleImageJob).toHaveBeenCalledOnce();
+    expect(mockNotify).toHaveBeenCalledWith({
+      type: 'warning',
+      message: 'errors.ai_internal_error',
+    });
   });
 });
