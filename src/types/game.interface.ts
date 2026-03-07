@@ -164,6 +164,17 @@ export interface GameFinaleImageState {
   free_generations_left: number;
 }
 
+export interface GameFinaleImageDownloadLink {
+  url: string;
+  file_name: string;
+  mime_type: string;
+  expires_at: string;
+}
+
+export interface GameFinaleTelegramSharePayload extends GameFinaleImageDownloadLink {
+  share_message_id: string;
+}
+
 export interface GameFinaleState {
   game_id: number;
   summary: GameFinaleSummary | null;

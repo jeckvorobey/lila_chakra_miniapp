@@ -163,6 +163,41 @@ export function useTelegram() {
     tg?.close?.();
   }
 
+  function shareToStory(
+    mediaUrl: string,
+    params?: {
+      text?: string;
+      widget_link?: {
+        url: string;
+        name?: string;
+      };
+    },
+  ): boolean {
+    if (!tg?.shareToStory) return false;
+    tg.shareToStory(mediaUrl, params);
+    return true;
+  }
+
+  function shareMessage(messageId: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!tg?.shareMessage) {
+        resolve(false);
+        return;
+      }
+      tg.shareMessage(messageId, (success) => resolve(Boolean(success)));
+    });
+  }
+
+  function downloadFile(params: { url: string; file_name: string }): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!tg?.downloadFile) {
+        resolve(false);
+        return;
+      }
+      tg.downloadFile(params, (accepted) => resolve(Boolean(accepted)));
+    });
+  }
+
   // Обработчики событий
   let themeChangedHandler: (() => void) | null = null;
   let viewportChangedHandler: (() => void) | null = null;
@@ -228,6 +263,9 @@ export function useTelegram() {
     // Ссылки
     openLink,
     openTelegramLink,
+    shareToStory,
+    shareMessage,
+    downloadFile,
 
     // Закрытие
     enableClosingConfirmation,

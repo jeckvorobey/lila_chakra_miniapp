@@ -147,12 +147,9 @@
               class="q-mt-sm"
             >
               <q-carousel
-                v-if="artifacts.length > 1"
+                v-if="artifacts.length > 0"
                 v-model="selectedArtifactId"
                 animated
-                arrows
-                swipeable
-                infinite
                 v-model:fullscreen="fullscreen"
               >
                 <q-carousel-slide
@@ -263,6 +260,7 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useQuasar } from 'quasar';
 import { AxiosError } from 'axios';
+import { useTelegram } from 'src/composables/useTelegram';
 import { gamesApi } from 'src/services/api';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import type {
@@ -275,6 +273,7 @@ import type {
 const route = useRoute();
 const { t } = useI18n();
 const $q = useQuasar();
+const telegram = useTelegram();
 
 const finaleState = ref<GameFinaleState | null>(null);
 const gameData = ref<GameDetail | null>(null);
@@ -537,6 +536,12 @@ async function startImageJobStream(
         return;
       }
     }
+
+    // Иногда SSE соединение закрывается без финального `done`.
+    // В этом случае перечитываем итоговое состояние, чтобы не оставлять UI в loading.
+    if (!controller.signal.aborted) {
+      await loadFinaleState();
+    }
   } catch (error) {
     if (controller.signal.aborted) return;
     handleImageJobStreamFailure(jobId, error);
@@ -550,7 +555,7 @@ async function startImageJobStream(
   }
 }
 
-async function downloadCurrentArtifact(): Promise<void> {
+async function downloadCurrentArtifactViaBrowser(): Promise<void> {
   const artifact = selectedArtifact.value;
   if (!artifact) return;
 
@@ -565,14 +570,110 @@ async function downloadCurrentArtifact(): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
+function buildTelegramStoryLink(): { url: string; name: string } | undefined {
+  if (typeof window === 'undefined') return undefined;
+  return {
+    url: window.location.href,
+    name: t('finale.share_story_link'),
+  };
+}
+
+async function downloadCurrentArtifact(): Promise<void> {
+  const artifact = selectedArtifact.value;
+  if (!artifact) return;
+
+  try {
+    if (telegram.isAvailable.value && telegram.tg?.downloadFile) {
+      const filePayload = await gamesApi.getFinaleImageTelegramFile(gameId.value, artifact.artifact_id);
+      const accepted = await telegram.downloadFile({
+        url: filePayload.url,
+        file_name: filePayload.file_name,
+      });
+      if (accepted) {
+        return;
+      }
+    }
+
+    await downloadCurrentArtifactViaBrowser();
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: resolveBackendErrorMessage(error),
+    });
+  }
+}
+
 async function shareCurrentArtifact(): Promise<void> {
   const artifact = selectedArtifact.value;
   if (!artifact) return;
 
   try {
+    if (telegram.isAvailable.value && (telegram.tg?.shareToStory || telegram.tg?.shareMessage)) {
+      const sharePayload = await gamesApi.createFinaleImageTelegramShare(
+        gameId.value,
+        artifact.artifact_id,
+      );
+      const buttons: Array<{ id: string; type: 'default' | 'cancel'; text: string }> = [];
+      if (telegram.tg.shareToStory) {
+        buttons.push({
+          id: 'story',
+          type: 'default' as const,
+          text: t('finale.share_story_option'),
+        });
+      }
+      if (telegram.tg.shareMessage) {
+        buttons.push({
+          id: 'friends',
+          type: 'default' as const,
+          text: t('finale.share_friends_option'),
+        });
+      }
+      buttons.push({
+        id: 'cancel',
+        type: 'cancel' as const,
+        text: t('actions.cancel'),
+      });
+
+      const actionId = await telegram.showPopup({
+        title: t('finale.share'),
+        message: t('finale.share_popup_message'),
+        buttons,
+      });
+
+      if (actionId === 'story' && telegram.tg.shareToStory) {
+        const storyParams: {
+          text?: string;
+          widget_link?: {
+            url: string;
+            name?: string;
+          };
+        } = {
+          text: summary.value?.path_phrase || t('finale.share_title'),
+        };
+        const storyLink = buildTelegramStoryLink();
+        if (storyLink) {
+          storyParams.widget_link = storyLink;
+        }
+        const storyShared = telegram.shareToStory(sharePayload.url, storyParams);
+        if (!storyShared) {
+          $q.notify({ type: 'warning', message: t('finale.share_story_unavailable') });
+        }
+        return;
+      }
+
+      if (actionId === 'friends' && telegram.tg.shareMessage) {
+        const shared = await telegram.shareMessage(sharePayload.share_message_id);
+        if (!shared) {
+          $q.notify({ type: 'warning', message: t('finale.share_friends_unavailable') });
+        }
+        return;
+      }
+
+      return;
+    }
+
     const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
     const file = new File([blob], artifact.file_name, { type: artifact.mime_type });
-
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       await navigator.share({
         files: [file],
@@ -582,7 +683,7 @@ async function shareCurrentArtifact(): Promise<void> {
       return;
     }
 
-    await downloadCurrentArtifact();
+    await downloadCurrentArtifactViaBrowser();
     $q.notify({ type: 'info', message: t('finale.share_fallback') });
   } catch (error) {
     $q.notify({

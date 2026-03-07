@@ -11,8 +11,14 @@ const {
   mockGenerateFinaleSummary,
   mockGenerateFinaleImage,
   mockDownloadFinaleImage,
+  mockGetFinaleImageTelegramFile,
+  mockCreateFinaleImageTelegramShare,
   mockStreamFinaleImageJob,
   mockRoute,
+  mockTelegramShowPopup,
+  mockTelegramDownloadFile,
+  mockTelegramShareToStory,
+  mockTelegramShareMessage,
 } = vi.hoisted(() => ({
   mockNotify: vi.fn(),
   mockGetFinaleState: vi.fn(),
@@ -21,12 +27,18 @@ const {
   mockGenerateFinaleSummary: vi.fn(),
   mockGenerateFinaleImage: vi.fn(),
   mockDownloadFinaleImage: vi.fn(),
+  mockGetFinaleImageTelegramFile: vi.fn(),
+  mockCreateFinaleImageTelegramShare: vi.fn(),
   mockStreamFinaleImageJob: vi.fn(),
   mockRoute: {
     params: {
       gameId: '42',
     },
   },
+  mockTelegramShowPopup: vi.fn(),
+  mockTelegramDownloadFile: vi.fn(),
+  mockTelegramShareToStory: vi.fn(),
+  mockTelegramShareMessage: vi.fn(),
 }));
 
 vi.mock('vue-router', () => ({
@@ -57,8 +69,25 @@ vi.mock('src/services/api', () => ({
     generateFinaleSummary: mockGenerateFinaleSummary,
     generateFinaleImage: mockGenerateFinaleImage,
     downloadFinaleImage: mockDownloadFinaleImage,
+    getFinaleImageTelegramFile: mockGetFinaleImageTelegramFile,
+    createFinaleImageTelegramShare: mockCreateFinaleImageTelegramShare,
     streamFinaleImageJob: mockStreamFinaleImageJob,
   },
+}));
+
+vi.mock('src/composables/useTelegram', () => ({
+  useTelegram: () => ({
+    tg: {
+      downloadFile: mockTelegramDownloadFile,
+      shareToStory: mockTelegramShareToStory,
+      shareMessage: mockTelegramShareMessage,
+    },
+    isAvailable: { value: true },
+    showPopup: mockTelegramShowPopup,
+    downloadFile: mockTelegramDownloadFile,
+    shareToStory: mockTelegramShareToStory,
+    shareMessage: mockTelegramShareMessage,
+  }),
 }));
 
 const QBtnStub = defineComponent({
@@ -176,6 +205,23 @@ describe('GameFinalePage', () => {
     mockGenerateFinaleSummary.mockResolvedValue({});
     mockGenerateFinaleImage.mockResolvedValue({});
     mockDownloadFinaleImage.mockResolvedValue(new Blob(['x'], { type: 'image/png' }));
+    mockGetFinaleImageTelegramFile.mockResolvedValue({
+      url: 'https://example.com/public/finale-image/token',
+      file_name: 'finale-26.png',
+      mime_type: 'image/png',
+      expires_at: '2026-03-07T12:00:00Z',
+    });
+    mockCreateFinaleImageTelegramShare.mockResolvedValue({
+      url: 'https://example.com/public/finale-image/token',
+      file_name: 'finale-26.png',
+      mime_type: 'image/png',
+      expires_at: '2026-03-07T12:00:00Z',
+      share_message_id: 'prepared-message-id',
+    });
+    mockTelegramShowPopup.mockResolvedValue('cancel');
+    mockTelegramDownloadFile.mockResolvedValue(true);
+    mockTelegramShareMessage.mockResolvedValue(true);
+    mockTelegramShareToStory.mockReturnValue(true);
     mockStreamFinaleImageJob.mockImplementation(async function* () {
       await Promise.resolve();
       yield* [];
@@ -335,5 +381,155 @@ describe('GameFinalePage', () => {
       type: 'warning',
       message: 'errors.ai_internal_error',
     });
+  });
+
+  it('при тихом завершении SSE перечитывает финальное состояние и показывает артефакт', async () => {
+    mockGetFinaleState
+      .mockResolvedValueOnce({
+        ...buildFinaleState(),
+        image: {
+          artifacts: [],
+          latest_artifact: null,
+          active_job: {
+            job_id: 'job-42',
+            game_id: 42,
+            status: 'processing',
+            error: null,
+            artifact_id: null,
+            artifacts: [],
+            artifacts_count: 0,
+            errors: [],
+            created_at: '2026-02-20T11:10:00Z',
+            updated_at: '2026-02-20T11:10:00Z',
+          },
+          free_generations_left: 0,
+        },
+      })
+      .mockResolvedValueOnce({
+        ...buildFinaleState(),
+        image: {
+          artifacts: [buildArtifact(26)],
+          latest_artifact: buildArtifact(26),
+          active_job: null,
+          free_generations_left: 0,
+        },
+      });
+
+    mockStreamFinaleImageJob.mockImplementation(async function* () {
+      await Promise.resolve();
+      yield* [];
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
+
+    expect(mockGetFinaleState).toHaveBeenCalledTimes(2);
+    expect(mockDownloadFinaleImage).toHaveBeenCalledWith(42, 26);
+    expect(wrapper.text()).toContain('finale.image_ready');
+  });
+
+  it('кнопка скачать в Telegram использует telegram-file и downloadFile', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    const downloadButton = wrapper
+      .findAll('button')
+      .find((button) => button.attributes('data-label') === 'finale.download');
+    expect(downloadButton).toBeDefined();
+
+    await downloadButton?.trigger('click');
+    await flushPromises();
+
+    expect(mockGetFinaleImageTelegramFile).toHaveBeenCalledWith(42, 26);
+    expect(mockTelegramDownloadFile).toHaveBeenCalledWith({
+      url: 'https://example.com/public/finale-image/token',
+      file_name: 'finale-26.png',
+    });
+  });
+
+  it('кнопка поделиться предлагает сторис и вызывает shareToStory', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState({
+        mentor_text: 'Тестовый итог',
+        path_phrase: 'Мой путь света',
+        source: 'ai',
+        generated_at: '2026-02-20T11:10:00Z',
+      }),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+    mockTelegramShowPopup.mockResolvedValueOnce('story');
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    const shareButton = wrapper
+      .findAll('button')
+      .find((button) => button.attributes('data-label') === 'finale.share');
+    expect(shareButton).toBeDefined();
+
+    await shareButton?.trigger('click');
+    await flushPromises();
+
+    expect(mockCreateFinaleImageTelegramShare).toHaveBeenCalledWith(42, 26);
+    expect(mockTelegramShowPopup).toHaveBeenCalled();
+    expect(mockTelegramShareToStory).toHaveBeenCalledWith(
+      'https://example.com/public/finale-image/token',
+      expect.objectContaining({
+        text: 'Мой путь света',
+      }),
+    );
+  });
+
+  it('кнопка поделиться умеет отправлять друзьям через shareMessage', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState({
+        mentor_text: 'Тестовый итог',
+        path_phrase: 'Мой путь света',
+        source: 'ai',
+        generated_at: '2026-02-20T11:10:00Z',
+      }),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+    mockTelegramShowPopup.mockResolvedValueOnce('friends');
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    const shareButton = wrapper
+      .findAll('button')
+      .find((button) => button.attributes('data-label') === 'finale.share');
+    expect(shareButton).toBeDefined();
+
+    await shareButton?.trigger('click');
+    await flushPromises();
+
+    expect(mockTelegramShareMessage).toHaveBeenCalledWith('prepared-message-id');
   });
 });

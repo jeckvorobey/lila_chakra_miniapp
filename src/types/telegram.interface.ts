@@ -106,6 +106,24 @@ export interface TelegramWebApp {
 
   // Поделиться
   switchInlineQuery(query: string, chooseChatTypes?: string[]): void;
+  shareMessage?(msgId: string, callback?: (success: boolean) => void): void;
+  shareToStory?(
+    mediaUrl: string,
+    params?: {
+      text?: string;
+      widget_link?: {
+        url: string;
+        name?: string;
+      };
+    },
+  ): void;
+  downloadFile?(
+    params: {
+      url: string;
+      file_name: string;
+    },
+    callback?: (accepted: boolean) => void,
+  ): void;
 
   // Открыть ссылки
   openLink(url: string, options?: { try_instant_view?: boolean }): void;

@@ -98,7 +98,7 @@
             v-if="!isAssistantComposerOpen"
             :label="$t('query.assistant.describe')"
             color="accent"
-            outline
+            unelevated
             no-caps
             class="full-width q-mb-sm query-page__assistant-action-btn"
             @click="openAssistantComposer"
@@ -113,6 +113,7 @@
               type="textarea"
               :placeholder="$t('query.assistant.situation_placeholder')"
               outlined
+              color="secondary"
               autogrow
               :maxlength="500"
               counter
@@ -121,7 +122,7 @@
             <q-btn
               :label="$t('query.assistant.send')"
               color="accent"
-              outline
+              unelevated
               no-caps
               class="full-width query-page__assistant-action-btn"
               :loading="isSuggestionsLoading"
@@ -492,6 +493,7 @@ async function executeStartGame() {
     background: var(--color-surface);
     padding: 16px;
     overflow: hidden;
+    border-color: var(--q-secondary);
   }
 
   &__assistant-card :deep(.q-list) {

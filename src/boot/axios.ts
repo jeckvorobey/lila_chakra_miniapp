@@ -109,12 +109,26 @@ export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
 
   api.interceptors.request.use((config) => {
+    const headers = AxiosHeaders.from(config.headers);
+    
     const telegramInitData = getTelegramInitData();
     if (telegramInitData) {
-      const headers = AxiosHeaders.from(config.headers);
       headers.set('X-Telegram-Init-Data', telegramInitData);
-      config.headers = headers;
     }
+
+    // Предотвращение агрессивного кэширования GET-запросов (особенно в Telegram Web App на мобильных)
+    if (config.method?.toLowerCase() === 'get') {
+      config.params = {
+        ...config.params,
+        _t: Date.now(),
+      };
+      
+      headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      headers.set('Pragma', 'no-cache');
+      headers.set('Expires', '0');
+    }
+
+    config.headers = headers;
     return config;
   });
 

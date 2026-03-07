@@ -10,8 +10,10 @@ import type {
   GameDetail,
   GameDiaryResponse,
   GameFinaleImageJob,
+  GameFinaleImageDownloadLink,
   GameFinaleState,
   GameFinaleSummary,
+  GameFinaleTelegramSharePayload,
   GameListResponse,
   GameOut,
   MoveOut,
@@ -256,6 +258,32 @@ export const gamesApi = {
     const response = await api.get<Blob>(`/games/${gameId}/finale/image/${artifactId}/download`, {
       responseType: 'blob',
     });
+    return response.data;
+  },
+
+  /**
+   * Получить временную Telegram-совместимую ссылку на артефакт.
+   */
+  async getFinaleImageTelegramFile(
+    gameId: number,
+    artifactId: number,
+  ): Promise<GameFinaleImageDownloadLink> {
+    const response = await api.get<GameFinaleImageDownloadLink>(
+      `/games/${gameId}/finale/image/${artifactId}/telegram-file`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Подготовить Telegram payload для сторис и пересылки в чаты.
+   */
+  async createFinaleImageTelegramShare(
+    gameId: number,
+    artifactId: number,
+  ): Promise<GameFinaleTelegramSharePayload> {
+    const response = await api.post<GameFinaleTelegramSharePayload>(
+      `/games/${gameId}/finale/image/${artifactId}/telegram-share`,
+    );
     return response.data;
   },
 
