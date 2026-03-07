@@ -1,0 +1,1 @@
+import{aR as m}from"./index-CvOr1zh7.js";import{u as r}from"./settings.store-BD-3qSpf.js";function g(){const e=r(),{theme:t,isDark:s,isLight:o}=m(e);return{themeMode:t,isDark:s,isLight:o,setTheme:e.setTheme,toggleTheme:e.toggleTheme}}export{g as u};

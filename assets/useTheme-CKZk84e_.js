@@ -1,1 +1,0 @@
-import{aR as m}from"./index-ZVIV-hIV.js";import{u as r}from"./settings.store-BkUNBao3.js";function g(){const e=r(),{theme:t,isDark:s,isLight:o}=m(e);return{themeMode:t,isDark:s,isLight:o,setTheme:e.setTheme,toggleTheme:e.toggleTheme}}export{g as u};
