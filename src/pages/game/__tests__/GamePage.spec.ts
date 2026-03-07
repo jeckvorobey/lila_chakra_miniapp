@@ -44,7 +44,9 @@ describe('GamePage', () => {
 
   it('во время восстановления активной игры показывает skeleton', async () => {
     mockGameStore.isGameActive = false;
-    let resolveLoad: ((value: boolean) => void) | null = null;
+    let resolveLoad: (value: boolean) => void = () => {
+      throw new Error('resolveLoad was called before initialization');
+    };
     mockLoadLatestActiveGame.mockImplementation(
       () =>
         new Promise<boolean>((resolve) => {
@@ -67,7 +69,7 @@ describe('GamePage', () => {
     expect(wrapper.find('[data-testid="empty-state"]').exists()).toBe(false);
     expect(wrapper.find('[data-testid="active-state"]').exists()).toBe(false);
 
-    resolveLoad?.(false);
+    resolveLoad(false);
     await flushPromises();
 
     expect(mockLoadLatestActiveGame).toHaveBeenCalledOnce();

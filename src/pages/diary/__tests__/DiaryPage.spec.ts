@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import { nextTick } from 'vue';
 import DiaryPage from '../DiaryPage.vue';
+import type { GameListResponse } from 'src/types/game.interface';
 
 const { mockRouterPush, mockGamesList, mockLoadGame } = vi.hoisted(() => ({
   mockRouterPush: vi.fn(),
@@ -117,10 +118,12 @@ describe('DiaryPage', () => {
   });
 
   it('показывает skeleton пока загружается список игр', async () => {
-    let resolveList: ((value: unknown) => void) | null = null;
+    let resolveList: (value: GameListResponse) => void = () => {
+      throw new Error('resolveList was called before initialization');
+    };
     mockGamesList.mockImplementation(
       () =>
-        new Promise((resolve) => {
+        new Promise<GameListResponse>((resolve) => {
           resolveList = resolve;
         }),
     );
@@ -156,7 +159,7 @@ describe('DiaryPage', () => {
     await nextTick();
     expect(wrapper.find('[data-testid="page-skeleton"]').exists()).toBe(true);
 
-    resolveList?.({
+    resolveList({
       items: [],
       total: 0,
       offset: 0,
