@@ -5,7 +5,7 @@
 
 import { ref, computed, inject, onMounted, onUnmounted } from 'vue';
 import type { TelegramWebApp, TelegramUser } from 'src/types/telegram.interface';
-import { getTelegramWebApp, isInTelegram } from 'src/boot/telegram';
+import { getTelegramWebApp, isInTelegram } from 'src/lib/telegram-webapp';
 
 export function useTelegram() {
   // Попытаться получить внедрённый экземпляр или получить напрямую

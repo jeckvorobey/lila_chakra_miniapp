@@ -196,9 +196,7 @@
                 v-if="shouldShowImageLoader"
                 class="column items-center"
               >
-                <l-ai-loader
-                  :text="t('finale.image_generation_wait')"
-                />
+                <l-ai-loader :text="t('finale.image_generation_wait')" />
               </div>
               <span
                 v-else-if="activeJobStatus === 'failed'"
@@ -214,8 +212,8 @@
               </span>
             </div>
 
-            <div class="row q-col-gutter-sm q-mt-md">
-              <div class="col-12 col-sm-4">
+            <div class="row items-center q-gutter-x-sm q-mt-md no-wrap">
+              <div class="col grow">
                 <q-btn
                   class="full-width"
                   color="primary"
@@ -226,25 +224,29 @@
                   @click="startImageGeneration"
                 />
               </div>
-              <div class="col-12 col-sm-4">
+              <div class="col-auto row items-center q-gutter-x-xs">
                 <q-btn
-                  class="full-width"
-                  outline
+                  round
+                  flat
+                  dense
                   color="secondary"
+                  icon="mdi-download"
                   :disable="!selectedArtifact"
-                  :label="t('finale.download')"
                   @click="downloadCurrentArtifact"
-                />
-              </div>
-              <div class="col-12 col-sm-4">
+                >
+                  <q-tooltip>{{ t('finale.download') }}</q-tooltip>
+                </q-btn>
                 <q-btn
-                  class="full-width"
-                  outline
+                  round
+                  flat
+                  dense
                   color="accent"
+                  icon="mdi-share-variant"
                   :disable="!selectedArtifact"
-                  :label="t('finale.share')"
                   @click="shareCurrentArtifact"
-                />
+                >
+                  <q-tooltip>{{ t('finale.share') }}</q-tooltip>
+                </q-btn>
               </div>
             </div>
           </q-card-section>
@@ -288,6 +290,8 @@ const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
 const artifactPreviewRequests = new Map<number, Promise<void>>();
+let isRefreshingArtifactPreviews = false;
+let shouldRefreshArtifactPreviewsAgain = false;
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -487,6 +491,25 @@ async function refreshArtifactPreviews(): Promise<void> {
   }
 }
 
+function scheduleArtifactPreviewRefresh(): void {
+  if (isRefreshingArtifactPreviews) {
+    shouldRefreshArtifactPreviewsAgain = true;
+    return;
+  }
+
+  isRefreshingArtifactPreviews = true;
+  void (async () => {
+    try {
+      do {
+        shouldRefreshArtifactPreviewsAgain = false;
+        await refreshArtifactPreviews();
+      } while (shouldRefreshArtifactPreviewsAgain);
+    } finally {
+      isRefreshingArtifactPreviews = false;
+    }
+  })();
+}
+
 function handleImageJobStreamFailure(jobId: string, error: unknown): void {
   if (!gameId.value) return;
   streamReconnectAttempt.value += 1;
@@ -497,10 +520,7 @@ function handleImageJobStreamFailure(jobId: string, error: unknown): void {
   });
 }
 
-async function startImageJobStream(
-  jobId: string,
-  options: { resetRetry: boolean },
-): Promise<void> {
+async function startImageJobStream(jobId: string, options: { resetRetry: boolean }): Promise<void> {
   if (!gameId.value) return;
   if (streamJobId.value === jobId && streamAbortController.value) return;
 
@@ -514,7 +534,11 @@ async function startImageJobStream(
   streamJobId.value = jobId;
 
   try {
-    for await (const event of gamesApi.streamFinaleImageJob(gameId.value, jobId, controller.signal)) {
+    for await (const event of gamesApi.streamFinaleImageJob(
+      gameId.value,
+      jobId,
+      controller.signal,
+    )) {
       if (!finaleState.value) continue;
       if (event.type === 'meta' || event.type === 'progress') {
         finaleState.value.image.active_job = event.job;
@@ -522,7 +546,7 @@ async function startImageJobStream(
       }
       if (event.type === 'artifact') {
         finaleState.value.image.active_job = event.job;
-        await refreshArtifactPreviews();
+        scheduleArtifactPreviewRefresh();
         continue;
       }
       if (event.type === 'done') {
@@ -530,7 +554,7 @@ async function startImageJobStream(
         if (event.job.status === 'completed' || event.job.status === 'completed_with_errors') {
           await loadFinaleState();
         } else {
-          await refreshArtifactPreviews();
+          scheduleArtifactPreviewRefresh();
           stopImageJobStream();
         }
         return;
@@ -584,7 +608,10 @@ async function downloadCurrentArtifact(): Promise<void> {
 
   try {
     if (telegram.isAvailable.value && telegram.tg?.downloadFile) {
-      const filePayload = await gamesApi.getFinaleImageTelegramFile(gameId.value, artifact.artifact_id);
+      const filePayload = await gamesApi.getFinaleImageTelegramFile(
+        gameId.value,
+        artifact.artifact_id,
+      );
       const accepted = await telegram.downloadFile({
         url: filePayload.url,
         file_name: filePayload.file_name,

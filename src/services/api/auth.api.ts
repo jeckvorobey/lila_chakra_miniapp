@@ -1,4 +1,4 @@
-import { api } from 'src/boot/axios';
+import { api } from 'src/lib/api-client';
 import type { TelegramAuthRequest, TelegramAuthResponse } from 'src/types/auth.interface';
 
 /**

@@ -432,6 +432,100 @@ describe('GameFinalePage', () => {
     expect(wrapper.text()).toContain('finale.image_ready');
   });
 
+  it('не блокирует завершение SSE, если предзагрузка превью артефакта зависла', async () => {
+    mockGetFinaleState
+      .mockResolvedValueOnce({
+        ...buildFinaleState({
+          mentor_text: 'Итог',
+          path_phrase: 'phrase',
+          source: 'ai',
+          generated_at: '2026-02-20T11:10:00Z',
+        }),
+        image: {
+          artifacts: [],
+          latest_artifact: null,
+          active_job: {
+            job_id: 'job-42',
+            game_id: 42,
+            status: 'processing',
+            error: null,
+            artifact_id: null,
+            artifacts: [],
+            artifacts_count: 0,
+            errors: [],
+            created_at: '2026-02-20T11:10:00Z',
+            updated_at: '2026-02-20T11:10:00Z',
+          },
+          free_generations_left: 0,
+        },
+      })
+      .mockResolvedValueOnce({
+        ...buildFinaleState({
+          mentor_text: 'Итог',
+          path_phrase: 'phrase',
+          source: 'ai',
+          generated_at: '2026-02-20T11:10:00Z',
+        }),
+        image: {
+          artifacts: [buildArtifact(26)],
+          latest_artifact: buildArtifact(26),
+          active_job: null,
+          free_generations_left: 0,
+        },
+      });
+
+    mockDownloadFinaleImage.mockImplementation(
+      () => new Promise<Blob>(() => undefined),
+    );
+    mockStreamFinaleImageJob.mockImplementation(async function* () {
+      await Promise.resolve();
+      yield {
+        type: 'artifact',
+        artifact: buildArtifact(26),
+        job: {
+          job_id: 'job-42',
+          game_id: 42,
+          status: 'processing',
+          error: null,
+          artifact_id: 26,
+          artifacts: [buildArtifact(26)],
+          artifacts_count: 1,
+          errors: [],
+          created_at: '2026-02-20T11:10:00Z',
+          updated_at: '2026-02-20T11:10:05Z',
+        },
+      };
+      yield {
+        type: 'done',
+        job: {
+          job_id: 'job-42',
+          game_id: 42,
+          status: 'completed',
+          error: null,
+          artifact_id: 26,
+          artifacts: [buildArtifact(26)],
+          artifacts_count: 1,
+          errors: [],
+          created_at: '2026-02-20T11:10:00Z',
+          updated_at: '2026-02-20T11:10:06Z',
+        },
+      };
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushPromises();
+
+    expect(mockGetFinaleState).toHaveBeenCalledTimes(2);
+    expect(mockStreamFinaleImageJob).toHaveBeenCalledOnce();
+    expect(mockNotify).not.toHaveBeenCalled();
+    expect(mockDownloadFinaleImage).toHaveBeenCalledTimes(1);
+    expect(wrapper.exists()).toBe(true);
+    wrapper.unmount();
+  });
+
   it('кнопка скачать в Telegram использует telegram-file и downloadFile', async () => {
     mockGetFinaleState.mockResolvedValue({
       ...buildFinaleState(),
@@ -449,7 +543,7 @@ describe('GameFinalePage', () => {
 
     const downloadButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('data-label') === 'finale.download');
+      .find((button) => button.attributes('icon') === 'mdi-download');
     expect(downloadButton).toBeDefined();
 
     await downloadButton?.trigger('click');
@@ -485,7 +579,7 @@ describe('GameFinalePage', () => {
 
     const shareButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('data-label') === 'finale.share');
+      .find((button) => button.attributes('icon') === 'mdi-share-variant');
     expect(shareButton).toBeDefined();
 
     await shareButton?.trigger('click');
@@ -524,7 +618,7 @@ describe('GameFinalePage', () => {
 
     const shareButton = wrapper
       .findAll('button')
-      .find((button) => button.attributes('data-label') === 'finale.share');
+      .find((button) => button.attributes('icon') === 'mdi-share-variant');
     expect(shareButton).toBeDefined();
 
     await shareButton?.trigger('click');

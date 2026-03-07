@@ -5,7 +5,7 @@
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
 import { ref, computed } from 'vue';
-import { api } from 'src/boot/axios';
+import { api } from 'src/lib/api-client';
 import { authApi } from 'src/services/api';
 import type { TelegramUser } from 'src/types/telegram.interface';
 

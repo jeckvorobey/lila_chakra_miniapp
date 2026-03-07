@@ -4,31 +4,7 @@
  */
 
 import { boot } from 'quasar/wrappers';
-import type { TelegramWebApp } from 'src/types/telegram.interface';
-
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: TelegramWebApp;
-    };
-  }
-}
-
-/**
- * Получить экземпляр Telegram WebApp
- */
-export function getTelegramWebApp(): TelegramWebApp | null {
-  if (typeof window === 'undefined') return null;
-  return window.Telegram?.WebApp || null;
-}
-
-/**
- * Проверить, запущено ли приложение внутри Telegram
- */
-export function isInTelegram(): boolean {
-  const tg = getTelegramWebApp();
-  return !!tg?.initData && tg.initData.length > 0;
-}
+import { getTelegramWebApp } from 'src/lib/telegram-webapp';
 
 export default boot(({ app }) => {
   const tg = getTelegramWebApp();

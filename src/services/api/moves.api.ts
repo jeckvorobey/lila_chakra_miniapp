@@ -1,4 +1,4 @@
-import { api } from 'src/boot/axios';
+import { api } from 'src/lib/api-client';
 import type { InsightCreate, MoveOut } from 'src/types/game.interface';
 
 /**

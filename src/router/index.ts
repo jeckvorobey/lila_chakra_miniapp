@@ -7,7 +7,7 @@ import {
 } from 'vue-router';
 import routes from './routes';
 import { useGameStore } from 'src/stores/game.store';
-import { isInTelegram } from 'src/boot/telegram';
+import { isInTelegram } from 'src/lib/telegram-webapp';
 
 /*
  * Если вы не собираете с режимом SSR, вы можете

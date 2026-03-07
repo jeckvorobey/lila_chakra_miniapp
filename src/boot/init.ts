@@ -6,7 +6,7 @@ import { boot } from 'quasar/wrappers';
 import { useAuthStore } from 'src/stores/auth.store';
 import { useSettingsStore } from 'src/stores/settings.store';
 import { useUserStore } from 'src/stores/user.store';
-import { isInTelegram } from 'src/boot/telegram';
+import { isInTelegram } from 'src/lib/telegram-webapp';
 
 export default boot(async ({ router }) => {
   const settingsStore = useSettingsStore();

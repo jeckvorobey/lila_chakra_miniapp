@@ -1,4 +1,4 @@
-import { buildApiResourceUrl, api } from 'src/boot/axios';
+import { buildApiResourceUrl, api } from 'src/lib/api-client';
 import type { AudioByTypeResponse, MeditationAudioType } from 'src/types/audio.interface';
 
 /**

@@ -1,4 +1,4 @@
-import { buildApiFetchHeaders, buildApiResourceUrl } from 'src/boot/axios';
+import { buildApiFetchHeaders, buildApiResourceUrl } from 'src/lib/api-client';
 
 /**
  * Выполнить авторизованный fetch к backend с теми же auth/Telegram заголовками,

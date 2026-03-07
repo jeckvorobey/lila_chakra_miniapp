@@ -1,4 +1,4 @@
-import { api } from 'src/boot/axios';
+import { api } from 'src/lib/api-client';
 import type { ReferralProgramData, UserOut, UserStats, UserUpdate } from 'src/types/user.interface';
 import type { TransactionListResponse } from 'src/types/transaction.interface';
 
