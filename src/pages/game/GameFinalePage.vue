@@ -147,11 +147,13 @@
               class="q-mt-sm"
             >
               <q-carousel
+                v-if="artifacts.length > 1"
                 v-model="selectedArtifactId"
                 animated
+                arrows
+                swipeable
+                infinite
                 v-model:fullscreen="fullscreen"
-                class="rounded-borders overflow-hidden"
-                style="height: 300px"
               >
                 <q-carousel-slide
                   v-for="artifact in artifacts"
@@ -159,24 +161,12 @@
                   :name="artifact.artifact_id"
                   class="q-pa-none overflow-hidden"
                 >
-                  <q-img
+                  <img
                     :src="artifactPreviewUrls[artifact.artifact_id]"
-                    class="full-width full-height finale-art-image"
+                    class="full-width full-height rounded-borders"
+                    alt="Finale art"
                     style="object-fit: cover"
-                    :class="{ 'finale-art-image--fullscreen': fullscreen }"
-                  >
-                    <template #loading>
-                      <div class="column items-center justify-center full-height bg-grey-2 text-secondary">
-                        <q-spinner-dots size="42px" />
-                      </div>
-                    </template>
-                    <template #error>
-                      <div class="column items-center justify-center full-height bg-grey-2 text-negative">
-                        <q-icon name="error" size="32px" />
-                        <span class="text-caption">{{ t('error.generic') }}</span>
-                      </div>
-                    </template>
-                  </q-img>
+                  />
                 </q-carousel-slide>
 
                 <template v-slot:control>
@@ -289,11 +279,7 @@ import { useTelegram } from 'src/composables/useTelegram';
 import { gamesApi } from 'src/services/api';
 import { useUserStore } from 'src/stores/user.store';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
-import type {
-  GameFinaleState,
-  GameFinaleSummary,
-  GameDetail,
-} from 'src/types/game.interface';
+import type { GameFinaleState, GameFinaleSummary, GameDetail } from 'src/types/game.interface';
 
 const route = useRoute();
 const { t } = useI18n();
