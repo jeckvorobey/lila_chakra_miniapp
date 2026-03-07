@@ -132,6 +132,7 @@ export interface GameDetail extends GameOut {
 export interface GameFinaleSummary {
   mentor_text: string;
   path_phrase: string;
+  share_phrase: string;
   source: string;
   generated_at: string;
 }

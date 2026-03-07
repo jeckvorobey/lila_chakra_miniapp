@@ -19,6 +19,7 @@ const {
   mockTelegramDownloadFile,
   mockTelegramShareToStory,
   mockTelegramShareMessage,
+  mockFetchReferralProgram,
 } = vi.hoisted(() => ({
   mockNotify: vi.fn(),
   mockGetFinaleState: vi.fn(),
@@ -39,6 +40,7 @@ const {
   mockTelegramDownloadFile: vi.fn(),
   mockTelegramShareToStory: vi.fn(),
   mockTelegramShareMessage: vi.fn(),
+  mockFetchReferralProgram: vi.fn(),
 }));
 
 vi.mock('vue-router', () => ({
@@ -90,6 +92,23 @@ vi.mock('src/composables/useTelegram', () => ({
   }),
 }));
 
+const mockUserStore = {
+  referralProgram: {
+    code: 'ABC123',
+    link: 'https://t.me/lila_test_bot?start=ABC123',
+    total_referrals: 2,
+  },
+  referralData: {
+    code: 'ABC123',
+    link: 'https://t.me/lila_test_bot?start=ABC123',
+  },
+  fetchReferralProgram: mockFetchReferralProgram,
+};
+
+vi.mock('src/stores/user.store', () => ({
+  useUserStore: () => mockUserStore,
+}));
+
 const QBtnStub = defineComponent({
   name: 'QBtnStub',
   props: {
@@ -128,6 +147,9 @@ function mountPage() {
         },
         'q-spinner-dots': {
           template: '<span />',
+        },
+        'q-img': {
+          template: '<div><slot /><slot name="loading" /><slot name="error" /></div>',
         },
         'q-icon': {
           template: '<span />',
@@ -207,6 +229,7 @@ describe('GameFinalePage', () => {
     mockGenerateFinaleMentor.mockResolvedValue({
       mentor_text: 'Итог',
       path_phrase: 'phrase',
+      share_phrase: 'Я прошёл(а) путь и увидел(а) свой следующий шаг.',
       source: 'ai',
       generated_at: '2026-02-20T11:10:00Z',
     });
@@ -253,6 +276,16 @@ describe('GameFinalePage', () => {
     mockTelegramDownloadFile.mockResolvedValue(true);
     mockTelegramShareMessage.mockResolvedValue(true);
     mockTelegramShareToStory.mockReturnValue(true);
+    mockFetchReferralProgram.mockResolvedValue(undefined);
+    mockUserStore.referralProgram = {
+      code: 'ABC123',
+      link: 'https://t.me/lila_test_bot?start=ABC123',
+      total_referrals: 2,
+    };
+    mockUserStore.referralData = {
+      code: 'ABC123',
+      link: 'https://t.me/lila_test_bot?start=ABC123',
+    };
     vi.useRealTimers();
   });
 
@@ -286,6 +319,7 @@ describe('GameFinalePage', () => {
     mockGetFinaleState.mockResolvedValue(
       buildFinaleState({
         mentor_text: 'Уже есть итог',
+        share_phrase: 'Я уже увидел(а) свой следующий шаг.',
         source: 'ai',
       }),
     );
@@ -304,6 +338,7 @@ describe('GameFinalePage', () => {
       buildFinaleState({
         mentor_text: 'Тестовый итог от ментора',
         path_phrase: 'phrase',
+        share_phrase: 'Я прошёл(а) путь и увидел(а) свой следующий шаг.',
         source: 'ai',
         generated_at: '2026-02-20T11:10:00Z',
       }),
@@ -496,6 +531,7 @@ describe('GameFinalePage', () => {
         ...buildFinaleState({
           mentor_text: 'Итог',
           path_phrase: 'phrase',
+          share_phrase: 'Я прошёл(а) путь и увидел(а) свой следующий шаг.',
           source: 'ai',
           generated_at: '2026-02-20T11:10:00Z',
         }),
@@ -521,6 +557,7 @@ describe('GameFinalePage', () => {
         ...buildFinaleState({
           mentor_text: 'Итог',
           path_phrase: 'phrase',
+          share_phrase: 'Я прошёл(а) путь и увидел(а) свой следующий шаг.',
           source: 'ai',
           generated_at: '2026-02-20T11:10:00Z',
         }),
@@ -671,6 +708,7 @@ describe('GameFinalePage', () => {
       ...buildFinaleState({
         mentor_text: 'Тестовый итог',
         path_phrase: 'Мой путь света',
+        share_phrase: 'Я прошёл(а) путь света и понял(а), куда идти дальше.',
         source: 'ai',
         generated_at: '2026-02-20T11:10:00Z',
       }),
@@ -700,7 +738,10 @@ describe('GameFinalePage', () => {
     expect(mockTelegramShareToStory).toHaveBeenCalledWith(
       'https://example.com/public/finale-image/token',
       expect.objectContaining({
-        text: 'Мой путь света',
+        text: 'Я прошёл(а) путь света и понял(а), куда идти дальше.',
+        widget_link: expect.objectContaining({
+          url: 'https://t.me/lila_test_bot?start=ABC123',
+        }),
       }),
     );
   });
@@ -710,6 +751,7 @@ describe('GameFinalePage', () => {
       ...buildFinaleState({
         mentor_text: 'Тестовый итог',
         path_phrase: 'Мой путь света',
+        share_phrase: 'Я прошёл(а) путь света и понял(а), куда идти дальше.',
         source: 'ai',
         generated_at: '2026-02-20T11:10:00Z',
       }),
@@ -735,5 +777,43 @@ describe('GameFinalePage', () => {
     await flushPromises();
 
     expect(mockTelegramShareMessage).toHaveBeenCalledWith('prepared-message-id');
+  });
+
+  it('не блокирует отображение текста итога, пока скачиваются картинки', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState({
+        mentor_text: 'Мгновенный итог',
+        share_phrase: 'Я уже увидел(а) свой следующий шаг.',
+        source: 'ai',
+      }),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+
+    // Имитируем долгую загрузку картинки
+    let resolveDownload: (value: Blob) => void = vi.fn();
+    mockDownloadFinaleImage.mockReturnValue(
+      new Promise((resolve) => {
+        resolveDownload = resolve;
+      }),
+    );
+
+    const wrapper = mountPage();
+    // Первый тик - загрузка метаданных
+    await flushPromises();
+
+    // Текст должен уже быть виден
+    expect(wrapper.text()).toContain('Мгновенный итог');
+    // Глобальный лоадер должен быть выключен (isLoading=false)
+    // В стабе q-spinner рендерится как <span />
+    expect(wrapper.find('q-spinner-stub').exists()).toBe(false);
+
+    // Завершаем загрузку картинки
+    resolveDownload(new Blob(['x'], { type: 'image/png' }));
+    await flushPromises();
   });
 });

@@ -83,7 +83,7 @@
               flat
               color="white"
               :label="t('actions.continue')"
-              @click="loadFinaleState"
+              @click="retryLoadFinaleState"
             />
           </template>
         </q-banner>
@@ -143,14 +143,15 @@
             </div>
 
             <div
-              v-if="selectedArtifactPreviewUrl"
+              v-if="artifacts.length > 0"
               class="q-mt-sm"
             >
               <q-carousel
-                v-if="artifacts.length > 0"
                 v-model="selectedArtifactId"
                 animated
                 v-model:fullscreen="fullscreen"
+                class="rounded-borders overflow-hidden"
+                style="height: 300px"
               >
                 <q-carousel-slide
                   v-for="artifact in artifacts"
@@ -158,13 +159,24 @@
                   :name="artifact.artifact_id"
                   class="q-pa-none overflow-hidden"
                 >
-                  <img
+                  <q-img
                     :src="artifactPreviewUrls[artifact.artifact_id]"
                     class="full-width full-height finale-art-image"
-                    :class="{ 'finale-art-image--fullscreen': fullscreen }"
-                    alt="Finale art"
                     style="object-fit: cover"
-                  />
+                    :class="{ 'finale-art-image--fullscreen': fullscreen }"
+                  >
+                    <template #loading>
+                      <div class="column items-center justify-center full-height bg-grey-2 text-secondary">
+                        <q-spinner-dots size="42px" />
+                      </div>
+                    </template>
+                    <template #error>
+                      <div class="column items-center justify-center full-height bg-grey-2 text-negative">
+                        <q-icon name="error" size="32px" />
+                        <span class="text-caption">{{ t('error.generic') }}</span>
+                      </div>
+                    </template>
+                  </q-img>
                 </q-carousel-slide>
 
                 <template v-slot:control>
@@ -184,12 +196,6 @@
                   </q-carousel-control>
                 </template>
               </q-carousel>
-              <img
-                v-else
-                :src="selectedArtifactPreviewUrl"
-                class="full-width finale-art-image"
-                alt="Finale art"
-              />
             </div>
 
             <div class="q-mt-md text-body2">
@@ -281,6 +287,7 @@ import { AxiosError } from 'axios';
 import { useFinaleImagePolling } from 'src/composables/useFinaleImagePolling';
 import { useTelegram } from 'src/composables/useTelegram';
 import { gamesApi } from 'src/services/api';
+import { useUserStore } from 'src/stores/user.store';
 import LAiLoader from 'src/components/common/LAiLoader.vue';
 import type {
   GameFinaleState,
@@ -292,6 +299,7 @@ const route = useRoute();
 const { t } = useI18n();
 const $q = useQuasar();
 const telegram = useTelegram();
+const userStore = useUserStore();
 
 const finaleState = ref<GameFinaleState | null>(null);
 const gameData = ref<GameDetail | null>(null);
@@ -306,14 +314,18 @@ const artifactPreviewRequests = new Map<number, Promise<void>>();
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
 const hasSummary = computed(() => Boolean(summary.value?.mentor_text?.trim()));
+const referralLink = computed(
+  () => userStore.referralProgram?.link || userStore.referralData?.link || '',
+);
 const imagePolling = useFinaleImagePolling({
   gameId,
   finaleState,
   loadFinaleState: async () => {
-    await loadFinaleState({ resumePolling: false });
+    // ВАЖНО: при пуллинге вызываем loadFinaleState в фоновом режиме без лоадера
+    await loadFinaleState({ resumePolling: false, background: true });
   },
-  generateFinaleImage: gamesApi.generateFinaleImage,
-  getFinaleImageJob: gamesApi.getFinaleImageJob,
+  generateFinaleImage: (currentGameId) => gamesApi.generateFinaleImage(currentGameId),
+  getFinaleImageJob: (currentGameId, jobId) => gamesApi.getFinaleImageJob(currentGameId, jobId),
 });
 const activeJobStatus = imagePolling.activeJobStatus;
 const artifacts = imagePolling.artifacts;
@@ -325,9 +337,6 @@ const selectedArtifact = computed(() => {
   }
   return artifacts.value[0] ?? null;
 });
-const selectedArtifactPreviewUrl = computed(() =>
-  selectedArtifact.value ? artifactPreviewUrls.value[selectedArtifact.value.artifact_id] || '' : '',
-);
 const canGenerateImage = imagePolling.canGenerateImage;
 const isImageGeneratingCombined = imagePolling.isImageGeneratingCombined;
 const shouldShowImageLoader = imagePolling.shouldShowImageLoader;
@@ -351,9 +360,16 @@ function resolveBackendErrorMessage(error: unknown): string {
   return detail || (error instanceof Error ? error.message : t('error.generic'));
 }
 
-async function loadFinaleState(options: { resumePolling?: boolean } = {}): Promise<void> {
+async function loadFinaleState(
+  options: { resumePolling?: boolean; background?: boolean } = {},
+): Promise<void> {
   if (!gameId.value) return;
-  isLoading.value = true;
+
+  // Показываем глобальный лоадер только если данных еще нет и это не фоновое обновление
+  if (!finaleState.value && !options.background) {
+    isLoading.value = true;
+  }
+
   errorMessage.value = '';
   try {
     const [state, game] = await Promise.all([
@@ -362,7 +378,10 @@ async function loadFinaleState(options: { resumePolling?: boolean } = {}): Promi
     ]);
     finaleState.value = state;
     gameData.value = game;
-    await refreshArtifactPreviews();
+
+    // Запускаем предзагрузку артефактов в фоновом режиме (без await)
+    void refreshArtifactPreviews();
+
     if (options.resumePolling !== false) {
       imagePolling.resumeIfNeeded();
     }
@@ -371,6 +390,10 @@ async function loadFinaleState(options: { resumePolling?: boolean } = {}): Promi
   } finally {
     isLoading.value = false;
   }
+}
+
+function retryLoadFinaleState(): void {
+  void loadFinaleState();
 }
 
 async function generateSummary(): Promise<void> {
@@ -420,7 +443,7 @@ function clearArtifactPreviews(): void {
   artifactPreviewUrls.value = {};
 }
 
-async function refreshArtifactPreviews(): Promise<void> {
+function refreshArtifactPreviews(): void {
   const currentArtifacts = artifacts.value;
   if (currentArtifacts.length === 0) {
     clearArtifactPreviews();
@@ -434,6 +457,7 @@ async function refreshArtifactPreviews(): Promise<void> {
     return;
   }
 
+  // Инициализируем selectedArtifactId сразу
   if (
     selectedArtifactId.value === null ||
     !currentArtifacts.some((artifact) => artifact.artifact_id === selectedArtifactId.value)
@@ -450,32 +474,34 @@ async function refreshArtifactPreviews(): Promise<void> {
     }
   }
 
-  for (const artifact of currentArtifacts) {
-    if (artifactPreviewUrls.value[artifact.artifact_id]) continue;
-    if (!artifactPreviewRequests.has(artifact.artifact_id)) {
-      artifactPreviewRequests.set(
-        artifact.artifact_id,
-        (async () => {
-          try {
-            const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
-            if (!artifacts.value.some((item) => item.artifact_id === artifact.artifact_id)) {
-              return;
-            }
-            artifactPreviewUrls.value[artifact.artifact_id] = URL.createObjectURL(blob);
-          } catch (error) {
-            console.warn('Failed to preload finale artifact preview', {
-              gameId: gameId.value,
-              artifactId: artifact.artifact_id,
-              error,
-            });
-          } finally {
-            artifactPreviewRequests.delete(artifact.artifact_id);
-          }
-        })(),
-      );
+  // Запускаем все запросы на загрузку параллельно
+  currentArtifacts.forEach((artifact) => {
+    if (artifactPreviewUrls.value[artifact.artifact_id]) return;
+    if (artifactPreviewRequests.has(artifact.artifact_id)) {
+      return;
     }
-    await artifactPreviewRequests.get(artifact.artifact_id);
-  }
+
+    const promise = (async () => {
+      try {
+        const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
+        // Проверяем, что артефакт все еще актуален
+        if (!artifacts.value.some((item) => item.artifact_id === artifact.artifact_id)) {
+          return;
+        }
+        artifactPreviewUrls.value[artifact.artifact_id] = URL.createObjectURL(blob);
+      } catch (error) {
+        console.warn('Failed to preload finale artifact preview', {
+          gameId: gameId.value,
+          artifactId: artifact.artifact_id,
+          error,
+        });
+      } finally {
+        artifactPreviewRequests.delete(artifact.artifact_id);
+      }
+    })();
+
+    artifactPreviewRequests.set(artifact.artifact_id, promise);
+  });
 }
 
 async function downloadCurrentArtifactViaBrowser(): Promise<void> {
@@ -493,12 +519,30 @@ async function downloadCurrentArtifactViaBrowser(): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
-function buildTelegramStoryLink(): { url: string; name: string } | undefined {
-  if (typeof window === 'undefined') return undefined;
+async function ensureReferralLink(): Promise<string> {
+  if (referralLink.value) return referralLink.value;
+  await userStore.fetchReferralProgram();
+  return userStore.referralProgram?.link || userStore.referralData?.link || '';
+}
+
+function buildTelegramStoryLink(url: string): { url: string; name: string } | undefined {
+  if (!url) return undefined;
   return {
-    url: window.location.href,
+    url,
     name: t('finale.share_story_link'),
   };
+}
+
+function buildShareText(): string {
+  return summary.value?.share_phrase || summary.value?.path_phrase || t('finale.share_title');
+}
+
+function buildNavigatorShareText(link: string): string {
+  const parts = [buildShareText()];
+  if (link) {
+    parts.push(link);
+  }
+  return parts.join('\n\n');
 }
 
 async function downloadCurrentArtifact(): Promise<void> {
@@ -567,6 +611,7 @@ async function shareCurrentArtifact(): Promise<void> {
       });
 
       if (actionId === 'story' && telegram.tg.shareToStory) {
+        const storyReferralLink = await ensureReferralLink();
         const storyParams: {
           text?: string;
           widget_link?: {
@@ -574,9 +619,11 @@ async function shareCurrentArtifact(): Promise<void> {
             name?: string;
           };
         } = {
-          text: summary.value?.path_phrase || t('finale.share_title'),
+          text: buildShareText(),
         };
-        const storyLink = buildTelegramStoryLink();
+        const storyLink = buildTelegramStoryLink(
+          storyReferralLink || (typeof window !== 'undefined' ? window.location.href : ''),
+        );
         if (storyLink) {
           storyParams.widget_link = storyLink;
         }
@@ -600,11 +647,12 @@ async function shareCurrentArtifact(): Promise<void> {
 
     const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
     const file = new File([blob], artifact.file_name, { type: artifact.mime_type });
+    const shareReferralLink = await ensureReferralLink();
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       await navigator.share({
         files: [file],
         title: t('finale.share_title'),
-        text: summary.value?.path_phrase || summary.value?.mentor_text || '',
+        text: buildNavigatorShareText(shareReferralLink),
       });
       return;
     }
