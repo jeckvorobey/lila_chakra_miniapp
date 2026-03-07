@@ -1,0 +1,1 @@
+import{aW as m}from"./index-CEC1CHGU.js";import{u as r}from"./settings.store-BeBV0n9u.js";function g(){const e=r(),{theme:t,isDark:s,isLight:o}=m(e);return{themeMode:t,isDark:s,isLight:o,setTheme:e.setTheme,toggleTheme:e.toggleTheme}}export{g as u};
