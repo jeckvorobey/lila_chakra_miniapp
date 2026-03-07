@@ -3,7 +3,13 @@
     class="column"
     style="background: var(--color-background)"
   >
+    <l-page-skeleton
+      v-if="isMeditationAudioLoading"
+      variant="meditation"
+    />
+
     <div
+      v-else
       class="col column flex-center"
       style="padding: var(--layout-gap)"
     >
@@ -55,6 +61,7 @@ import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import LAudioPlayer from 'src/components/base/LAudioPlayer.vue';
+import LPageSkeleton from 'src/components/common/LPageSkeleton.vue';
 import { useGameStore } from 'src/stores/game.store';
 import type { MeditationAudioType } from 'src/types/audio.interface';
 
@@ -117,7 +124,7 @@ const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
 const gameStore = useGameStore();
-const { meditationAudioUrl, meditationAudioError } = storeToRefs(gameStore);
+const { meditationAudioUrl, meditationAudioError, isMeditationAudioLoading } = storeToRefs(gameStore);
 
 const isEntry = computed(() => route.params.type === 'entry');
 const meditationSteps = computed<MeditationStep[]>(() =>

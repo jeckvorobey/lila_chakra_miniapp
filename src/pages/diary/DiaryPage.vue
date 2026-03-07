@@ -1,8 +1,13 @@
 <template>
   <q-page class="diary-page lila-page-nav-offset">
+    <l-page-skeleton
+      v-if="isLoading"
+      variant="diary-list"
+    />
+
     <!-- Список игр -->
     <q-list
-      v-if="orderedGames.length > 0"
+      v-else-if="orderedGames.length > 0"
       class="q-gutter-sm"
     >
       <q-card
@@ -110,6 +115,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import LPageSkeleton from 'src/components/common/LPageSkeleton.vue';
 import { useGameStore } from 'src/stores/game.store';
 import { gamesApi } from 'src/services/api';
 import type { GameBrief, GameStatus } from 'src/types/game.interface';

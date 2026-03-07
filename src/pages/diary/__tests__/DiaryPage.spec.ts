@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
+import { nextTick } from 'vue';
 import DiaryPage from '../DiaryPage.vue';
 
 const { mockRouterPush, mockGamesList, mockLoadGame } = vi.hoisted(() => ({
@@ -24,6 +25,12 @@ vi.mock('src/stores/game.store', () => ({
 vi.mock('src/services/api', () => ({
   gamesApi: {
     list: mockGamesList,
+  },
+}));
+
+vi.mock('src/components/common/LPageSkeleton.vue', () => ({
+  default: {
+    template: '<div data-testid="page-skeleton" />',
   },
 }));
 
@@ -107,5 +114,55 @@ describe('DiaryPage', () => {
 
     expect(mockLoadGame).toHaveBeenCalledWith(7);
     expect(mockRouterPush).toHaveBeenCalledWith('/game/final/7');
+  });
+
+  it('показывает skeleton пока загружается список игр', async () => {
+    let resolveList: ((value: unknown) => void) | null = null;
+    mockGamesList.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveList = resolve;
+        }),
+    );
+
+    const i18n = createI18n({
+      legacy: false,
+      locale: 'en-US',
+      missingWarn: false,
+      fallbackWarn: false,
+      messages: {
+        'en-US': {},
+      },
+    });
+
+    const wrapper = mount(DiaryPage, {
+      global: {
+        plugins: [i18n],
+        stubs: {
+          'q-page': { template: '<div><slot /></div>' },
+          'q-list': { template: '<div><slot /></div>' },
+          'q-card': { template: '<div><slot /></div>' },
+          'q-card-section': { template: '<div><slot /></div>' },
+          'q-badge': { template: '<div><slot /></div>' },
+          'q-space': { template: '<div />' },
+          'q-tooltip': { template: '<div><slot /></div>' },
+          'q-chip': { template: '<div><slot /></div>' },
+          'q-icon': { template: '<i />' },
+          'q-btn': QBtnStub,
+        },
+      },
+    });
+
+    await nextTick();
+    expect(wrapper.find('[data-testid="page-skeleton"]').exists()).toBe(true);
+
+    resolveList?.({
+      items: [],
+      total: 0,
+      offset: 0,
+      limit: 20,
+      has_more: false,
+    });
+    await flushPromises();
   });
 });

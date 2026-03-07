@@ -1,7 +1,12 @@
 <template>
   <q-page class="column no-wrap full-height q-pa-sm">
+    <l-page-skeleton
+      v-if="isRestoringGame"
+      variant="game-home"
+    />
+
     <!-- Нет активной игры -->
-    <l-game-empty-state v-if="showEmptyState" />
+    <l-game-empty-state v-else-if="showEmptyState" />
 
     <!-- Активная игра -->
     <l-game-active-state
@@ -15,6 +20,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useGameStore } from 'src/stores/game.store';
 import { LGameActiveState, LGameEmptyState } from 'src/components/game';
+import LPageSkeleton from 'src/components/common/LPageSkeleton.vue';
 
 const gameStore = useGameStore();
 const isRestoringGame = ref(false);

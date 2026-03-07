@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { shallowMount } from '@vue/test-utils';
+import { mount, shallowMount } from '@vue/test-utils';
 
 import MeditationPage from 'src/pages/game/MeditationPage.vue';
 import { useGameStore } from 'src/stores/game.store';
@@ -46,6 +46,12 @@ vi.mock('src/services/api', () => ({
   },
   movesApi: {
     saveInsight: vi.fn(),
+  },
+}));
+
+vi.mock('src/components/common/LPageSkeleton.vue', () => ({
+  default: {
+    template: '<div data-testid="page-skeleton" />',
   },
 }));
 
@@ -116,6 +122,39 @@ describe('MeditationPage', () => {
 
     expect(completeEntrySpy).toHaveBeenCalledOnce();
     expect(mockRouterPush).toHaveBeenCalledWith('/game');
+  });
+
+  it('показывает skeleton пока загружается аудио медитации', async () => {
+    const store = useGameStore();
+    store.isMeditationAudioLoading = true;
+    vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
+
+    const wrapper = mount(MeditationPage, {
+      global: {
+        stubs: {
+          'q-page': {
+            template: '<div><slot /></div>',
+          },
+          'q-card': {
+            template: '<div><slot /></div>',
+          },
+          'q-card-section': {
+            template: '<div><slot /></div>',
+          },
+          'q-btn': {
+            template: '<button @click="$emit(\'click\')"><slot /></button>',
+            props: ['loading'],
+          },
+          LAudioPlayer: true,
+        },
+        mocks: {
+          $t: (key: string) => key,
+        },
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="page-skeleton"]').exists()).toBe(true);
   });
 
   it('для entry показывает список шагов без нумерации', async () => {
