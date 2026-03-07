@@ -32,6 +32,7 @@ vi.mock('src/boot/axios', () => ({
 import { useAuthStore } from '../auth.store';
 
 const TOKEN_KEY = 'lila-auth-token';
+const TELEGRAM_USER_ID_KEY = 'lila-auth-telegram-user-id';
 
 // Mock BroadcastChannel
 class MockBroadcastChannel {
@@ -85,6 +86,21 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
       clear: vi.fn(() => {
         Object.keys(storageMock).forEach((key) => delete storageMock[key]);
       }),
+    });
+
+    vi.stubGlobal('window', {
+      Telegram: {
+        WebApp: {
+          initData: 'hash=telegram',
+          initDataUnsafe: {
+            user: {
+              id: 123456,
+              first_name: 'Test',
+              username: 'test_user',
+            },
+          },
+        },
+      },
     });
 
     // Сбрасываем api headers
@@ -228,6 +244,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
 
       // Устанавливаем токен в localStorage для loadToken()
       localStorage.setItem(TOKEN_KEY, 'test-jwt-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '123456');
 
       // init() вызывает loadToken() и listenForLogout()
       await store.init();
@@ -249,14 +266,73 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
       global.BroadcastChannel = undefined as unknown as typeof BroadcastChannel;
 
       const store = useAuthStore();
+      vi.mocked(mockApi.post).mockResolvedValueOnce({
+        data: {
+          access_token: 'fresh-token',
+          is_new_user: false,
+        },
+      });
 
       // init() не должна бросать исключение
       await expect(store.init()).resolves.not.toThrow();
     });
 
+    it('should clear stale token when telegram user changed', async () => {
+      const store = useAuthStore();
+
+      localStorage.setItem(TOKEN_KEY, 'stale-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '999999');
+      (
+        window as typeof window & {
+          Telegram: { WebApp: { initData: string } };
+        }
+      ).Telegram.WebApp.initData = '';
+
+      await store.init();
+
+      expect(store.token).toBeNull();
+      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(TELEGRAM_USER_ID_KEY)).toBeNull();
+    });
+
+    it('should reauthenticate when saved token belongs to another telegram user', async () => {
+      const store = useAuthStore();
+
+      localStorage.setItem(TOKEN_KEY, 'stale-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '999999');
+      vi.mocked(mockApi.post).mockResolvedValueOnce({
+        data: {
+          access_token: 'fresh-token',
+          is_new_user: false,
+        },
+      });
+
+      await store.init();
+
+      expect(mockApi.post).toHaveBeenCalledWith('/auth/telegram', {
+        init_data: 'hash=telegram',
+      });
+      expect(store.token).toBe('fresh-token');
+      expect(localStorage.getItem(TOKEN_KEY)).toBe('fresh-token');
+      expect(localStorage.getItem(TELEGRAM_USER_ID_KEY)).toBe('123456');
+    });
+
+    it('should keep token when telegram user did not change', async () => {
+      const store = useAuthStore();
+
+      localStorage.setItem(TOKEN_KEY, 'same-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '123456');
+
+      await store.init();
+
+      expect(store.token).toBe('same-token');
+      expect(mockApi.post).not.toHaveBeenCalled();
+    });
+
     it('should ignore non-logout messages', async () => {
       const store = useAuthStore();
       localStorage.setItem(TOKEN_KEY, 'test-jwt-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '123456');
 
       await store.init();
 
@@ -277,6 +353,7 @@ describe('Auth Store - Logout & BroadcastChannel', () => {
       setActivePinia(pinia1);
       const store1 = useAuthStore();
       localStorage.setItem(TOKEN_KEY, 'tab1-token');
+      localStorage.setItem(TELEGRAM_USER_ID_KEY, '123456');
       await store1.init();
 
       // Tab 2

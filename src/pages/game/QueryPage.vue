@@ -31,7 +31,7 @@
 
       <!-- Выбор категории -->
       <div class="q-mb-md">
-        <div class="text-overline text-secondary q-mb-sm">
+        <div class="text-overline text-secondary q-mb-sm text-size-sm">
           {{ $t('query.category_title') }}
         </div>
         <div class="row q-gutter-sm">

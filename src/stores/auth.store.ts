@@ -10,6 +10,7 @@ import { authApi } from 'src/services/api';
 import type { TelegramUser } from 'src/types/telegram.interface';
 
 const TOKEN_KEY = 'lila-auth-token';
+const TELEGRAM_USER_ID_KEY = 'lila-auth-telegram-user-id';
 
 export const useAuthStore = defineStore('auth', () => {
   // Состояние
@@ -25,6 +26,67 @@ export const useAuthStore = defineStore('auth', () => {
     const tg = (window as { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp;
     return tg?.initData || null;
   });
+
+  /**
+   * Получить Telegram user id из WebApp SDK.
+   */
+  function getCurrentTelegramUserId(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const tg = (
+      window as {
+        Telegram?: {
+          WebApp?: {
+            initDataUnsafe?: { user?: TelegramUser };
+          };
+        };
+      }
+    ).Telegram?.WebApp;
+
+    const userId = tg?.initDataUnsafe?.user?.id;
+    return userId != null ? String(userId) : null;
+  }
+
+  /**
+   * Прочитать Telegram user id, для которого был выдан сохранённый токен.
+   */
+  function loadStoredTelegramUserId(): string | null {
+    if (typeof localStorage === 'undefined') return null;
+    const value = localStorage.getItem(TELEGRAM_USER_ID_KEY);
+    return value && value.trim().length > 0 ? value : null;
+  }
+
+  /**
+   * Сохранить Telegram user id текущей аутентифицированной сессии.
+   */
+  function saveTelegramUserId(userId: string | null): void {
+    if (typeof localStorage === 'undefined') return;
+
+    if (!userId) {
+      localStorage.removeItem(TELEGRAM_USER_ID_KEY);
+      return;
+    }
+
+    localStorage.setItem(TELEGRAM_USER_ID_KEY, userId);
+  }
+
+  /**
+   * Проверить, соответствует ли сохранённый JWT текущему Telegram-контексту.
+   * Если пользователь в Telegram сменился, старый JWT использовать нельзя.
+   */
+  function hasCompatibleTelegramContext(): boolean {
+    const currentTelegramUserId = getCurrentTelegramUserId();
+    if (!currentTelegramUserId) {
+      return true;
+    }
+
+    const storedTelegramUserId = loadStoredTelegramUserId();
+    if (!storedTelegramUserId) {
+      return false;
+    }
+
+    return storedTelegramUserId === currentTelegramUserId;
+  }
 
   // Действия
 
@@ -48,6 +110,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(TOKEN_KEY, newToken);
     }
+    saveTelegramUserId(getCurrentTelegramUserId());
     api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   }
 
@@ -59,6 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
     }
+    saveTelegramUserId(null);
     delete api.defaults.headers.common['Authorization'];
   }
 
@@ -177,6 +241,10 @@ export const useAuthStore = defineStore('auth', () => {
     loadToken();
     initTelegramUser();
     listenForLogout();
+
+    if (token.value && !hasCompatibleTelegramContext()) {
+      clearToken();
+    }
 
     // Автоматическая аутентификация если есть initData, но нет токена
     if (initData.value && !token.value) {
