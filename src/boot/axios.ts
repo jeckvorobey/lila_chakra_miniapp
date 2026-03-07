@@ -116,6 +116,9 @@ export default defineBoot(({ app, router }) => {
       headers.set('X-Telegram-Init-Data', telegramInitData);
     }
 
+    // Обязательный заголовок для localtunnel, чтобы избежать страницы-заглушки ("Bypass this screen")
+    headers.set('bypass-tunnel-reminder', 'true');
+
     // Предотвращение агрессивного кэширования GET-запросов (особенно в Telegram Web App на мобильных)
     if (config.method?.toLowerCase() === 'get') {
       config.params = {
