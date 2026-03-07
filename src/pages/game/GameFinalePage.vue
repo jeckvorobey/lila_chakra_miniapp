@@ -143,33 +143,27 @@
             </div>
 
             <div
-              v-if="artifacts.length > 0"
+              v-if="hasAnyArtifactPreview"
               class="q-mt-sm"
             >
               <q-carousel
-                v-if="artifacts.length > 1"
                 v-model="selectedArtifactId"
                 animated
-                arrows
-                swipeable
-                infinite
+                :arrows="artifacts.length > 1"
+                :swipeable="artifacts.length > 1"
+                :infinite="artifacts.length > 1"
                 v-model:fullscreen="fullscreen"
               >
                 <q-carousel-slide
                   v-for="artifact in artifacts"
                   :key="artifact.artifact_id"
                   :name="artifact.artifact_id"
-                  class="q-pa-none overflow-hidden"
-                >
-                  <img
-                    :src="artifactPreviewUrls[artifact.artifact_id]"
-                    class="full-width full-height rounded-borders"
-                    alt="Finale art"
-                    style="object-fit: cover"
-                  />
-                </q-carousel-slide>
+                  :img-src="artifactPreviewUrls[artifact.artifact_id]"
+                  class="q-pa-none overflow-hidden finale-art-slide"
+                  :class="{ 'finale-art-slide--fullscreen': fullscreen }"
+                />
 
-                <template v-slot:control>
+                <template v-if="artifacts.length > 1" v-slot:control>
                   <q-carousel-control
                     position="bottom-right"
                     :offset="[18, 18]"
@@ -196,6 +190,12 @@
                 <l-ai-loader :text="t('finale.image_generation_wait')" />
               </div>
               <div
+                v-else-if="isArtifactPreviewLoading"
+                class="column items-center"
+              >
+                <l-ai-loader :text="t('finale.image_generation_wait')" />
+              </div>
+              <div
                 v-else-if="pollingInterrupted"
                 class="column items-start q-gutter-y-sm"
               >
@@ -216,7 +216,7 @@
               >
                 {{ t('finale.image_failed') }}
               </span>
-              <span v-else-if="artifacts.length > 0">
+              <span v-else-if="hasAnyArtifactPreview">
                 {{ t('finale.image_ready') }}
               </span>
               <span v-else>
@@ -296,6 +296,7 @@ const artifactPreviewUrls = ref<Record<number, string>>({});
 const selectedArtifactId = ref<number | null>(null);
 const fullscreen = ref(false);
 const artifactPreviewRequests = new Map<number, Promise<void>>();
+const pendingArtifactPreviewCount = ref(0);
 
 const gameId = computed(() => Number(route.params.gameId || 0));
 const summary = computed<GameFinaleSummary | null>(() => finaleState.value?.summary ?? null);
@@ -323,6 +324,12 @@ const selectedArtifact = computed(() => {
   }
   return artifacts.value[0] ?? null;
 });
+const hasAnyArtifactPreview = computed(() =>
+  artifacts.value.some((artifact) => Boolean(artifactPreviewUrls.value[artifact.artifact_id])),
+);
+const isArtifactPreviewLoading = computed(
+  () => artifacts.value.length > 0 && !hasAnyArtifactPreview.value && pendingArtifactPreviewCount.value > 0,
+);
 const canGenerateImage = imagePolling.canGenerateImage;
 const isImageGeneratingCombined = imagePolling.isImageGeneratingCombined;
 const shouldShowImageLoader = imagePolling.shouldShowImageLoader;
@@ -427,6 +434,7 @@ async function recoverImagePolling(): Promise<void> {
 function clearArtifactPreviews(): void {
   Object.values(artifactPreviewUrls.value).forEach((url) => URL.revokeObjectURL(url));
   artifactPreviewUrls.value = {};
+  pendingArtifactPreviewCount.value = 0;
 }
 
 function refreshArtifactPreviews(): void {
@@ -468,6 +476,7 @@ function refreshArtifactPreviews(): void {
     }
 
     const promise = (async () => {
+      pendingArtifactPreviewCount.value += 1;
       try {
         const blob = await gamesApi.downloadFinaleImage(gameId.value, artifact.artifact_id);
         // Проверяем, что артефакт все еще актуален
@@ -482,6 +491,7 @@ function refreshArtifactPreviews(): void {
           error,
         });
       } finally {
+        pendingArtifactPreviewCount.value = Math.max(0, pendingArtifactPreviewCount.value - 1);
         artifactPreviewRequests.delete(artifact.artifact_id);
       }
     })();
@@ -665,11 +675,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-.finale-art-image {
+.finale-art-slide {
   border-radius: 16px;
+  min-height: 320px;
 }
 
-.finale-art-image--fullscreen {
+.finale-art-slide--fullscreen {
   border-radius: 0;
 }
 

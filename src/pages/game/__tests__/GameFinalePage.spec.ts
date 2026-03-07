@@ -157,9 +157,16 @@ function mountPage() {
         'q-carousel': {
           template: '<div><slot /><slot name="control" /></div>',
         },
-        'q-carousel-slide': {
-          template: '<div><slot /></div>',
-        },
+        'q-carousel-slide': defineComponent({
+          name: 'QCarouselSlideStub',
+          props: {
+            imgSrc: {
+              type: String,
+              default: '',
+            },
+          },
+          template: '<div :data-img-src="imgSrc"><slot /></div>',
+        }),
         'q-carousel-control': {
           template: '<div><slot /></div>',
         },
@@ -383,6 +390,46 @@ describe('GameFinalePage', () => {
     expect(mockDownloadFinaleImage).toHaveBeenCalledWith(42, 26);
   });
 
+  it('показывает одиночный слайд, когда доступен один артефакт', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+
+    const wrapper = mountPage();
+    await flushPromises();
+    await flushPromises();
+
+    const slide = wrapper.find('[data-img-src^="blob:"]');
+    expect(slide.exists()).toBe(true);
+    expect(wrapper.text()).toContain('finale.image_ready');
+  });
+
+  it('пока preview артефакта не скачан, не показывает статус готовности', async () => {
+    mockGetFinaleState.mockResolvedValue({
+      ...buildFinaleState(),
+      image: {
+        artifacts: [buildArtifact(26)],
+        latest_artifact: buildArtifact(26),
+        active_job: null,
+        free_generations_left: 0,
+      },
+    });
+    mockDownloadFinaleImage.mockImplementation(() => new Promise(() => undefined));
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    expect(wrapper.text()).not.toContain('finale.image_ready');
+    expect(wrapper.text()).toContain('finale.image_generation_wait');
+    expect(wrapper.find('[data-img-src]').exists()).toBe(false);
+  });
+
   it('не падает при 404 на автопредзагрузке превью', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     mockGetFinaleState.mockResolvedValue({
@@ -411,7 +458,7 @@ describe('GameFinalePage', () => {
     mockGetFinaleState.mockResolvedValue({
       ...buildFinaleState(),
       image: {
-        artifacts: [buildArtifact(26)],
+        artifacts: [buildArtifact(26), buildArtifact(27)],
         latest_artifact: buildArtifact(26),
         active_job: null,
         free_generations_left: 0,
@@ -430,7 +477,7 @@ describe('GameFinalePage', () => {
     await fullscreenButton?.trigger('click');
     await flushPromises();
 
-    expect(wrapper.html()).toContain('finale-art-image--fullscreen');
+    expect(wrapper.html()).toContain('finale-art-slide--fullscreen');
   });
 
   it('при ошибке polling останавливает loader и показывает recover-кнопку', async () => {
