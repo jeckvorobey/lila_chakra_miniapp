@@ -163,7 +163,7 @@
                   :class="{ 'finale-art-slide--fullscreen': fullscreen }"
                 />
 
-                <template v-if="artifacts.length > 1" v-slot:control>
+                <template v-if="artifacts.length" v-slot:control>
                   <q-carousel-control
                     position="bottom-right"
                     :offset="[18, 18]"
