@@ -1,4 +1,5 @@
-import { api, buildApiResourceUrl } from 'src/boot/axios';
+import { api } from 'src/boot/axios';
+import { apiFetch } from './fetch';
 import type {
   AIHistoryResponse,
   ClarificationHistoryResponse,
@@ -339,19 +340,15 @@ export const gamesApi = {
     question: string,
     signal?: AbortSignal,
   ): AsyncGenerator<ClarificationStreamEvent> {
-    const authorizationHeader = api.defaults.headers.common['Authorization'];
-    const url = buildApiResourceUrl(`/ai/games/${gameId}/clarify/stream`);
-    const requestInit: RequestInit = {
+    const response = await apiFetch(`/ai/games/${gameId}/clarify/stream`, {
       method: 'POST',
       headers: {
         Accept: 'text/event-stream',
         'Content-Type': 'application/json',
-        ...(typeof authorizationHeader === 'string' ? { Authorization: authorizationHeader } : {}),
       },
       body: JSON.stringify({ question }),
       ...(signal ? { signal } : {}),
-    };
-    const response = await fetch(url, requestInit);
+    });
 
     if (!response.ok) {
       let detail = 'errors.ai_clarification_generation_failed';
@@ -414,17 +411,13 @@ export const gamesApi = {
     jobId: string,
     signal?: AbortSignal,
   ): AsyncGenerator<FinaleImageStreamEvent> {
-    const authorizationHeader = api.defaults.headers.common['Authorization'];
-    const url = buildApiResourceUrl(`/games/${gameId}/finale/image/jobs/${jobId}/stream`);
-    const requestInit: RequestInit = {
+    const response = await apiFetch(`/games/${gameId}/finale/image/jobs/${jobId}/stream`, {
       method: 'GET',
       headers: {
         Accept: 'text/event-stream',
-        ...(typeof authorizationHeader === 'string' ? { Authorization: authorizationHeader } : {}),
       },
       ...(signal ? { signal } : {}),
-    };
-    const response = await fetch(url, requestInit);
+    });
 
     if (!response.ok) {
       let detail = 'errors.ai_internal_error';

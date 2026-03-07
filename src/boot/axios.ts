@@ -62,6 +62,28 @@ function getTelegramInitData(): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function getAuthorizationHeader(): string | null {
+  const authorizationHeader = api.defaults.headers.common['Authorization'];
+  return typeof authorizationHeader === 'string' && authorizationHeader.trim().length > 0
+    ? authorizationHeader
+    : null;
+}
+
+export function buildApiFetchHeaders(headers?: HeadersInit): Headers {
+  const result = new Headers(headers);
+  const authorizationHeader = getAuthorizationHeader();
+  if (authorizationHeader && !result.has('Authorization')) {
+    result.set('Authorization', authorizationHeader);
+  }
+
+  const telegramInitData = getTelegramInitData();
+  if (telegramInitData && !result.has('X-Telegram-Init-Data')) {
+    result.set('X-Telegram-Init-Data', telegramInitData);
+  }
+
+  return result;
+}
+
 export function buildApiResourceUrl(path: string): string {
   const trimmedPath = path.trim();
   if (/^https?:\/\//.test(trimmedPath)) {
@@ -87,10 +109,10 @@ export default defineBoot(({ app, router }) => {
   const authStore = useAuthStore();
 
   api.interceptors.request.use((config) => {
-    const initData = getTelegramInitData();
-    if (initData) {
+    const telegramInitData = getTelegramInitData();
+    if (telegramInitData) {
       const headers = AxiosHeaders.from(config.headers);
-      headers.set('X-Telegram-Init-Data', initData);
+      headers.set('X-Telegram-Init-Data', telegramInitData);
       config.headers = headers;
     }
     return config;
