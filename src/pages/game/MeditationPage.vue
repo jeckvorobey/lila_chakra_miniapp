@@ -35,7 +35,29 @@
         </q-card-section>
       </q-card>
 
+      <q-card
+        v-if="meditationAudioError"
+        flat
+        bordered
+        class="bg-surface meditation-page__audio-error q-mt-md"
+      >
+        <q-card-section class="column items-center q-gutter-sm">
+          <div class="text-body2 text-negative text-center">
+            {{ meditationAudioError }}
+          </div>
+
+          <q-btn
+            :label="'Загрузить'"
+            color="primary"
+            no-caps
+            :loading="isMeditationAudioLoading"
+            @click="retryMeditationAudioLoad"
+          />
+        </q-card-section>
+      </q-card>
+
       <l-audio-player
+        v-else
         :audio-url="meditationAudioUrl"
         :title="$t(isEntry ? 'meditation.entry_title' : 'meditation.exit_title')"
         class="q-mt-md"
@@ -196,6 +218,10 @@ async function loadMeditationAudio(): Promise<void> {
   }
 }
 
+async function retryMeditationAudioLoad(): Promise<void> {
+  await loadMeditationAudio();
+}
+
 onMounted(() => {
   void loadMeditationAudio();
 });
@@ -214,6 +240,11 @@ watch(
 
 <style scoped lang="scss">
 .meditation-page__steps {
+  width: 100%;
+  max-width: 720px;
+}
+
+.meditation-page__audio-error {
   width: 100%;
   max-width: 720px;
 }

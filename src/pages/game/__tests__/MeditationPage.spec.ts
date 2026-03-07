@@ -68,6 +68,9 @@ function mountPage() {
         'q-card-section': {
           template: '<div><slot /></div>',
         },
+        'q-card-actions': {
+          template: '<div><slot /></div>',
+        },
         'q-list': {
           template: '<div><slot /></div>',
         },
@@ -84,8 +87,8 @@ function mountPage() {
           template: '<i />',
         },
         'q-btn': {
-          template: `<button @click="$emit('click')"><slot /></button>`,
-          props: ['loading'],
+          template: `<button @click="$emit('click')">{{ label }}<slot /></button>`,
+          props: ['loading', 'label'],
         },
         LAudioPlayer: true,
       },
@@ -142,8 +145,8 @@ describe('MeditationPage', () => {
             template: '<div><slot /></div>',
           },
           'q-btn': {
-            template: '<button @click="$emit(\'click\')"><slot /></button>',
-            props: ['loading'],
+            template: '<button @click="$emit(\'click\')">{{ label }}<slot /></button>',
+            props: ['loading', 'label'],
           },
           LAudioPlayer: true,
         },
@@ -224,5 +227,26 @@ describe('MeditationPage', () => {
 
     expect(mockNotify).toHaveBeenCalled();
     expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('при ошибке загрузки аудио показывает кнопку повторной загрузки', async () => {
+    const store = useGameStore();
+    store.meditationAudioError = 'Не удалось загрузить аудио медитации';
+    const loadSpy = vi.spyOn(store, 'loadMeditationAudio').mockResolvedValue();
+
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const buttons = wrapper.findAll('button');
+    const retryButton = buttons.find((button) => button.text().includes('Загрузить'));
+    const initialLoadCalls = loadSpy.mock.calls.length;
+    expect(buttons).toHaveLength(2);
+    expect(wrapper.text()).toContain('Не удалось загрузить аудио медитации');
+    expect(retryButton?.text()).toContain('Загрузить');
+
+    await retryButton!.trigger('click');
+    await flushPromises();
+
+    expect(loadSpy).toHaveBeenCalledTimes(initialLoadCalls + 1);
   });
 });
